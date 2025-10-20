@@ -11,7 +11,7 @@ import SwiftUI
 struct Mod_GarageApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SplashScreenView()
         }
     }
 }

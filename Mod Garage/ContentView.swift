@@ -7,18 +7,33 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct SplashScreenView: View {
+    @Environment(\.colorScheme) var colorScheme
+    @State private var isActive = false
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ZStack {
+            VStack(spacing: 20) {
+                Image("Logo Light 1")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 180, height: 180)
+            }
+            .opacity(isActive ? 0 : 1)
+            .animation(.easeOut(duration: 0.5), value: isActive)
         }
-        .padding()
+        .onAppear {
+            // Timer to transition away after 5 seconds (for testing)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                withAnimation {
+                    isActive = true
+                }
+            }
+        }
     }
 }
 
 #Preview {
-    ContentView()
+    SplashScreenView()
 }
+
