@@ -14,7 +14,7 @@ struct SplashScreenView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 20) {
-                Image("Logo Light 1")
+                Image("AdaptiveLaunch")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 180, height: 180)
@@ -23,8 +23,8 @@ struct SplashScreenView: View {
             .animation(.easeOut(duration: 0.5), value: isActive)
         }
         .onAppear {
-            // Timer to transition away after 5 seconds (for testing)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            // Timer to transition away after 3 seconds 
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 withAnimation {
                     isActive = true
                 }
@@ -36,4 +36,3 @@ struct SplashScreenView: View {
 #Preview {
     SplashScreenView()
 }
-
