@@ -12,21 +12,26 @@ struct SplashScreenView: View {
     @State private var isActive = false
 
     var body: some View {
-        ZStack {
-            VStack(spacing: 20) {
-                Image("AdaptiveLaunch")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 180, height: 180)
-            }
-            .opacity(isActive ? 0 : 1)
-            .animation(.easeOut(duration: 0.5), value: isActive)
+        if isActive {
+            AuthView()
         }
-        .onAppear {
-            // Timer to transition away after 3 seconds 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                withAnimation {
-                    isActive = true
+        else{
+            ZStack {
+                VStack(spacing: 20) {
+                    Image("AdaptiveLaunch")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 180, height: 180)
+                }
+                .opacity(isActive ? 0 : 1)
+                .animation(.easeOut(duration: 0.5), value: isActive)
+            }
+            .onAppear {
+                // Timer to transition away after 3 seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation {
+                        isActive = true
+                    }
                 }
             }
         }
