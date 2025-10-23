@@ -6,10 +6,25 @@
 //
 
 import SwiftUI
+import Firebase
+import FirebaseAuth
 
 struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
+    @State private var isUserLoggedIn = false
+    
+    func login() {
+        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print(error.localizedDescription)
+                return
+            }
+            // Successfully signed in; present the main app UI
+            isUserLoggedIn = true
+        }
+    }
+    
 
     var body: some View {
         VStack(spacing: 16) {
@@ -25,9 +40,9 @@ struct LoginView: View {
             SecureField("Password", text: $password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
 
-            Button(action: {
-                print("Login tapped")
-            }) {
+            Button{
+                login()
+            } label: {
                 Text("Log In")
                     .frame(maxWidth: 250)
                     .padding()
@@ -36,6 +51,9 @@ struct LoginView: View {
                     .cornerRadius(30)
             }
             .padding(.top, 10)
+        }
+        .fullScreenCover(isPresented: $isUserLoggedIn) {
+            MainAppView()
         }
     }
 }
