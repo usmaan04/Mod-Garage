@@ -33,7 +33,7 @@ fastlane/test_output
 
 # --- Firebase / API / Secrets ---
 Secrets.xcconfig
-*GoogleService-Info.plist
+**GoogleService-Info.plist
 *.pem
 *.p12
 *.key
