@@ -8,21 +8,27 @@
 import SwiftUI
 
 struct AuthView: View {
+    // Binding to track if the user is logged in or not
+    // State to toggle whether to show login or signup view
+    @Binding var isUserLoggedIn: Bool
     @State private var showLogin = true
 
     var body: some View {
+        // Main container for the authentication view
         NavigationStack {
             VStack(spacing: 20) {
                 Text(showLogin ? "Welcome Back" : "Create Account")
                     .font(.largeTitle.bold())
-                    .padding(.top, 40)
+                    .padding(.top, 20)
 
+                // Show LoginView or SignUpView based on passed boolean
                 if showLogin {
-                    LoginView()
+                    LoginView(isUserLoggedIn: $isUserLoggedIn)
                 } else {
-                    SignUpView()
+                    SignUpView(isUserLoggedIn: $isUserLoggedIn)
                 }
 
+                // Button to toggle between login and signup views
                 Button(action: {
                     withAnimation {
                         showLogin.toggle()
@@ -39,7 +45,7 @@ struct AuthView: View {
     }
 }
 
-
+// Preview for Development
 #Preview {
-    AuthView()
+    AuthView(isUserLoggedIn: .constant(false))
 }

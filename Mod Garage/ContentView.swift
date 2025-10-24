@@ -8,14 +8,12 @@
 import SwiftUI
 
 struct SplashScreenView: View {
-    @Environment(\.colorScheme) var colorScheme
     @State private var isActive = false
 
     var body: some View {
         if isActive {
-            AuthView()
-        }
-        else{
+            AppView()
+        } else {
             ZStack {
                 VStack(spacing: 20) {
                     Image("AdaptiveLaunch")
@@ -27,8 +25,7 @@ struct SplashScreenView: View {
                 .animation(.easeOut(duration: 0.5), value: isActive)
             }
             .onAppear {
-                // Timer to transition away after 3 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
                     withAnimation {
                         isActive = true
                     }
