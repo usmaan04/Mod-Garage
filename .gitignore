@@ -1,0 +1,76 @@
+# ============================
+# Swift / Xcode / Firebase .gitignore
+# ============================
+
+# --- Xcode build files ---
+DerivedData/
+build/
+*.xcuserstate
+*.xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserdatad
+*.xcscmblueprint
+
+# --- Swift Package Manager ---
+/.build/
+/Packages/
+/Package.resolved
+
+# --- CocoaPods ---
+Pods/
+Podfile.lock
+
+# --- Carthage ---
+Carthage/
+Carthage/Build/
+
+# --- Fastlane ---
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# --- Firebase / API / Secrets ---
+Secrets.xcconfig
+GoogleService-Info.plist
+*.pem
+*.p12
+*.key
+*.mobileprovision
+
+# --- User-specific files ---
+*.swp
+*.swo
+*.orig
+*.rej
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcworkspace/xcuserdata/
+
+# --- macOS System files ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- Logs ---
+*.log
+
+# --- Firebase Crashlytics ---
+.crashlytics-build.properties
+firebase_app_id_file.json
+
+# --- Environment / Config files ---
+.env
+.env.local
+.env.*.local
+
+# --- Xcode Preview Thumbnails ---
+*.xcpreviewassets/
