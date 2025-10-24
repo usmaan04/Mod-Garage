@@ -8,7 +8,7 @@
 import SwiftUI
 import FirebaseAuth
 
-struct MainAppView: View {
+struct HomeView: View {
     // Binding to track if the user is logged in or not
     @Binding var isUserLoggedIn: Bool
 

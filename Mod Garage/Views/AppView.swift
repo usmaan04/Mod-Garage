@@ -18,7 +18,7 @@ struct AppView: View {
         // Show relevant view based on login state
         Group {
             if isUserLoggedIn {
-                MainAppView(isUserLoggedIn: $isUserLoggedIn)
+                HomeView(isUserLoggedIn: $isUserLoggedIn)
                     .transition(.opacity)
             } else {
                 // Show authentication view when logged out
