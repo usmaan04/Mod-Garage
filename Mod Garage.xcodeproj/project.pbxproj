@@ -7,19 +7,30 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C497CDE32EABC72400D40762 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = C497CDE22EABC71B00D40762 /* .gitignore */; };
 		C4FFAFFE2EA99091003017ED /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = C4FFAFFD2EA99091003017ED /* FirebaseAuth */; };
 		C4FFB0002EA99091003017ED /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C4FFAFFF2EA99091003017ED /* FirebaseCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C497CDE22EABC71B00D40762 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		C4FD6CA62EA6B4A300359091 /* Mod Garage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mod Garage.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C45C63212EAC02AA00D761CF /* Exceptions for "Mod Garage" folder in "Mod Garage" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				README.md,
+			);
+			target = C4FD6CA52EA6B4A300359091 /* Mod Garage */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C4FD6CA82EA6B4A300359091 /* Mod Garage */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C45C63212EAC02AA00D761CF /* Exceptions for "Mod Garage" folder in "Mod Garage" target */,
+			);
 			path = "Mod Garage";
 			sourceTree = "<group>";
 		};
@@ -41,7 +52,6 @@
 		C4FD6C9D2EA6B4A300359091 = {
 			isa = PBXGroup;
 			children = (
-				C497CDE22EABC71B00D40762 /* .gitignore */,
 				C4FD6CA82EA6B4A300359091 /* Mod Garage */,
 				C4FD6CA72EA6B4A300359091 /* Products */,
 			);
@@ -124,7 +134,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C497CDE32EABC72400D40762 /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
