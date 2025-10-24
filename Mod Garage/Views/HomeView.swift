@@ -38,7 +38,7 @@ struct HomeView: View {
                         .cornerRadius(30)
                 }
             }
-            .navigationTitle("Home")
+            .navigationTitle("Dashboard")
         }
     }
 }
