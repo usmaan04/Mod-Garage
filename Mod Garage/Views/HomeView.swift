@@ -4,32 +4,29 @@
 //
 //  Created by Usmaan Ahmed on 23/10/2025.
 //
-
 import SwiftUI
 import FirebaseAuth
 
 struct HomeView: View {
-    // Binding to track if the user is logged in or not
-    @Binding var isUserLoggedIn: Bool
-
-    // Function to log the user out
-    func logout() {
-        do {
-            try Auth.auth().signOut()
-            isUserLoggedIn = false
-        } catch {
-            print("Logout error:", error.localizedDescription)
-        }
-    }
+    @EnvironmentObject var appViewModel: AppViewModel
+    @StateObject private var viewModel = HomeViewModel()
 
     var body: some View {
-        // Main container for home page
         NavigationStack {
             VStack(spacing: 20) {
                 Text("Welcome to Mod Garage!")
                     .font(.title)
 
-                Button(action: logout) {
+                if viewModel.name.isEmpty {
+                    ProgressView("Loading...")
+                        .padding()
+                } else {
+                    Text("Welcome, \(viewModel.name)!")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                }
+
+                Button(action: appViewModel.signOut) {
                     Text("Log Out")
                         .frame(maxWidth: 250)
                         .padding()
@@ -38,8 +35,7 @@ struct HomeView: View {
                         .cornerRadius(30)
                 }
             }
-            .navigationTitle("Dashboard")
+            .navigationTitle("Home")
         }
     }
 }
-

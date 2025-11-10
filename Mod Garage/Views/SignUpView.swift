@@ -5,169 +5,183 @@
 //  Created by Usmaan Ahmed on 21/10/2025.
 //
 
-//
-//  SignUpView.swift
-//  Mod Garage
-//
-//  Created by Usmaan Ahmed on 21/10/2025.
-//
-
 import SwiftUI
 import FirebaseAuth
+import FirebaseCore
+import GoogleSignIn
+import GoogleSignInSwift
 
 struct SignUpView: View {
-    // Binding to track if the user is logged in or not
-    @Binding var isUserLoggedIn: Bool
-
-    @State private var name = ""
-    @State private var email = ""
-    @State private var password = ""
-
-    // Validation state for email and password
-    @State private var isEmailValid: Bool = true
-    @State private var emailError: String? = nil
-    @State private var isPasswordValid: Bool = true
-    @State private var passwordError: String? = nil
-    @State private var signUpError: String? = nil
-
-    // Alert for backend / signup errors
-    @State private var showAlert = false
-    @State private var alertMessage = ""
-
+    @StateObject private var viewModel = SignUpViewModel()
+    
     var body: some View {
-        VStack(spacing: 16) {
-            // Logo
-            Image("AdaptiveLaunch")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 180, height: 180)
-
-            // Name field
-            TextField("Name", text: $name)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-
-            // Email field
-            TextField("Email", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-                .onChange(of: email) {
-                    validateEmail(email)
-                }
-
-            // Password field
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .onChange(of: password) {
-                    validatePassword(password)
-                }
+        VStack {
+            Spacer()
             
-            // Email error text
-            if let emailError = emailError {
-                Text(emailError)
-                    .font(.callout)
-                    .foregroundColor(.red)
+            // - Header
+            VStack(spacing: 6) {
+                Text("Welcome!")
+                    .font(.system(size: 22, weight: .semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
-            // Password error text
-            if let passwordError = passwordError {
-                Text(passwordError)
-                    .font(.callout)
-                    .foregroundColor(.red)
+                    .foregroundColor(.lightBlack)
+                
+                Text("Manage your rides, modifications, and MOT all in one place.")
+                    .font(.system(size: 14))
+                    .tracking(-0.4)
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundColor(.bodyText)
+                    .padding(.bottom, 10)
             }
-
-            // Register button (disabled until validation is passed)
-            Button(action: register) {
-                Text("Create Account")
-                    .frame(maxWidth: 250)
-                    .padding()
-                    .background(isFormValid ? Color.red : Color.gray)
-                    .foregroundColor(.white)
-                    .cornerRadius(30)
-            }
-            .disabled(!isFormValid)
-            .padding(.top, 10)
-        }
-        .padding()
-        .alert(isPresented: $showAlert) {
-            Alert(title: Text("Signup Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-        }
-    }
-    
-    // Determine if full form is valid
-    var isFormValid: Bool {
-        return isEmailValid && isPasswordValid && !email.isEmpty && !password.isEmpty
-    }
-    
-    // Validate email with regex
-    func textFieldValidatorEmail(_ string: String) -> Bool {
-        let emailFormat = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailFormat)
-        return emailPredicate.evaluate(with: string)
-    }
-
-    // Validate email function
-    func validateEmail(_ string: String) {
-        if string.isEmpty {
-            isEmailValid = false
-            emailError = "Email cannot be empty"
-            return
-        }
-        let valid = textFieldValidatorEmail(string)
-        isEmailValid = valid
-        emailError = valid ? nil : "Email must contain @ and a domain"
-    }
-
-    // Validate password function
-    func validatePassword(_ string: String) {
-        if string.isEmpty {
-            isPasswordValid = false
-            passwordError = "Password cannot be empty"
-            return
-        }
-
-        // min 8 characters, one digit and one special character
-        let passwordPattern = "^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$"
-        let predicate = NSPredicate(format: "SELF MATCHES %@", passwordPattern)
-        let valid = predicate.evaluate(with: string)
-        isPasswordValid = valid
-        passwordError = valid ? nil : "Password must be at least 8 characters and include a number and a special character"
-    }
-
-    // Register function
-    func register() {
-        // Re-run validations to be safe
-        validateEmail(email)
-        validatePassword(password)
-
-        guard isFormValid else {
-            // Shouldn't happen if button is disabled
-            alertMessage = "Please fix form errors before continuing."
-            showAlert = true
-            return
-        }
-
-        // Create user in Firebase
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error as NSError? {
-                if let code = AuthErrorCode(rawValue: error.code) {
-                    if code == .emailAlreadyInUse{
-                        signUpError = "This email is already in use please try another email"
-                    }
-                }else {
-                        signUpError = error.localizedDescription
-                    }
-                    return
+            
+            //  Form Fields
+            VStack(spacing: 24) {
+                // Name Label and Field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Name")
+                        .font(.system(size: 14).weight(.medium))
+                    TextField(
+                        "",
+                        text: $viewModel.name,
+                        prompt: Text("Enter your name here...")
+                            .foregroundColor(Color("bodyText"))
+                    )
+                    .font(.system(size: 12))
+                    .textInputAutocapitalization(.words)
+                    .autocorrectionDisabled()
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                    )
                 }
-                // Success
-                isUserLoggedIn = true
+                
+                // Email Label and Field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Email")
+                        .font(.system(size: 14).weight(.medium))
+                    TextField(
+                        "",
+                        text: $viewModel.email,
+                        prompt: Text("Enter your email here...")
+                            .foregroundColor(Color("bodyText"))
+                    )
+                    .font(.system(size: 12))
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                    )
+                }
+                
+                // Password Field
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Password")
+                        .font(.system(size: 14).weight(.medium))
+                    SecureField(
+                        "",
+                        text: $viewModel.password,
+                        prompt: Text("••••••••")
+                            .foregroundColor(Color("bodyText"))
+                    )
+                    .font(.system(size: 12))
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                    )
+                }
+                
             }
+            
+            // Validation Errors
+            if let signUpError = viewModel.signUpError {
+                Text(signUpError)
+                    .font(.callout)
+                    .foregroundColor(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            
+            //  Create Account Button
+            Button(action: {
+                viewModel.register()
+            }) {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.redTheme)
+                        .cornerRadius(100)
+                } else {
+                    Text("Create Account")
+                        .font(.system(size: 14).weight(.bold))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.redTheme)
+                        .foregroundColor(.white)
+                        .cornerRadius(100)
+                }
+            }
+            .padding(.vertical, 12)
+            
+            // Divider with “Or”
+            HStack {
+                Divider()
+                    .frame(maxWidth: .infinity, maxHeight: 1)
+                    .background(Color.gray.opacity(0.4))
+                
+                Text("Or")
+                    .font(.system(size: 14).weight(.medium))
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 6)
+                
+                Divider()
+                    .frame(maxWidth: .infinity, maxHeight: 1)
+                    .background(Color.gray.opacity(0.4))
+            }
+            .padding(.vertical, 8)
+            
+            // MARK: - Google Sign-In Button
+            Button(action: {
+                viewModel.signUpWithGoogle()
+            }) {
+                HStack(spacing: 12) {
+                    Image("google")
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                    Text("Sign in with Google")
+                        .font(.system(size: 16).weight(.medium))
+                        .foregroundColor(.lightBlack)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color(red: 246/255, green: 246/255, blue: 246/255))
+                .cornerRadius(100)
+            }
+            .padding(.bottom, 12)
+            
+            Spacer()
+        }
+        .padding(.horizontal, 8)
+        .background(Color(.background))
+        .alert(isPresented: $viewModel.showAlert) {
+            Alert(
+                title: Text("Notice"),
+                message: Text(viewModel.alertMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
     }
 }
 
-// Preview for Development
+// MARK: - Preview
 #Preview {
-    SignUpView(isUserLoggedIn: .constant(false))
+    SignUpView()
 }
+

@@ -8,44 +8,42 @@
 import SwiftUI
 
 struct AuthView: View {
-    // Binding to track if the user is logged in or not
-    // State to toggle whether to show login or signup view
     @Binding var isUserLoggedIn: Bool
-    @State private var showLogin = true
+    @StateObject private var viewModel = AuthViewModel()
 
     var body: some View {
-        // Main container for the authentication view
         NavigationStack {
             VStack(spacing: 20) {
-                Text(showLogin ? "Welcome Back" : "Create Account")
-                    .font(.largeTitle.bold())
-                    .padding(.top, 20)
-
-                // Show LoginView or SignUpView based on passed boolean
-                if showLogin {
-                    LoginView(isUserLoggedIn: $isUserLoggedIn)
-                } else {
-                    SignUpView(isUserLoggedIn: $isUserLoggedIn)
+                // Main auth content
+                Group {
+                    if viewModel.showLogin {
+                        LoginView()
+                    } else {
+                        SignUpView()
+                    }
                 }
 
-                // Button to toggle between login and signup views
-                Button(action: {
-                    withAnimation {
-                        showLogin.toggle()
+                // Toggle between login and sign up
+                Button(action: viewModel.toggleView) {
+                    HStack(spacing: 0) {
+                        Text(viewModel.showLogin ? "Don't have an account? " : "Already have an account? ")
+                            .font(.system(size: 14))
+                            .foregroundColor(Color("bodyText"))
+
+                        Text(viewModel.showLogin ? "Sign Up" : "Log In")
+                            .foregroundColor(Color("redTheme"))
+                            .fontWeight(.semibold)
                     }
-                }) {
-                    Text(showLogin ? "Don't have an account? Sign Up" : "Already have an account? Log In")
-                        .foregroundColor(.blue)
-                        .font(.footnote)
-                        .padding(.top)
+                    .font(.footnote)
+                    .padding(.top)
                 }
             }
             .padding()
         }
+        .ignoresSafeArea(.keyboard)
     }
 }
 
-// Preview for Development
 #Preview {
     AuthView(isUserLoggedIn: .constant(false))
 }

@@ -6,90 +6,202 @@
 //
 
 import SwiftUI
+import FirebaseCore
 import FirebaseAuth
+import GoogleSignIn
 
 struct LoginView: View {
-    // Binding to track if the user is logged in or not
-    @Binding var isUserLoggedIn: Bool
-    @State private var email = ""
-    @State private var password = ""
-    @State private var loginError: String? = nil
-
-    func login() {
-        loginError = nil
-        Auth.auth().signIn(withEmail: email, password: password) { result, error in
-            if let error = error as NSError? {
-                if let code = AuthErrorCode(rawValue: error.code) {
-                    switch code {
-                        case .invalidEmail, .userNotFound, .wrongPassword, .invalidCredential:
-                            loginError = "Username or password is incorrect, Please try again."
-                        case .userDisabled:
-                            loginError = "This account has been disabled."
-                        case .networkError:
-                            loginError = "Network error. Please check your connection."
-                        default:
-                            loginError = error.localizedDescription
-                    }
-                } else {
-                    loginError = error.localizedDescription
-                }
-                return
-            }
-            // Success
-            isUserLoggedIn = true
-        }
-    }
-
-    var body: some View {
-        // Main container for the Login view
-        VStack(spacing: 16) {
-            // Logo
-            Image("AdaptiveLaunch")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 180, height: 180)
-
-            // Email field
-            TextField("Email", text: $email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .keyboardType(.emailAddress)
-                .autocapitalization(.none)
-
-            // Password field
-            SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-            
-            // Password error text
-            if let loginError = loginError {
-                Text(loginError)
-                    .font(.callout)
-                    .foregroundColor(.red)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
-            // Login button
-            Button(action: login) {
-                Text("Log In")
-                    .frame(maxWidth: 250)
-                    .padding()
-                    .background(isFormValid ? Color.red : Color.gray)
-                    .foregroundColor(.white)
-                    .cornerRadius(30)
-            }
-            .padding(.top, 10)
-            .disabled(!isFormValid)
-        }
-        .padding()
-    }
-    // Determine if full form is valid
-    var isFormValid: Bool {
-        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !password.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
+    @StateObject private var viewModel = LoginViewModel()
     
+    var body: some View {
+        NavigationStack {
+            VStack {
+                Spacer()
+                VStack(spacing: 6){
+                    // Title
+                    Text("Welcome Back!")
+                        .font(.system(size: 22, weight: .semibold))
+                        .frame(maxWidth: .infinity,alignment: .leading)
+                        .foregroundColor(.lightBlack)
+                    // Title
+                    Text("Manage your rides, modifications, and MOT all in one place.")
+                        .font(.system(size: 14))
+                        .tracking(-0.4)
+                        .frame(maxWidth: .infinity,alignment: .leading)
+                        .foregroundColor(.bodyText)
+                        .padding(.bottom, 10)
+                }
+                VStack(spacing:24){
+                    // Email Label and Field
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Email")
+                            .font(.system(size: 14).weight(.medium))
+                        TextField(
+                                "",
+                                text: $viewModel.email,
+                                prompt: Text("Enter your email here...")
+                                    .foregroundColor(Color("bodyText"))
+                            )
+                            .font(.system(size: 12))
+                            .keyboardType(.emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .padding(.vertical, 16)
+                            .padding(.horizontal, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                            )
+                    }
+                    
+                    // Password Label and Field
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Password")
+                            .font(.system(size: 14).weight(.medium))
+                        HStack {
+                            if viewModel.isPasswordVisible {
+                                TextField(
+                                    "",
+                                    text: $viewModel.password,
+                                    prompt: Text("Enter your password")
+                                        .foregroundColor(.bodyText)
+                                )
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled(true)
+                                .font(.system(size: 12))
+                            } else {
+                                SecureField(
+                                    "",
+                                    text: $viewModel.password,
+                                    prompt: Text("Enter your password")
+                                        .foregroundColor(.bodyText)
+                                )
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled(true)
+                                .font(.system(size: 12))
+                            }
+
+                            Button(action: {
+                                viewModel.isPasswordVisible.toggle()
+                            }) {
+                                Image(systemName: viewModel.isPasswordVisible ? "eye" : "eye.slash")
+                                    .foregroundColor(.gray)
+                            }
+                            .buttonStyle(.plain)
+                            .contentShape(Rectangle())
+                        }
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                        )
+                    }
+                }
+                
+                // Error Message
+                if let loginError = viewModel.loginError {
+                    Text(loginError)
+                        .font(.system(size: 13))
+                        .foregroundColor(.red)
+                        .padding(4)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                // Forgot Password
+                Button {
+                    viewModel.showAlert = true
+                    viewModel.alertMessage = "Password reset flow coming soon..."
+                } label: {
+                    HStack(spacing: 6) {
+                        Text("Forgot password?")
+                            .font(.system(size: 14).weight(.semibold))
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .progressViewStyle(.circular)
+                                .scaleEffect(0.8)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
+                
+                // Login Button
+                Button(action: {
+                    viewModel.login()
+                }) {
+                    if viewModel.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.redTheme)
+                            .cornerRadius(100)
+                    } else {
+                        Text("Log In")
+                            .font(.system(size: 14).weight(.bold))
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.redTheme)
+                            .foregroundColor(.white)
+                            .cornerRadius(100)
+                    }
+                }
+                .padding(.top, 2)
+                
+                // Divider with “Or”
+                HStack {
+                    Divider()
+                        .frame(maxWidth: .infinity, maxHeight: 1)
+                        .background(Color.gray.opacity(0.4))
+                    
+                    Text("Or")
+                        .font(.system(size: 14).weight(.medium))
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 6)
+                    
+                    Divider()
+                        .frame(maxWidth: .infinity, maxHeight: 1)
+                        .background(Color.gray.opacity(0.4))
+                }
+                .padding(.vertical, 8)
+                
+                // Google Sign-In Button
+                Button(action: {
+                    viewModel.signInWithGoogle()
+                }) {
+                    HStack(spacing: 12) {
+                        Image("google")
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                        Text("Continue with Google")
+                            .font(.system(size: 16).weight(.medium))
+                            .foregroundColor(.lightBlack)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(red: 246/255, green: 246/255, blue: 246/255))
+                    .cornerRadius(100)
+                }
+                .padding(.bottom, 12)
+                
+                Spacer()
+            }
+            .padding(.horizontal, 8)
+            .background(Color(.background))
+            .alert(isPresented: $viewModel.showAlert) {
+                Alert(
+                    title: Text("Notice"),
+                    message: Text(viewModel.alertMessage),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+        }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+    }
 }
 
-// Preview for Development
 #Preview {
-    LoginView(isUserLoggedIn: .constant(false))
+    LoginView()
 }
