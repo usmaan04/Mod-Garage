@@ -39,8 +39,10 @@ struct AuthView: View {
                 }
             }
             .padding()
+            .background(Color(.background))
         }
         .ignoresSafeArea(.keyboard)
+        
     }
 }
 

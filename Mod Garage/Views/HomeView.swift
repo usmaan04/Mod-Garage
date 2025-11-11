@@ -12,30 +12,62 @@ struct HomeView: View {
     @StateObject private var viewModel = HomeViewModel()
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 20) {
-                Text("Welcome to Mod Garage!")
-                    .font(.title)
-
-                if viewModel.name.isEmpty {
-                    ProgressView("Loading...")
-                        .padding()
-                } else {
-                    Text("Welcome, \(viewModel.name)!")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                }
-
-                Button(action: appViewModel.signOut) {
-                    Text("Log Out")
-                        .frame(maxWidth: 250)
-                        .padding()
-                        .background(Color.red)
-                        .foregroundColor(.white)
-                        .cornerRadius(30)
+        ZStack(alignment: .bottom) {
+            // Main content area based on the selected tab
+            Group {
+                switch viewModel.selectedTab {
+                case .home:
+                    DashboardView()
+                case .vehicle:
+                    VehicleView()
+                case .add:
+                    SettingsView()
+                case .fuel:
+                    FuelView()
+                case .settings:
+                    SettingsView()
                 }
             }
-            .navigationTitle("Home")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground))
+
+            CustomTabBar(viewModel: viewModel)
         }
+        .ignoresSafeArea( edges: .bottom)
     }
+}
+struct DashboardView: View {
+    @StateObject private var viewModel = HomeViewModel()
+    var body: some View {
+        VStack(spacing: 12) {
+            HStack() {
+                VStack(spacing: 6){
+                    Text("Welcome back!")
+                        .font(.system(size: 11))
+                        .foregroundColor(Color.bodyText)
+                        .frame(maxWidth: .infinity,alignment: .leading)
+
+                    if viewModel.name.isEmpty {
+                        ProgressView("Loading...")
+                            .padding()
+                    } else {
+                        Text("\(viewModel.name)!")
+                            .font(.system(size: 16))
+                            .foregroundColor(Color.black)
+                            .frame(maxWidth: .infinity,alignment: .leading)
+                    }
+                    
+                }
+            }
+        }
+        .padding(.horizontal, 8)
+        .background(Color(.background))
+        .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
+    }
+}
+
+// Preview
+#Preview {
+    HomeView()
+        .environmentObject(AppViewModel())
 }

@@ -13,6 +13,7 @@ import FirebaseFirestore
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published var name: String = ""
+    @Published var selectedTab: Tab = .home
 
     private let db = Firestore.firestore()
 

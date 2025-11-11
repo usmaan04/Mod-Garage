@@ -52,7 +52,7 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                            .stroke(Color.rectBorder, lineWidth: 1)
                     )
                 }
                 
@@ -74,7 +74,7 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                            .stroke(Color.rectBorder, lineWidth: 1)
                     )
                 }
                 
@@ -93,7 +93,7 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(red: 0.894, green: 0.894, blue: 0.894), lineWidth: 1)
+                            .stroke(Color.rectBorder, lineWidth: 1)
                     )
                 }
                 
@@ -119,7 +119,7 @@ struct SignUpView: View {
                         .background(Color.redTheme)
                         .cornerRadius(100)
                 } else {
-                    Text("Create Account")
+                    Text("Sign Up")
                         .font(.system(size: 14).weight(.bold))
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -161,7 +161,13 @@ struct SignUpView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding()
-                .background(Color(red: 246/255, green: 246/255, blue: 246/255))
+                .background(
+                    Color(UIColor { trait in
+                        trait.userInterfaceStyle == .dark
+                            ? .black
+                            : UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+                    })
+                )
                 .cornerRadius(100)
             }
             .padding(.bottom, 12)
@@ -180,7 +186,7 @@ struct SignUpView: View {
     }
 }
 
-// MARK: - Preview
+// Preview
 #Preview {
     SignUpView()
 }
