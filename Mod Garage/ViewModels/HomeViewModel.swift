@@ -38,7 +38,7 @@ class HomeViewModel: ObservableObject {
             guard let self = self else { return }
 
             if let error = error {
-                print("❌ Firestore fetch error: \(error.localizedDescription)")
+                print(" Firestore fetch error: \(error.localizedDescription)")
                 Task { @MainActor in
                     self.name = "User"
                 }

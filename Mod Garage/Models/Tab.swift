@@ -13,6 +13,7 @@ enum Tab: String, CaseIterable, Identifiable {
     case add = "plus"
     case fuel = "fuelpump"
     case settings = "gear"
+    case profile = ""
 
     var id: String { rawValue }
 }

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AppView: View {
     @StateObject private var viewModel = AppViewModel()
+    @StateObject private var settingsViewModel = SettingsViewModel()
 
     var body: some View {
         Group {

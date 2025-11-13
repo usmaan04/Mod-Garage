@@ -46,13 +46,15 @@ class LoginViewModel: ObservableObject {
             
             if let error = error {
                 self.loginError = self.handleFirebaseError(error)
-                self.showAlert = true
                 return
             }
             
             // Login success
             self.isUserLoggedIn = true
         }
+    }
+    func forgotPassword(){
+        
     }
     
     // MARK: - Google Sign-In

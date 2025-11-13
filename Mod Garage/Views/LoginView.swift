@@ -110,8 +110,7 @@ struct LoginView: View {
                 
                 // Forgot Password
                 Button {
-                    viewModel.showAlert = true
-                    viewModel.alertMessage = "Password reset flow coming soon..."
+                    viewModel.forgotPassword()
                 } label: {
                     HStack(spacing: 6) {
                         Text("Forgot password?")

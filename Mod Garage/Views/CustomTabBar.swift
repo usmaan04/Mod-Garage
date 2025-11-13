@@ -17,12 +17,13 @@ struct CustomTabBar: View {
         case .fuel: return "Fuel"
         case .settings: return "Settings"
         case .add: return "Add"
+        case .profile: return ""
         }
     }
 
     var body: some View {
         HStack() {
-            ForEach(Tab.allCases) { tab in
+            ForEach(Array(Tab.allCases.prefix(5)), id: \.self) { tab in
                 Spacer()
 
                 if tab == .add {
@@ -32,6 +33,17 @@ struct CustomTabBar: View {
                         }
                     } label: {
                         ZStack {
+                            // Outer circle
+                            Circle()
+                                .fill(Color.background)
+                                .frame(width: 62, height: 62)
+                                .overlay(
+                                    Circle()
+                                        .trim(from: 0.56, to: 0.94)
+                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                )
+
+                            // Inner circle
                             Circle()
                                 .fill(Color.redTheme)
                                 .frame(width: 46, height: 46)
