@@ -16,10 +16,14 @@ class SettingsViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var email: String = ""
     @Published var selectedTab: Tab = .home
-    // Persisted appearance preference: "system", "light", or "dark"
+    // App appearance preference: "system", "light", or "dark"
     @AppStorage("preferredColorScheme") private var preferredColorSchemeRaw: String = "system"
+    @Published var isEmailPasswordUser: Bool = false
+    @Published var showProfile: Bool = false
+    @Published var showAlert = false
+    @Published var alertMessage = ""
     
-    // Exposed override for use in .preferredColorScheme(_:) at the app level
+    // Override app appearance
     var overrideColorScheme: ColorScheme? {
         get {
             switch preferredColorSchemeRaw {

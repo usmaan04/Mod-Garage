@@ -9,6 +9,8 @@ import Foundation
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         VStack(spacing: 12) {
             Text("Profile")
@@ -19,4 +21,9 @@ struct ProfileView: View {
         }
         .padding()
     }
+}
+
+// Preview
+#Preview {
+    ProfileView()
 }

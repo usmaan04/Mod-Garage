@@ -23,10 +23,16 @@ class SignUpViewModel: ObservableObject {
     @Published var isUserLoggedIn = false
     @Published var isLoading = false
 
-    // MARK: - Email & Password Registration
+    //  Email & Password Registration
     func register() {
         signUpError = nil
         isLoading = true
+        
+        if name.isEmpty || email.isEmpty || password.isEmpty{
+            self.signUpError = "Please fill in all fields"
+            self.isLoading = false
+            return
+        }
 
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             DispatchQueue.main.async {
@@ -148,7 +154,7 @@ class SignUpViewModel: ObservableObject {
                 if let error = error {
                     self.signUpError = "Failed to save user data: \(error.localizedDescription)"
                 } else {
-                    print("✅ User data saved successfully for \(userID)")
+                    print("User data saved successfully for \(userID)")
                     self.isUserLoggedIn = true
                 }
             }

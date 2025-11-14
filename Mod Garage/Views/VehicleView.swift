@@ -10,12 +10,40 @@ import SwiftUI
 struct VehicleView: View {
     var body: some View {
         VStack(spacing: 12) {
-            Text("Vehicles")
-                .font(.title2)
-                .fontWeight(.semibold)
-            Text("Manage your vehicles here.")
-                .foregroundStyle(.secondary)
+            HStack{
+                Text("My Vehicles")
+                    .foregroundColor(.black)
+                    .font(.system(size: 18).weight(.semibold))
+                    .frame(maxWidth: .infinity,alignment: .leading)
+                Button {
+                ProfileView()
+                    
+                } label: {
+                    ZStack {
+                        // Red circle
+                        Circle()
+                            .fill(Color.redTheme)
+                            .frame(width: 46, height: 46)
+
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            
+            VStack{
+                Text("Manage your vehicles here.")
+                    .foregroundStyle(.secondary)
+            }
         }
-        .padding()
+        .padding(.horizontal, 17)
+        .padding(.top, 14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
     }
+}
+
+// Preview
+#Preview {
+    VehicleView()
 }

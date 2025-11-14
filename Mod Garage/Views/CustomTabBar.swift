@@ -17,7 +17,6 @@ struct CustomTabBar: View {
         case .fuel: return "Fuel"
         case .settings: return "Settings"
         case .add: return "Add"
-        case .profile: return ""
         }
     }
 

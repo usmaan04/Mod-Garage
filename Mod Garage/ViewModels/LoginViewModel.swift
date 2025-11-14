@@ -24,21 +24,14 @@ class LoginViewModel: ObservableObject {
     @Published var isUserLoggedIn = false
     @Published var isLoading = false
     
-    // Form Validation
-    var isFormValid: Bool {
-        !email.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !password.trimmingCharacters(in: .whitespaces).isEmpty
-    }
-    
     // Email/Password Login
     func login() {
-        guard isFormValid else {
-            loginError = "Please fill in both email and password."
+        
+        if email.isEmpty || password.isEmpty{
+            self.loginError = "Please fill in all fields"
+            self.isLoading = false
             return
         }
-        
-        isLoading = true
-        loginError = nil
         
         Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
             guard let self = self else { return }

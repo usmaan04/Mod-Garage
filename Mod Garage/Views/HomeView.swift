@@ -28,8 +28,6 @@ struct HomeView: View {
                     FuelView()
                 case .settings:
                     SettingsView()
-                case .profile:
-                    ProfileView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
