@@ -1,0 +1,18 @@
+{
+  "configurations" : [
+    {
+      "id" : "F9932BD2-BE41-452D-B906-09450E0BFCEB",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+
+  ],
+  "version" : 1
+}
