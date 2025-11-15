@@ -161,6 +161,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 17)
             .padding(.top, 14)
+            .background(Color(.background))
             .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
             .navigationTitle("")
             .navigationBarTitleDisplayMode(.inline)

@@ -19,7 +19,7 @@ final class AppViewModel: ObservableObject {
         listenToAuthChanges()
     }
 
-    // ✅ Swift 6-safe cleanup: perform async removal on a detached task
+    //  Swift 6-safe cleanup: perform async removal on a detached task
     deinit {
         Task.detached { [handle = authStateListenerHandle] in
             if let handle {
@@ -29,7 +29,7 @@ final class AppViewModel: ObservableObject {
     }
 
     private func listenToAuthChanges() {
-        // ✅ Use weak capture to avoid lifetime issues
+        // Use weak capture to avoid lifetime issues
         authStateListenerHandle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             guard let self else { return }
             Task { @MainActor in
@@ -47,7 +47,7 @@ final class AppViewModel: ObservableObject {
                 isUserLoggedIn = false
             }
         } catch {
-            print("❌ Error signing out: \(error.localizedDescription)")
+            print(" Error signing out: \(error.localizedDescription)")
         }
     }
 }

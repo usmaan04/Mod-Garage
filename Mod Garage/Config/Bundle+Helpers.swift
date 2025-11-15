@@ -1,3 +1,10 @@
+//
+//  Bundle+Helpers.swift
+//  Mod Garage
+//
+//  Created by Usmaan Ahmed on 15/11/2025.
+//
+
 import Foundation
 
 extension Bundle {
@@ -15,7 +22,7 @@ extension Bundle {
         return value
     }
     
-    // A specific computed property for your API key
+    // A specific computed property for  API key
     var dvlaApiKey: String {
         return infoValue(for: "DVLA_API_KEY")
     }

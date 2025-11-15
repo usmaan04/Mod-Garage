@@ -7,16 +7,17 @@
 
 import Foundation
 
-struct DVLAResponse: Codable {
-    let registrationNumber: String?
-    let make: String?
-    let model: String?
-    let colour: String?
-    let fuelType: String?
+struct DVLAResponseModel: Codable {
+    let registrationNumber: String
+    let make: String
+    let colour: String
+    let fuelType: String
+    let yearOfManufacture: Int?
     
-    let motExpiryDate: String?
     let motStatus: String?
-    
-    let taxDueDate: String?
+    let motExpiryDate: String?
+
     let taxStatus: String?
+    let taxDueDate: String?
+
 }

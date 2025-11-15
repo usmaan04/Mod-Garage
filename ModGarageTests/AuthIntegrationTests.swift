@@ -1,5 +1,14 @@
+//
+//  AuthIntegrationTests.swift
+//  Mod Garage
+//
+//  Created by Usmaan Ahmed on 15/11/2025.
+//
+
+
 import XCTest
-import Combine // We need this to listen to @Published properties
+import Combine
+import FirebaseAuth
 @testable import Mod_Garage
 
 @MainActor
@@ -7,17 +16,16 @@ final class AuthIntegrationTests: XCTestCase {
 
     var signUpVM: SignUpViewModel!
     var logInVM: LoginViewModel!
-    var cancellables: Set<AnyCancellable>! // Stores our Combine listeners
+    var cancellables: Set<AnyCancellable>!
 
     override func setUp() {
-        // This runs before each test
         signUpVM = SignUpViewModel()
         logInVM = LoginViewModel()
-        cancellables = [] // Initialize an empty set
+        cancellables = []
     }
 
     override func tearDown() {
-        // This runs after each test
+        try? Auth.auth().signOut()
         cancellables = nil
         signUpVM = nil
         logInVM = nil
@@ -25,59 +33,218 @@ final class AuthIntegrationTests: XCTestCase {
 
     // MARK: - Sign Up Integration Tests
 
-    func test_SignUp_FailsWithWeakPassword_WhenUsingRealFirebase() async throws {
+    // Tests for invalid existing email
+    func test_SignUp_ExistingEmail_WhenUsingRealFirebase() async throws {
         // 1. Arrange
-        // Create an "expectation". The test will wait until this is fulfilled.
         let expectation = expectation(description: "Firebase should return a weak password error")
         
-        // Use a unique email each time to avoid "email already in use" errors
+        // Use a unique email each time to prevent "email already in use" errors
         let uniqueEmail = "test-user-\(UUID().uuidString)@example.com"
 
         signUpVM.name = "Integration Test User"
-        signUpVM.email = uniqueEmail
-        signUpVM.password = "123" // This is a weak password
+        signUpVM.email = "test@email.com"
+        signUpVM.password = "test123"
         
         // Set up a listener for the error property
         signUpVM.$signUpError
-            .dropFirst() // Ignore the initial 'nil' value
+            .dropFirst()
             .sink { errorMessage in
                 // 3. Assert
-                // Check that the error message from Firebase is the one we expect
                 let expectedError = "Password must include at least 8 characters, a number and a special character."
                 XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for a weak password.")
                 
-                // Tell the test we're done waiting
+                // Tell the test waiting is done
                 expectation.fulfill()
             }
-            .store(in: &cancellables) // Store the listener
+            .store(in: &cancellables)
 
         // 2. Act
-        // Call the function that makes the network request
         signUpVM.register()
 
-        // Wait for the expectation to be fulfilled (or time out after 10 seconds)
+        // Wait for the expectation
+        await fulfillment(of: [expectation], timeout: 10.0)
+    }
+    
+    // Tests for invalid email format
+    func test_SignUp_InvalidEmailFormat_WhenUsingRealFirebase() async throws {
+        // 1. Arrange
+        let expectation = expectation(description: "Firebase should return a weak password error")
+        
+        // Use a unique email each time to prevent "email already in use" errors
+        let uniqueEmail = "test-user-\(UUID().uuidString)@example.com"
+
+        signUpVM.name = "Integration Test User"
+        signUpVM.email = "testemail.com"
+        signUpVM.password = "test123"
+        
+        // Set up a listener for the error property
+        signUpVM.$signUpError
+            .dropFirst()
+            .sink { errorMessage in
+                // 3. Assert
+                let expectedError = "Password must include at least 8 characters, a number and a special character."
+                XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for a weak password.")
+                
+                // Tell the test waiting is done
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        signUpVM.register()
+
+        // Wait for the expectation
+        await fulfillment(of: [expectation], timeout: 10.0)
+    }
+    
+    // Tests for invalid non 8 characters in password
+    func test_SignUp_WeakPassword_NonEightCharacters_WhenUsingRealFirebase() async throws {
+        // 1. Arrange
+        let expectation = expectation(description: "Firebase should return a weak password error")
+        
+        // Use a unique email each time to prevent "email already in use" errors
+        let uniqueEmail = "test-user-\(UUID().uuidString)@example.com"
+
+        signUpVM.name = "Integration Test User"
+        signUpVM.email = "testIntegration@email.com"
+        signUpVM.password = "test123"
+        
+        // Set up a listener for the error property
+        signUpVM.$signUpError
+            .dropFirst()
+            .sink { errorMessage in
+                // 3. Assert
+                let expectedError = "Password must include at least 8 characters, a number and a special character."
+                XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for a weak password.")
+                
+                // Tell the test waiting is done
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        signUpVM.register()
+
+        // Wait for the expectation to be fulfilled or time out after 10 seconds
+        await fulfillment(of: [expectation], timeout: 10.0)
+    }
+    
+    // Tests for invalid missing number in password
+    func test_SignUp_WeakPassword_MissingNumber_WhenUsingRealFirebase() async throws {
+        // 1. Arrange
+        let expectation = expectation(description: "Firebase should return a weak password error")
+        
+        // Use a unique email each time to prevent "email already in use" errors
+        let uniqueEmail = "test-user-\(UUID().uuidString)@example.com"
+
+        signUpVM.name = "Integration Test User"
+        signUpVM.email = "testIntegration@email.com"
+        signUpVM.password = "testPass!"
+        
+        // Set up a listener for the error property
+        signUpVM.$signUpError
+            .dropFirst()
+            .sink { errorMessage in
+                // 3. Assert
+                let expectedError = "Password must include at least 8 characters, a number and a special character."
+                XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for a weak password.")
+                
+                // Tell the test waiting is done
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        signUpVM.register()
+
+        // Wait for the expectation
+        await fulfillment(of: [expectation], timeout: 10.0)
+    }
+    
+    // Tests for invalid missing special character in password
+    func test_SignUp_WeakPassword_MissingSpecialCharacter_WhenUsingRealFirebase() async throws {
+        // 1. Arrange
+        let expectation = expectation(description: "Firebase should return a weak password error")
+        
+        // Use a unique email each time to prevent "email already in use" errors
+        let uniqueEmail = "test-user-\(UUID().uuidString)@example.com"
+
+        signUpVM.name = "Integration Test User"
+        signUpVM.email = "testIntegration@email.com"
+        signUpVM.password = "test1234"
+        
+        // Set up a listener for the error property
+        signUpVM.$signUpError
+            .dropFirst()
+            .sink { errorMessage in
+                // 3. Assert
+                let expectedError = "Password must include at least 8 characters, a number and a special character."
+                XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for a weak password.")
+                
+                // Tell the test waiting is done
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        signUpVM.register()
+
+        // Wait for the expectation
         await fulfillment(of: [expectation], timeout: 10.0)
     }
 
+    // Tests for valid sign up
+    func test_SignUp_Succeeds_WhenUsingValidDetails() async throws {
+        // 1. Arrange
+        let expectation = expectation(description: "Sign up should succeed and set isUserLoggedIn to true")
+        
+        // Use unique and valid details
+        let uniqueEmail = "test-user-\(UUID().uuidString)@example.com"
+        let validPassword = "test1234!"
+
+        signUpVM.name = "Success Test User"
+        signUpVM.email = uniqueEmail
+        signUpVM.password = validPassword
+        
+        // Set up a listener for the isUserLoggedIn property
+        signUpVM.$isUserLoggedIn
+            .dropFirst()
+            .sink { isLoggedIn in
+                // 3. Assert
+                XCTAssertTrue(isLoggedIn, "isUserLoggedIn should be true after successful registration")
+                
+                // Tell the test waiting is done
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        signUpVM.register()
+
+        // Wait for the expectation
+        await fulfillment(of: [expectation], timeout: 10.0)
+    }
+
+
     // MARK: - Login Integration Tests
 
-    func test_Login_FailsWithInvalidEmailFormat_WhenUsingRealFirebase() async throws {
+    // Tests for invalid email
+    func test_Login_InvalidEmailError_WhenUsingRealFirebase() async throws {
         // 1. Arrange
         let expectation = expectation(description: "Firebase should return an invalid email error")
         
-        logInVM.email = "this-is-not-an-email"
+        logInVM.email = "testemail.com"
         logInVM.password = "any-password"
 
-        // Set up a listener for the loginError property
+        // Set up a listener for the loginError
         logInVM.$loginError
-            .dropFirst() // Ignore the initial 'nil' value
+            .dropFirst()
             .sink { errorMessage in
                 // 3. Assert
-                // This is the specific error message you wrote in LoginViewModel's error handler
                 let expectedError = "Invalid email or password. If you registered with Google, try the Google button below."
                 XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for an invalid email.")
                 
-                // Tell the test we're done
+                // Tell the test waiting is done
                 expectation.fulfill()
             }
             .store(in: &cancellables)
@@ -89,22 +256,22 @@ final class AuthIntegrationTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 10.0)
     }
 
-    func test_Login_FailsWithUserNotFound_WhenUsingRealFirebase() async throws {
+    // Tests for invalid password
+    func test_Login_InvalidPasswordError_WhenUsingRealFirebase() async throws {
         // 1. Arrange
         let expectation = expectation(description: "Firebase should return a user not found error")
         
-        // Use a unique (and thus non-existent) email
-        let nonExistentEmail = "user-does-not-exist-\(UUID().uuidString)@example.com"
+        // Use a new unique email
+        let nonExistentEmail = "new-user-\(UUID().uuidString)@example.com"
         
         logInVM.email = nonExistentEmail
-        logInVM.password = "any-password"
+        logInVM.password = "test"
 
         // Set up a listener
         logInVM.$loginError
             .dropFirst()
             .sink { errorMessage in
                 // 3. Assert
-                // Your error handler groups these errors, so we expect the same message
                 let expectedError = "Invalid email or password. If you registered with Google, try the Google button below."
                 XCTAssertEqual(errorMessage, expectedError, "The error message was not correct for a user not found error.")
                 expectation.fulfill()
@@ -114,7 +281,44 @@ final class AuthIntegrationTests: XCTestCase {
         // 2. Act
         logInVM.login()
 
-        // Wait
+        // Wait for the expectation
+        await fulfillment(of: [expectation], timeout: 10.0)
+    }
+    
+    // Tests for valid log in
+    func test_Login_Succeeds_WhenUsingValidDetails() async throws {
+        // 1. Arrange
+        let expectation = expectation(description: "Login should succeed and set isUserLoggedIn to true")
+        
+        // Set valid details
+        let uniqueEmail = "login-test-\(UUID().uuidString)@example.com"
+        let validPassword = "test1234!"
+
+        // Create the user directly in Firebase
+        try await Auth.auth().createUser(withEmail: uniqueEmail, password: validPassword)
+        // Sign out immediately so login can be tested
+        try Auth.auth().signOut()
+
+        // Set view model with valid details
+        logInVM.email = uniqueEmail
+        logInVM.password = validPassword
+        
+        // Set up a listener for the isUserLoggedIn property
+        logInVM.$isUserLoggedIn
+            .dropFirst()
+            .sink { isLoggedIn in
+                // 3. Assert
+                XCTAssertTrue(isLoggedIn, "isUserLoggedIn should be true after successful login")
+                
+                // Tell the test waiting is done
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        logInVM.login()
+
+        // Wait for the expectation
         await fulfillment(of: [expectation], timeout: 10.0)
     }
 }

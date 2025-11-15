@@ -8,6 +8,8 @@ import Foundation
 import SwiftUI
 
 struct VehicleView: View {
+    @StateObject private var viewModel = VehicleViewModel()
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack{
@@ -16,8 +18,7 @@ struct VehicleView: View {
                     .font(.system(size: 18).weight(.semibold))
                     .frame(maxWidth: .infinity,alignment: .leading)
                 Button {
-                ProfileView()
-                    
+                    viewModel.isShowingAddVehicle = true
                 } label: {
                     ZStack {
                         // Red circle
@@ -40,6 +41,9 @@ struct VehicleView: View {
         .padding(.horizontal, 17)
         .padding(.top, 14)
         .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
+        .sheet(isPresented: $viewModel.isShowingAddVehicle) {
+            AddVehicleView()
+        }
     }
 }
 
@@ -47,3 +51,4 @@ struct VehicleView: View {
 #Preview {
     VehicleView()
 }
+

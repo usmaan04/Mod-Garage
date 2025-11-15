@@ -13,6 +13,7 @@ struct VehicleModel: Identifiable, Codable {
     var registration: String
     var make: String
     var model: String
+    var year: String
     var colour: String
     var fuelType: String
     var motExpiryDate: Date?

@@ -12,7 +12,13 @@
 
   },
   "testTargets" : [
-
+    {
+      "target" : {
+        "containerPath" : "container:Mod Garage.xcodeproj",
+        "identifier" : "C44C06482EC8C30C00AD39EE",
+        "name" : "Mod GarageTests"
+      }
+    }
   ],
   "version" : 1
 }

@@ -17,19 +17,55 @@
 		C4FFB0002EA99091003017ED /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = C4FFAFFF2EA99091003017ED /* FirebaseCore */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		C44C064D2EC8C30C00AD39EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C4FD6C9E2EA6B4A300359091 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C4FD6CA52EA6B4A300359091;
+			remoteInfo = "Mod Garage";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		C44C06492EC8C30C00AD39EE /* Mod GarageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mod GarageTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4FD6CA62EA6B4A300359091 /* Mod Garage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mod Garage.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C48FCCD52EC8E3A40027DF18 /* Exceptions for "Mod Garage" folder in "Mod Garage" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Config/Secrets.xcconfig,
+			);
+			target = C4FD6CA52EA6B4A300359091 /* Mod Garage */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C4352DE72EC25A33003886EE /* Mod Garage */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C48FCCD52EC8E3A40027DF18 /* Exceptions for "Mod Garage" folder in "Mod Garage" target */,
+			);
 			path = "Mod Garage";
+			sourceTree = "<group>";
+		};
+		C44C064A2EC8C30C00AD39EE /* ModGarageTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ModGarageTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C44C06462EC8C30C00AD39EE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4FD6CA32EA6B4A300359091 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -52,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				C4352DE72EC25A33003886EE /* Mod Garage */,
+				C44C064A2EC8C30C00AD39EE /* ModGarageTests */,
 				C4FD6CA72EA6B4A300359091 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				C4FD6CA62EA6B4A300359091 /* Mod Garage.app */,
+				C44C06492EC8C30C00AD39EE /* Mod GarageTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,6 +105,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C44C06482EC8C30C00AD39EE /* Mod GarageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C44C064F2EC8C30C00AD39EE /* Build configuration list for PBXNativeTarget "Mod GarageTests" */;
+			buildPhases = (
+				C44C06452EC8C30C00AD39EE /* Sources */,
+				C44C06462EC8C30C00AD39EE /* Frameworks */,
+				C44C06472EC8C30C00AD39EE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C44C064E2EC8C30C00AD39EE /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				C44C064A2EC8C30C00AD39EE /* ModGarageTests */,
+			);
+			name = "Mod GarageTests";
+			packageProductDependencies = (
+			);
+			productName = "Mod GarageTests";
+			productReference = C44C06492EC8C30C00AD39EE /* Mod GarageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		C4FD6CA52EA6B4A300359091 /* Mod Garage */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C4FD6CB12EA6B4A400359091 /* Build configuration list for PBXNativeTarget "Mod Garage" */;
@@ -104,9 +165,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 2610;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					C44C06482EC8C30C00AD39EE = {
+						CreatedOnToolsVersion = 26.1;
+						LastSwiftMigration = 2610;
+						TestTargetID = C4FD6CA52EA6B4A300359091;
+					};
 					C4FD6CA52EA6B4A300359091 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -131,11 +197,19 @@
 			projectRoot = "";
 			targets = (
 				C4FD6CA52EA6B4A300359091 /* Mod Garage */,
+				C44C06482EC8C30C00AD39EE /* Mod GarageTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C44C06472EC8C30C00AD39EE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4FD6CA42EA6B4A300359091 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -146,6 +220,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C44C06452EC8C30C00AD39EE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C4FD6CA22EA6B4A300359091 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -155,9 +236,64 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		C44C064E2EC8C30C00AD39EE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C4FD6CA52EA6B4A300359091 /* Mod Garage */;
+			targetProxy = C44C064D2EC8C30C00AD39EE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		C44C06502EC8C30C00AD39EE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "usmaan04.Mod-GarageTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mod Garage.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mod Garage";
+			};
+			name = Debug;
+		};
+		C44C06512EC8C30C00AD39EE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "usmaan04.Mod-GarageTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mod Garage.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mod Garage";
+			};
+			name = Release;
+		};
 		C4FD6CAF2EA6B4A400359091 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = C4352DE72EC25A33003886EE /* Mod Garage */;
+			baseConfigurationReferenceRelativePath = Config/Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -223,6 +359,8 @@
 		};
 		C4FD6CB02EA6B4A400359091 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = C4352DE72EC25A33003886EE /* Mod Garage */;
+			baseConfigurationReferenceRelativePath = Config/Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -348,6 +486,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C44C064F2EC8C30C00AD39EE /* Build configuration list for PBXNativeTarget "Mod GarageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C44C06502EC8C30C00AD39EE /* Debug */,
+				C44C06512EC8C30C00AD39EE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C4FD6CA12EA6B4A300359091 /* Build configuration list for PBXProject "Mod Garage" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
