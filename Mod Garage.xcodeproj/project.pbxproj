@@ -29,10 +29,18 @@
 
 /* Begin PBXFileReference section */
 		C44C06492EC8C30C00AD39EE /* Mod GarageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mod GarageTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C48A0D2C2EC94F1100569A2A /* Mod-GarageTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Mod-GarageTests-Info.plist"; sourceTree = "<group>"; };
 		C4FD6CA62EA6B4A300359091 /* Mod Garage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mod Garage.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C48A0D2E2EC9506600569A2A /* Exceptions for "Mod Garage" folder in "Mod GarageTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Config/Bundle+Helpers.swift",
+			);
+			target = C44C06482EC8C30C00AD39EE /* Mod GarageTests */;
+		};
 		C48FCCD52EC8E3A40027DF18 /* Exceptions for "Mod Garage" folder in "Mod Garage" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -47,6 +55,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				C48FCCD52EC8E3A40027DF18 /* Exceptions for "Mod Garage" folder in "Mod Garage" target */,
+				C48A0D2E2EC9506600569A2A /* Exceptions for "Mod Garage" folder in "Mod GarageTests" target */,
 			);
 			path = "Mod Garage";
 			sourceTree = "<group>";
@@ -87,6 +96,7 @@
 		C4FD6C9D2EA6B4A300359091 = {
 			isa = PBXGroup;
 			children = (
+				C48A0D2C2EC94F1100569A2A /* Mod-GarageTests-Info.plist */,
 				C4352DE72EC25A33003886EE /* Mod Garage */,
 				C44C064A2EC8C30C00AD39EE /* ModGarageTests */,
 				C4FD6CA72EA6B4A300359091 /* Products */,
@@ -253,6 +263,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Mod-GarageTests-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "usmaan04.Mod-GarageTests";
@@ -276,6 +288,8 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Mod-GarageTests-Info.plist";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "usmaan04.Mod-GarageTests";
@@ -427,6 +441,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Mod-Garage-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -460,6 +476,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Mod-Garage-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

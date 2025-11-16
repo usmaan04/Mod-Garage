@@ -2,25 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>DVLA_API_KEY</key>
-	<string>$(DVLA_API_KEY)</string>
-	<key>CFBundleIdentifier</key>
-	<string></string>
-	<key>CFBundleExecutable</key>
-	<string></string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>LSApplicationCategoryType</key>
-	<string></string>
-	<key>CFBundleName</key>
-	<string></string>
-	<key>CFBundleDisplayName</key>
-	<string></string>
-	<key>CFBundleVersion</key>
-	<string></string>
-	<key>CFBundleShortVersionString</key>
-	<string></string>
 	<key>CFBundleGetInfoString</key>
 	<string></string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1061642369869-l4nhmcc9k542a1ir9nmh8q8r5dgq6fnp</string>
+			</array>
+		</dict>
+	</array>
+	<key>DVLA_API_KEY</key>
+	<string>$(DVLA_API_KEY)</string>
 </dict>
 </plist>

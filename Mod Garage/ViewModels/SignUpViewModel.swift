@@ -22,14 +22,60 @@ class SignUpViewModel: ObservableObject {
     @Published var alertMessage = ""
     @Published var isUserLoggedIn = false
     @Published var isLoading = false
+    
+    //Determine if email is valid
+    private func isEmailValid(_ email: String) -> Bool {
+        // Common regex pattern
+        let emailPattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        
+        // Create a predicate to test the email against the pattern
+        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailPattern)
+        
+        // Returns true only if condition is met
+        return emailPredicate.evaluate(with: email)
+    }
+
+    
+    // Determine if password is strong enough
+    private func isPasswordValid(_ pass: String) -> Bool {
+        // Check 8 char length
+        if pass.count < 8 {
+            return false
+        }
+        
+        // Check for a number
+        let hasNumber = pass.contains { $0.isNumber }
+        
+        // Check for a special character
+        let specialCharSet = CharacterSet(charactersIn: "!@#$%^&*()_+-=[]{};:'\\|,.<>/?")
+        let hasSpecialChar = pass.rangeOfCharacter(from: specialCharSet) != nil
+        
+        // Return true only if all conditions are met
+        return hasNumber && hasSpecialChar
+    }
 
     //  Email & Password Registration
     func register() {
         signUpError = nil
         isLoading = true
         
+        // Empty Field Validation
         if name.isEmpty || email.isEmpty || password.isEmpty{
             self.signUpError = "Please fill in all fields"
+            self.isLoading = false
+            return
+        }
+        
+        // Email Validation
+        if !isEmailValid(email){
+            self.signUpError = "Please enter a valid email address"
+            self.isLoading = false
+            return
+        }
+        
+        // Weak Password Validation
+        if !isPasswordValid(password) {
+            self.signUpError = "Password must include at least 8 characters, a number and a special character"
             self.isLoading = false
             return
         }
@@ -45,10 +91,6 @@ class SignUpViewModel: ObservableObject {
                         switch code {
                         case .emailAlreadyInUse:
                             self.signUpError = "This email is already registered"
-                        case .invalidEmail:
-                            self.signUpError = "Please enter a valid email address"
-                        case .weakPassword:
-                            self.signUpError = "Password must include at least 8 characters, a number and a special character."
                         case .networkError:
                             self.signUpError = "Network error. Check your internet connection."
                         default:
@@ -68,6 +110,9 @@ class SignUpViewModel: ObservableObject {
                 return
             }
 
+            DispatchQueue.main.async {
+                self.isUserLoggedIn = true
+            }
             self.saveUserDataToFirestore(userID: user.uid, name: self.name, email: self.email)
         }
     }
@@ -155,7 +200,6 @@ class SignUpViewModel: ObservableObject {
                     self.signUpError = "Failed to save user data: \(error.localizedDescription)"
                 } else {
                     print("User data saved successfully for \(userID)")
-                    self.isUserLoggedIn = true
                 }
             }
         }

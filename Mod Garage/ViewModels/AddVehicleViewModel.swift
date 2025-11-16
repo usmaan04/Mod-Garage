@@ -33,7 +33,7 @@ class AddVehicleViewModel: ObservableObject {
                 self.dvlaVehicle = result
                 print(result)
             } catch {
-                self.errorMessage = "Could not find vehicle. Please check the registration."
+                self.errorMessage = "Could not find vehicle, Please check the registration"
             }
 
             self.isLoading = false

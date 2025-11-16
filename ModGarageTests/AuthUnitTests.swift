@@ -28,8 +28,64 @@ final class AuthUnitTests: XCTestCase {
         // 2. Act
         signUpVM.register()
         
-        // 3. Assert (Check the result)
+        // 3. Assert
         XCTAssertEqual(signUpVM.signUpError, "Please fill in all fields")
+        XCTAssertFalse(signUpVM.isLoading)
+    }
+    
+    func test_SignUp_InvalidEmailFormat() {
+        // 1. Arrange
+        signUpVM.name = "Test User"
+        signUpVM.email = "invalidemail.com"
+        signUpVM.password = "test1234!"
+
+        // 2. Act
+        signUpVM.register()
+        
+        // 3. Assert
+        XCTAssertEqual(signUpVM.signUpError, "Please enter a valid email address")
+        XCTAssertFalse(signUpVM.isLoading)
+    }
+    
+    func test_SignUp_WeakPasswordError_NonEightCharacters() {
+        // 1. Arrange
+        signUpVM.name = "Test User"
+        signUpVM.email = "noneight@email.com"
+        signUpVM.password = "test1!"
+
+        // 2. Act
+        signUpVM.register()
+        
+        // 3. Assert
+        XCTAssertEqual(signUpVM.signUpError, "Password must include at least 8 characters, a number and a special character")
+        XCTAssertFalse(signUpVM.isLoading)
+    }
+    
+    func test_SignUp_WeakPasswordError_MissingNumber() {
+        // 1. Arrange
+        signUpVM.name = "Test User"
+        signUpVM.email = "missingnum@email.com"
+        signUpVM.password = "testpass!"
+
+        // 2. Act
+        signUpVM.register()
+        
+        // 3. Assert
+        XCTAssertEqual(signUpVM.signUpError, "Password must include at least 8 characters, a number and a special character")
+        XCTAssertFalse(signUpVM.isLoading)
+    }
+    
+    func test_SignUp_WeakPasswordError_MissingSpecialChar() {
+        // 1. Arrange
+        signUpVM.name = "Test User"
+        signUpVM.email = "missingnum@email.com"
+        signUpVM.password = "testpass1"
+
+        // 2. Act
+        signUpVM.register()
+        
+        // 3. Assert
+        XCTAssertEqual(signUpVM.signUpError, "Password must include at least 8 characters, a number and a special character")
         XCTAssertFalse(signUpVM.isLoading)
     }
     
