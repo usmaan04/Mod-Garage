@@ -23,7 +23,6 @@ struct Mod_GarageApp: App {
     var body: some Scene {
         WindowGroup {
             SplashScreenView()
-                .environment(\.font, .custom("Archivo", size: 16))
         }
     }
 }

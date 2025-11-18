@@ -45,15 +45,19 @@ class SettingsViewModel: ObservableObject {
     private let db = Firestore.firestore()
 
     init() {
+        updateAuthProviderState()
         fetchUserDetails()
     }
 
     func fetchUserDetails() {
         guard let user = Auth.auth().currentUser else {
+            self.isEmailPasswordUser = false
             name = "User"
             email = "Email"
             return
         }
+        
+        updateAuthProviderState()
         
         let uid = user.uid
         let userEmailAtCapture = user.email
@@ -85,6 +89,17 @@ class SettingsViewModel: ObservableObject {
                     self.email = userEmailAtCapture ?? ""
                 }
             }
+        }
+    }
+
+    // Check to see how user is logged in (Email/password or Google)
+    private func updateAuthProviderState() {
+        guard let user = Auth.auth().currentUser else { return }
+        let providerIDs = user.providerData.map { $0.providerID }
+        if providerIDs.contains("password") {
+            self.isEmailPasswordUser = true
+        } else {
+            self.isEmailPasswordUser = false
         }
     }
 }

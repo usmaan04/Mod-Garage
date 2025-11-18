@@ -39,7 +39,7 @@ final class DVLAIntegrationTests: XCTestCase {
         // 1. Arrange
         let expectation = expectation(description: "Error message should be set from real API error")
         
-        // A guraanteed invalid registration
+        // Invalid registration
         viewModel.registration = "X1X1X1X"
         
         // Listen for the errorMessage to change
@@ -48,7 +48,7 @@ final class DVLAIntegrationTests: XCTestCase {
             .sink { errorMessage in
                 
                 // 3. Assert
-                let expectedError = "Could not find vehicle, Please check the registration"
+                let expectedError = "Could not find vehicle. Please check the registration."
                 XCTAssertEqual(errorMessage, expectedError, "The real API error wasn't mapped correctly.")
                 
                 // Tell the test we are done

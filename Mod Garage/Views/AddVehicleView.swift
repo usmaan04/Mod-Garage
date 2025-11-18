@@ -9,101 +9,249 @@ import Foundation
 import SwiftUI
 
 struct AddVehicleView: View {
+    @Binding var isPresented: Bool
     @StateObject private var viewModel = AddVehicleViewModel()
+    @EnvironmentObject var vehicleViewModel: VehicleViewModel
 
     var body: some View {
         VStack(spacing: 12) {
-            Text("Add Vehicle")
-                .font(.system(size: 16).weight(.semibold))
-                .foregroundStyle(Color.lightBlack)
-            TextField(
-                    "",
-                    text: $viewModel.registration,
-                    prompt: Text("Enter your registration here...")
-                        .foregroundColor(Color("bodyText"))
-                )
-                .font(.system(size: 12))
-                .autocorrectionDisabled()
-                .autocapitalization(.allCharacters)
-                .padding(.vertical, 16)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.rectBorder, lineWidth: 1)
-                )
-            Button(action: {
-                viewModel.searchRegistration()
-            }) {
-                Text("Search Registration")
-                    .font(.system(size: 14).weight(.bold))
+            // Loading spinner
+            if viewModel.isLoading {
+                ProgressView("Searching DVLA...")
+                    .padding(.top, 20)
+                    .font(.system(size: 17))
+
+            // Show vehicle preview only if dvlaVehicle 
+            } else if  viewModel.dvlaVehicle != nil && !viewModel.hasConfirmedDVLA {
+                let vehicle = viewModel.dvlaVehicle
+                VStack(spacing: 14) {
+                    
+                    Text("Is this your vehicle?")
+                        .font(.system(size: 17).weight(.bold))
+                        .foregroundStyle(Color.lightBlack)
+                    
+                    Text("\(vehicle!.registrationNumber)")
+                        .font(.system(size: 14).weight(.bold))
+                        .padding(.vertical,12)
+                        .padding(.horizontal, 30)
+                        .foregroundStyle(Color.black)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.black, lineWidth: 1)
+                                .fill(Color.yellow)
+                        )
+                        .frame(maxWidth: .infinity)
+                    
+                    
+                    
+                    Text("\(vehicle!.make)")
+                        .font(.system(size: 16))
+                        .frame(maxWidth: .infinity)
+                    
+                    
+                    HStack{
+                        HStack{
+                            Image(systemName: "paintbrush")
+                                .font(.system(size: 22))
+                            Text("\(vehicle!.colour)")
+                                .font(.system(size: 16))
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        HStack{
+                            Image(systemName: "calendar")
+                                .font(.system(size: 22))
+                            Text("\(vehicle!.yearOfManufacture.map(String.init) ?? "-")")
+                                .font(.system(size: 16))
+                        }
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        
+                    }
+                    .padding(4)
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .foregroundColor(.white)
-            }
-            .background(viewModel.registration.isEmpty ? Color.gray : Color.redTheme)
-            .clipShape(RoundedRectangle(cornerRadius: 50, style: .continuous))
-            .padding(.vertical, 12)
-            .disabled(viewModel.registration.isEmpty)
-            
-            // After the Search button
-            Group {
-
-                //  Loading State
-                if viewModel.isLoading {
-                    ProgressView("Searching DVLA...")
-                        .padding(.top, 10)
-                }
-
-                // Error Message
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding(.top, 8)
-                }
-
-                // Vehicle Detail Preview
-                if let vehicle = viewModel.dvlaVehicle {
-                    VStack(alignment: .leading, spacing: 10) {
-
-                        Text("Is this your vehicle?")
-                            .font(.headline)
-
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.lightBlack.opacity(0.3), lineWidth: 1)
-                            .background(Color.gray.opacity(0.08))
-                            .overlay(
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text("Registration: \(vehicle.registrationNumber ?? "-")")
-                                    Text("Make: \(vehicle.make ?? "-")")
-                                    Text("Colour: \(vehicle.colour ?? "-")")
-                                    Text("Year: \(vehicle.yearOfManufacture.map(String.init) ?? "-")")
-                                }
-                                .padding()
+                    
+                    HStack{
+                        Button("No") {
+                            viewModel.dvlaVehicle = nil
+                        }
+                        .font(.system(size: 12).weight(.bold))
+                        .frame(maxWidth: .infinity)
+                        .padding(14)
+                        .foregroundColor(.redTheme)
+                        .background(
+                            RoundedRectangle(
+                                cornerRadius: 12,
+                                style: .continuous
                             )
-                            .frame(maxWidth: .infinity)
-
-                        // Confirm Button
+                            .stroke(Color.rectBorder)
+                        )
+                        
+                        Button(action: {
+                            viewModel.hasConfirmedDVLA = true
+                        }) {
+                            Text("Yes")
+                                .font(.system(size: 12).weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .padding(14)
+                                .foregroundColor(.white)
+                        }
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.redTheme)
+                        )
+                    }
+                }
+            }else if viewModel.hasConfirmedDVLA{
+                VStack(spacing: 14) {
+                    Text("Enter your vehicle's Model")
+                        .font(.system(size: 17).weight(.bold))
+                        .foregroundStyle(Color.lightBlack)
+                    
+                    TextField(
+                        "",
+                        text: $viewModel.model,
+                        prompt: Text("Golf")
+                            .foregroundStyle(.black.opacity(0.3))
+                    )
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Color.lightBlack)
+                    .multilineTextAlignment(.center)
+                    .autocorrectionDisabled(true)
+                    .keyboardType(.asciiCapable)
+                    .padding(14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.rectBorder)
+                            
+                    )
+                    
+                    if !vehicleViewModel.vehicles.isEmpty {
+                        Toggle(isOn: $viewModel.makePrimary) {
+                            Text("Make this primary?")
+                                .font(.system(size: 12))
+                                .foregroundColor(Color.lightBlack)
+                        }
+                        .tint(Color.redTheme)
+                        
+                    }
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    HStack{
+                        Button("Back") {
+                            viewModel.hasConfirmedDVLA = false
+                        }
+                        .font(.system(size: 10).weight(.bold))
+                        .frame(maxWidth: .infinity)
+                        .padding(14)
+                        .foregroundColor(.redTheme)
+                        .background(
+                            RoundedRectangle(
+                                cornerRadius: 12,
+                                style: .continuous
+                            )
+                            .stroke(Color.rectBorder)
+                        )
+                        
                         Button(action: {
                             viewModel.confirmVehicle()
                         }) {
-                            Text("Confirm Vehicle")
-                                .font(.system(size: 14).weight(.bold))
+                            Text("Add Vehicle")
+                                .font(.system(size: 10).weight(.bold))
                                 .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.redTheme)
+                                .padding(14)
                                 .foregroundColor(.white)
-                                .cornerRadius(50)
                         }
-                        .padding(.top, 10)
-
-                        // Cancel Button
-                        Button("Cancel") {
-                            viewModel.dvlaVehicle = nil
-                        }
-                        .foregroundColor(.gray)
-                        .padding(.top, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.redTheme)
+                        )
                     }
-                    .padding(.top, 15)
+                }
+                .padding(12)
+                
+            // Show Add Vehicle Form
+            } else {
+                VStack(spacing: 24){
+                    Text("Add Vehicle")
+                        .font(.system(size: 17).weight(.bold))
+                        .foregroundStyle(Color.lightBlack)
+                        .padding(.bottom,6)
+
+                    TextField(
+                        "",
+                        text: $viewModel.registration,
+                        prompt: Text("ENTER REG")
+                            .foregroundStyle(.black.opacity(0.3))
+                    )
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(Color.black)
+                    .multilineTextAlignment(.center)
+                    .autocorrectionDisabled(true)
+                    .keyboardType(.asciiCapable)
+                    .autocapitalization(.allCharacters)
+                    .padding(14)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.black, lineWidth: 5)
+                            .fill(Color.yellow)
+                    )
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .padding(.top, 8)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    HStack{
+                        Button(action: {
+                            isPresented = false
+                        }) {
+                            Text("Cancel")
+                                .font(.system(size: 10).weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .padding(14)
+                                .foregroundColor(.redTheme)
+                        }
+                        
+                        .background(
+                            RoundedRectangle(
+                                cornerRadius: 12,
+                                style: .continuous
+                            )
+                            .stroke(Color.rectBorder)
+                        )
+                    
+                        Button(action: {
+                            viewModel.searchRegistration()
+                        }) {
+                            Text("Search")
+                                .font(.system(size: 10).weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .padding(14)
+                                .foregroundColor(.white)
+                        }
+                        .background(viewModel.registration.isEmpty ? Color.gray : Color.redTheme)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .disabled(viewModel.registration.isEmpty)
+                        
+                    }
+                }
+                .padding(12)
+            }
+        }
+        .onAppear {
+            viewModel.existingVehicleCount = vehicleViewModel.vehicles.count
+            
+            // Important: link AddVehicleViewModel → VehicleViewModel
+            viewModel.onVehicleReady = { vehicle in
+                Task {
+                    await vehicleViewModel.addVehicle(vehicle)
+                    isPresented = false
                 }
             }
         }
@@ -113,7 +261,15 @@ struct AddVehicleView: View {
 
 // Preview
 #Preview {
-    AddVehicleView()
+    struct PreviewWrapper: View {
+        @State private var isPresented = true
+        @StateObject private var vehicleVM = VehicleViewModel()
+
+        var body: some View {
+            AddVehicleView(isPresented: $isPresented)
+                .environmentObject(vehicleVM)
+        }
+    }
+
+    return PreviewWrapper()
 }
-
-

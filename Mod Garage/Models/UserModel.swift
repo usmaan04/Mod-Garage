@@ -12,5 +12,4 @@ struct UserModel: Identifiable, Codable {
     var name: String
     var email: String
     var profileImageURL: String?
-    var vehicles: [VehicleModel]?
 }

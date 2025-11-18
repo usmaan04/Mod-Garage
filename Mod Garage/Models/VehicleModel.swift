@@ -13,12 +13,14 @@ struct VehicleModel: Identifiable, Codable {
     var registration: String
     var make: String
     var model: String
-    var year: String
+    var year: Int
     var colour: String
     var fuelType: String
     var motExpiryDate: Date?
     var motStatus: String?
     var taxExpiryDate: Date?
     var taxStatus: String?
+    var imageURL: String?
+    var isPrimary: Bool
     var createdAt: Date
 }

@@ -77,7 +77,7 @@ struct SettingsView: View {
                     if viewModel.isEmailPasswordUser {
                             viewModel.showProfile = true
                     } else {
-                        viewModel.alertMessage = "Profile details are managed by Google. You cannot edit your name or email here."
+                        viewModel.alertMessage = "Your profile details are managed by Google. You cannot edit your name or email here."
                         viewModel.showAlert = true
                     }
                 }
