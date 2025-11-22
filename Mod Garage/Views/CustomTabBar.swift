@@ -89,6 +89,19 @@ struct CustomTabBar: View {
         .background(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.rectBorder, lineWidth: 1)
+                .shadow(radius: 12)
         )
+        .background(Color.background)
     }
+}
+
+// Preview
+#Preview {
+    struct PreviewWrapper: View {
+        @StateObject private var viewModel = HomeViewModel()
+        var body: some View {
+            CustomTabBar(viewModel: viewModel)
+        }
+    }
+    return PreviewWrapper()
 }

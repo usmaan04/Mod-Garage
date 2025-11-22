@@ -36,10 +36,42 @@ class VehicleViewModel: ObservableObject {
         
         do {
             try path.setData(from: vehicle)
+            // Set all others as false if selected vehicle is primary
+            if vehicle.isPrimary {
+                do {
+                    try await PrimaryVehicleService.setPrimary(
+                        vehicleId: vehicle.id,
+                        for: uid
+                    )
+                } catch {
+                    errorMessage = "Failed to set primary vehicle: \(error.localizedDescription)"
+                    return
+                }
+            }
             await loadVehicles()
             isShowingAddVehicle = false
         } catch {
             errorMessage = "Failed to save vehicle: \(error.localizedDescription)"
+        }
+    }
+    
+    func makePrimary(_ vehicle: VehicleModel) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            errorMessage = "No logged in user."
+            return
+        }
+
+        do {
+            try await PrimaryVehicleService.setPrimary(
+                vehicleId: vehicle.id,
+                for: uid
+            )
+
+            // Reload list so UI updates
+            await loadVehicles()
+
+        } catch {
+            errorMessage = "Failed to make primary: \(error.localizedDescription)"
         }
     }
     
@@ -58,7 +90,7 @@ class VehicleViewModel: ObservableObject {
                 .collection("users")
                 .document(uid)
                 .collection("vehicles")
-                .order(by: "createdAt", descending: true)
+                .order(by: "createdAt", descending: false)
                 .getDocuments()
             
             let decoded = try snapshot.documents.map { doc in
@@ -72,4 +104,38 @@ class VehicleViewModel: ObservableObject {
         
         isLoading = false
     }
+    
+    func deleteVehicle(_ vehicle: VehicleModel) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            errorMessage = "No logged in user."
+            return
+        }
+        
+        let path = db
+            .collection("users")
+            .document(uid)
+            .collection("vehicles")
+            .document(vehicle.id)
+        
+        do {
+            // If the vehicle being deleted is primary → assign a new one
+            if vehicle.isPrimary {
+                try await PrimaryVehicleService.setOtherPrimary(
+                    deletingVehicleId: vehicle.id,
+                    for: uid
+                )
+            }
+            
+            // Delete the vehicle itself
+            try await path.delete()
+            
+            // Refresh list
+            await loadVehicles()
+            
+        } catch {
+            errorMessage = "Failed to delete vehicle: \(error.localizedDescription)"
+        }
+    }
+    
 }
+

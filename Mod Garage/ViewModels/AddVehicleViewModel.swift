@@ -75,9 +75,8 @@ class AddVehicleViewModel: ObservableObject {
             return
         }
         
-        // Ensure numbers cat be entered
-        let containsDigit = trimmedModel.rangeOfCharacter(from: .decimalDigits) != nil
-        if containsDigit || trimmedModel.count > 10 {
+        // Ensure model length is less than 11 characters
+        if trimmedModel.count > 10 {
             errorMessage = "Invalid model name"
             return
         }
