@@ -48,6 +48,7 @@ class VehicleViewModel: ObservableObject {
                     return
                 }
             }
+            // Refresh list
             await loadVehicles()
             isShowingAddVehicle = false
         } catch {
@@ -67,7 +68,7 @@ class VehicleViewModel: ObservableObject {
                 for: uid
             )
 
-            // Reload list so UI updates
+            // Refresh list
             await loadVehicles()
 
         } catch {
