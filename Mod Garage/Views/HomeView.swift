@@ -217,7 +217,6 @@ struct DashboardView: View {
             }
             
         }
-        .padding(.top, 14)
         .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
         .onAppear {
             Task {

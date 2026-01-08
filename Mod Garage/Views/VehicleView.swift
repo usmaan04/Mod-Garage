@@ -25,14 +25,14 @@ struct VehicleView: View {
     }
     @State private var sortOption: SortOption = .az
 
-    // Filters (nil means "Any")
+    // Filters
     @State private var filterMake: String? = nil
     @State private var filterModel: String? = nil
     @State private var filterColour: String? = nil
     @State private var filterFuel: String? = nil
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             GeometryReader { proxy in
                 let maxScrollHeight = proxy.size.height - 84
                 let maxCardWidth = proxy.size.width
@@ -51,10 +51,10 @@ struct VehicleView: View {
                                 ZStack {
                                     Circle()
                                         .fill(Color.redTheme)
-                                        .frame(width: 46, height: 46)
+                                        .frame(width: 36, height: 36)
 
                                     Image(systemName: "plus")
-                                        .font(.system(size: 16, weight: .bold))
+                                        .font(.system(size: 16, weight: .regular))
                                         .foregroundColor(.white)
                                 }
                             }
@@ -71,9 +71,12 @@ struct VehicleView: View {
                             filtersExpanded
                                 .transition(.opacity.combined(with: .move(edge: .top)))
                         }
+                        
+                        Divider()
 
                         // Cards
                         VStack {
+                            // If loading vehicles list
                             if viewModel.isLoading {
                                 VStack {
                                     ProgressView("Finding vehicles...")
@@ -82,6 +85,7 @@ struct VehicleView: View {
                                 }
                                 .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .center)
 
+                            // If vehicles list is empty
                             } else if viewModel.vehicles.isEmpty {
                                 VStack {
                                     Image(systemName: "car.rear.hazardsign")
@@ -95,6 +99,7 @@ struct VehicleView: View {
                                 }
                                 .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .center)
 
+                            // If no filters matchh
                             } else if filteredVehicles.isEmpty {
                                 VStack(spacing: 10) {
                                     Image(systemName: "magnifyingglass")
@@ -142,7 +147,7 @@ struct VehicleView: View {
                     }
                     .padding(.horizontal, 17)
                     .padding(.top, 14)
-                    .frame(maxWidth: .infinity, maxHeight: maxScrollHeight + 14, alignment: .top)
+                    .frame(maxWidth: .infinity, alignment: .top)
 
                     // Modal
                     if viewModel.isShowingAddVehicle {
@@ -164,7 +169,6 @@ struct VehicleView: View {
                                 .padding(.horizontal, 25)
                         }
                         .frame(maxWidth: 350, maxHeight: 150)
-                        .transition(.scale(scale: 2))
                     }
                 }
                 .onAppear {
@@ -178,8 +182,9 @@ struct VehicleView: View {
         }
     }
 
-    // MARK: - Search / Sort / Filters UI
+    // Search / Sort / Filters UI
 
+    // Search Field
     private var searchBar: some View {
         TextField(
             "",
@@ -199,6 +204,7 @@ struct VehicleView: View {
         )
     }
 
+    // Sort Button
     private var sortPicker: some View {
         HStack{
             Menu {
@@ -238,6 +244,7 @@ struct VehicleView: View {
         )
     }
 
+    // Main filter button
     private var filtersHeaderRow: some View {
         VStack {
             Button {
@@ -271,6 +278,7 @@ struct VehicleView: View {
         )
     }
 
+    // All filters displayed
     private var filtersExpanded: some View {
         VStack(spacing: 10) {
             HStack(spacing: 10) {
@@ -293,7 +301,7 @@ struct VehicleView: View {
         .padding(.top, 6)
     }
 
-    // MARK: - Filter helpers
+    // Filter helpers
 
     private var activeFilterCount: Int {
         [filterMake, filterModel, filterColour, filterFuel].compactMap { $0 }.count
@@ -370,7 +378,7 @@ struct VehicleView: View {
 
         var result = viewModel.vehicles
 
-        // Search by make/model/combined
+        // Search by reg/make/model/
         if !q.isEmpty {
             result = result.filter {
                 $0.registration.lowercased().contains(q) ||
@@ -409,7 +417,7 @@ struct VehicleCard: View {
 
     var body: some View {
         HStack{
-            NavigationLink(destination: VehicleDetailView()) {
+            NavigationLink(destination: VehicleDetailView(vehicle: vehicle)) {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("\(vehicle.registration)")
                         .font(.system(size: 10).weight(.bold))
