@@ -30,158 +30,7 @@ struct VehicleView: View {
     @State private var filterModel: String? = nil
     @State private var filterColour: String? = nil
     @State private var filterFuel: String? = nil
-
-    var body: some View {
-        NavigationStack {
-            GeometryReader { proxy in
-                let maxScrollHeight = proxy.size.height - 84
-                let maxCardWidth = proxy.size.width
-
-                ZStack {
-                    VStack(spacing: 12) {
-                        HStack {
-                            Text("My Vehicles")
-                                .foregroundColor(.black)
-                                .font(.system(size: 18).weight(.semibold))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-
-                            Button {
-                                viewModel.isShowingAddVehicle = true
-                            } label: {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.redTheme)
-                                        .frame(width: 36, height: 36)
-
-                                    Image(systemName: "plus")
-                                        .font(.system(size: 16, weight: .regular))
-                                        .foregroundColor(.white)
-                                }
-                            }
-                        }
-                        .padding(.bottom,16)
-                        searchBar
-                        // Search + Sort
-                        HStack(spacing: 10) {
-                            sortPicker
-                            filtersHeaderRow
-                        }
-
-                        if showFilters {
-                            filtersExpanded
-                                .transition(.opacity.combined(with: .move(edge: .top)))
-                        }
-                        
-                        Divider()
-
-                        // Cards
-                        VStack {
-                            // If loading vehicles list
-                            if viewModel.isLoading {
-                                VStack {
-                                    ProgressView("Finding vehicles...")
-                                        .padding(.top, 20)
-                                        .font(.system(size: 14))
-                                }
-                                .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .center)
-
-                            // If vehicles list is empty
-                            } else if viewModel.vehicles.isEmpty {
-                                VStack {
-                                    Image(systemName: "car.rear.hazardsign")
-                                        .foregroundStyle(Color.redTheme)
-                                        .font(.system(size: 50))
-                                        .foregroundStyle(Color.black)
-
-                                    Text("Uh, oh it seems you haven't added any vehicles yet.")
-                                        .foregroundStyle(.bodyText)
-                                        .multilineTextAlignment(.center)
-                                }
-                                .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .center)
-
-                            // If no filters matchh
-                            } else if filteredVehicles.isEmpty {
-                                VStack(spacing: 10) {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundStyle(Color.redTheme)
-                                        .font(.system(size: 34))
-
-                                    Text("No vehicles match your search/filters.")
-                                        .foregroundStyle(.bodyText)
-                                        .multilineTextAlignment(.center)
-                                }
-                                .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .center)
-
-                            } else {
-                                List {
-                                    ForEach(filteredVehicles) { vehicle in
-                                        VehicleCard(
-                                            vehicle: vehicle,
-                                            maxCardWidth: maxCardWidth,
-                                            vehicleToDelete: $vehicleToDelete,
-                                            showDeleteConfirmation: $showDeleteConfirmation
-                                        )
-                                        .environmentObject(viewModel)
-                                        .padding(.vertical, 10)
-                                        .listRowInsets(.init())
-                                        .listRowSeparator(.hidden)
-                                        .listRowBackground(Color.clear)
-                                    }
-                                }
-                                .listStyle(.plain)
-                            }
-                        }
-                        .frame(maxHeight: maxScrollHeight)
-                        .alert("Delete Vehicle?", isPresented: $showDeleteConfirmation) {
-                            Button("Delete", role: .destructive) {
-                                Task {
-                                    if let vehicle = vehicleToDelete {
-                                        await viewModel.deleteVehicle(vehicle)
-                                    }
-                                }
-                            }
-                            Button("Cancel", role: .cancel) {}
-                        } message: {
-                            Text("Are you sure you want to delete this vehicle?")
-                        }
-                    }
-                    .padding(.horizontal, 17)
-                    .padding(.top, 14)
-                    .frame(maxWidth: .infinity, alignment: .top)
-
-                    // Modal
-                    if viewModel.isShowingAddVehicle {
-                        Color.black.opacity(0.6)
-                            .ignoresSafeArea()
-                            .onTapGesture {
-                                viewModel.isShowingAddVehicle = false
-                            }
-
-                        VStack {
-                            AddVehicleView(isPresented: $viewModel.isShowingAddVehicle)
-                                .environmentObject(viewModel)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.rectBorder, lineWidth: 2)
-                                        .fill(Color.background)
-                                )
-                                .shadow(radius: 8)
-                                .padding(.horizontal, 25)
-                        }
-                        .frame(maxWidth: 350, maxHeight: 150)
-                    }
-                }
-                .onAppear {
-                    Task { await viewModel.loadVehicles() }
-                }
-                .onChange(of: filterMake) { _ in
-                    // Avoid mismatched make/model combos
-                    filterModel = nil
-                }
-            }
-        }
-    }
-
+    
     // Search / Sort / Filters UI
 
     // Search Field
@@ -193,7 +42,7 @@ struct VehicleView: View {
                 .foregroundStyle(Color("bodyText"))
         )
         .font(.system(size: 12))
-        .keyboardType(.emailAddress)
+        .keyboardType(.asciiCapable)
         .textInputAutocapitalization(.never)
         .autocorrectionDisabled()
         .padding(.vertical, 16)
@@ -405,6 +254,278 @@ struct VehicleView: View {
 
         return result
     }
+
+    var body: some View {
+        NavigationStack {
+            GeometryReader { proxy in
+                let maxScrollHeight = proxy.size.height - 84
+                let maxCardWidth = proxy.size.width
+
+                VStack {
+                    HStack {
+                        Text("My Vehicles")
+                            .foregroundColor(.black)
+                            .font(.system(size: 18).weight(.semibold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Button {
+                            viewModel.isShowingAddVehicle = true
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.redTheme)
+                                    .frame(width: 36, height: 36)
+
+                                Image(systemName: "plus")
+                                    .font(.system(size: 16, weight: .regular))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
+                    .padding(.bottom,14)
+                    // Main content
+                    VStack {
+                        // If loading vehicles list
+                        if viewModel.isLoading {
+                            VStack {
+                                ProgressView("Finding vehicles...")
+                                    .padding(.top, 20)
+                                    .font(.system(size: 14))
+                            }
+                            .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .center)
+
+                        // If vehicles list is empty
+                        } else if viewModel.vehicles.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "car.rear.hazardsign")
+                                    .foregroundStyle(Color.redTheme)
+                                    .font(.system(size: 50))
+                                    .foregroundStyle(Color.black)
+
+                                Text("No vehicles yet")
+                                    .foregroundStyle(Color.lightBlack)
+                                    .multilineTextAlignment(.center)
+                                    .font(.system(size: 18, weight: .semibold))
+                                
+                                Text("Add your first vehicle to keep details, modifications and fuel history all in one place")
+                                    .foregroundStyle(Color.bodyText)
+                                    .multilineTextAlignment(.center)
+                                    .font(.system(size: 12))
+                                
+                                HStack{
+                                    HStack{
+                                        Image(systemName: "clock")
+                                            .foregroundStyle(Color.redTheme)
+                                            .font(.system(size: 14))
+                                        Text("Takes < 1 minute")
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.rectBorder, lineWidth: 1)
+                                    )
+                                    HStack{
+                                        Image(systemName: "lock")
+                                            .foregroundStyle(Color.redTheme)
+                                            .font(.system(size: 14))
+                                        Text("Private")
+                                    }
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 8)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(Color.rectBorder, lineWidth: 1)
+                                    )
+                                }
+                                .font(.system(size: 10, weight: .regular))
+                                .refreshable {Task { await viewModel.loadVehicles() }}
+                                
+                                VStack{
+                                    Text("What you'll need:")
+                                    .padding(12)
+                                    .frame(maxWidth:.infinity, alignment: .leading)
+                                    .background(Color.rectFill)
+                                    VStack(spacing: 12){
+                                        HStack{
+                                            Image(systemName: "checkmark.circle")
+                                                .foregroundStyle(Color.redTheme)
+                                            Text("Registration")
+                                                .frame(maxWidth:.infinity, alignment: .leading)
+                                        }
+                                        HStack{
+                                            Image(systemName: "checkmark.circle")
+                                                .foregroundStyle(Color.redTheme)
+                                            Text("Model")
+                                                .frame(maxWidth:.infinity, alignment: .leading)
+                                        }
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical,4)
+                                    
+                                    Text("Once added, you can:")
+                                        .padding(12)
+                                        .frame(maxWidth:.infinity, alignment: .leading)
+                                        .background(Color.rectFill)
+                                    
+                                    VStack(spacing: 12){
+                                        HStack{
+                                            Image(systemName: "bolt")
+                                                .foregroundStyle(Color.redTheme)
+                                            Text("Quickly access vehicle details")
+                                                .frame(maxWidth:.infinity, alignment: .leading)
+                                        }
+                                        HStack{
+                                            Image(systemName: "bell")
+                                                .foregroundStyle(Color.redTheme)
+                                            Text("Get reminders for MOT and Tax")
+                                                .frame(maxWidth:.infinity, alignment: .leading)
+                                        }
+                                        HStack{
+                                            Image(systemName: "wrench.adjustable")
+                                                .foregroundStyle(Color.redTheme)
+                                                .font(.system(size: 10, weight: .regular))
+                                            Text("Track Modifications and fuel history")
+                                                .frame(maxWidth:.infinity, alignment: .leading)
+                                        }
+                                        HStack{
+                                            Image(systemName: "square.and.arrow.up")
+                                                .foregroundStyle(Color.redTheme)
+                                            Text("Quickly share vehicle info")
+                                                .frame(maxWidth:.infinity, alignment: .leading)
+                                                
+                                        }
+                                        .padding(.bottom,10)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical,2)
+                                }
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                )
+                                Button(action: {
+                                    viewModel.isShowingAddVehicle = true
+                                }) {
+                                    Text("Add Vehicle")
+                                        .font(.system(size: 14).weight(.bold))
+                                        .frame(maxWidth: .infinity)
+                                        .padding()
+                                        .background(Color.redTheme)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(100)
+                                }
+                            }
+                            .padding(22)
+                            .font(.system(size: 12, weight: .regular))
+                            .frame(maxWidth: .infinity, minHeight: maxScrollHeight - 94, alignment: .top)
+
+                        // If there are vehicles
+                        } else {
+                            // If there ar more than 4 vehicles show filter options
+                            if viewModel.vehicles.count > 4{
+                                searchBar
+                                // Search + Sort
+                                HStack(spacing: 10) {
+                                    sortPicker
+                                    filtersHeaderRow
+                                }
+
+                                if showFilters {
+                                    filtersExpanded
+                                        .transition(.opacity.combined(with: .move(edge: .top)))
+                                }
+                            }
+                            
+                            // If no filters match
+                            if filteredVehicles.isEmpty {
+                                VStack(spacing: 12){
+                                    Image(systemName: "exclamationmark.magnifyingglass")
+                                        .foregroundStyle(Color.redTheme)
+                                        .font(.system(size: 34))
+                                    
+                                    Text("No vehicles match your search/filters.")
+                                        .foregroundStyle(.bodyText)
+                                        .multilineTextAlignment(.center)
+                                }
+                                .padding(.vertical, maxScrollHeight / 3)
+                                .frame(width: .infinity, height: .infinity, alignment: .center)
+                                
+                            // Display each vehicle 
+                            }else{
+                                List {
+                                    ForEach(filteredVehicles.sorted {
+                                        // Primary vehicles first
+                                        ($0.isPrimary ? 0 : 1) < ($1.isPrimary ? 0 : 1)
+                                    }
+                                    ) { vehicle in
+                                        VehicleCard(
+                                            vehicle: vehicle,
+                                            maxCardWidth: maxCardWidth,
+                                            vehicleToDelete: $vehicleToDelete,
+                                            showDeleteConfirmation: $showDeleteConfirmation
+                                        )
+                                        .environmentObject(viewModel)
+                                        .padding(.vertical, 10)
+                                        .listRowInsets(.init())
+                                        .listRowSeparator(.hidden)
+                                        .listRowBackground(Color.clear)
+                                    }
+                                }
+                                .listStyle(.plain)
+                                .refreshable {Task { await viewModel.loadVehicles() }}
+                            }
+                        }
+                    }
+                    .frame(maxHeight: maxScrollHeight, alignment: .top)
+                    .alert("Delete Vehicle?", isPresented: $showDeleteConfirmation) {
+                        Button("Delete", role: .destructive) {
+                            Task {
+                                if let vehicle = vehicleToDelete {
+                                    await viewModel.deleteVehicle(vehicle)
+                                }
+                            }
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text("Are you sure you want to delete this vehicle?")
+                    }
+                }
+                .padding(.horizontal, 17)
+                .padding(.top, 10)
+                .frame(maxWidth: .infinity, alignment: .top)
+
+                // Modal
+                if viewModel.isShowingAddVehicle {
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            viewModel.isShowingAddVehicle = false
+                        }
+
+                    VStack {
+                        AddVehicleView(isPresented: $viewModel.isShowingAddVehicle)
+                            .environmentObject(viewModel)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.rectBorder, lineWidth: 2)
+                                    .fill(Color.background)
+                            )
+                            .shadow(radius: 8)
+                            .padding(.horizontal, 25)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                }
+            }
+            .onAppear {
+                Task { await viewModel.loadVehicles() }
+            }
+            .onChange(of: filterMake) { _ in
+                // Avoid mismatched make/model combos
+                filterModel = nil
+            }
+        }
+    }
 }
 
 struct VehicleCard: View {
@@ -443,8 +564,6 @@ struct VehicleCard: View {
                         Text("\(vehicle.fuelType)")
 
                         Divider()
-                            .background(Color.rectBorder)
-                            .frame(maxWidth: 1, maxHeight: .infinity)
 
                         Image(systemName: "paintbrush")
                         Text("\(vehicle.colour)")
@@ -453,7 +572,7 @@ struct VehicleCard: View {
                     .foregroundStyle(Color.navText)
                     .frame(maxWidth: .infinity, maxHeight: 12, alignment: .leading)
                 }
-                .frame(maxWidth: maxCardWidth - 41)
+               
 
                 VStack {
                     if vehicle.isPrimary {
@@ -467,7 +586,7 @@ struct VehicleCard: View {
                             .offset(y: -10)
                     }
                 }
-                .frame(maxWidth: maxCardWidth - 41, alignment: .trailing)
+                .frame(maxWidth: maxCardWidth / 3, alignment: .trailing)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 20)

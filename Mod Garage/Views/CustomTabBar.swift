@@ -14,7 +14,7 @@ struct CustomTabBar: View {
         switch tab {
         case .home: return "Home"
         case .vehicle: return "Vehicle"
-        case .fuel: return "Fuel"
+        case .fuel: return "Fuel Log"
         case .settings: return "Settings"
         case .add: return "Add"
         }

@@ -96,7 +96,6 @@ struct VehicleDetailView: View {
                 .padding(17)
             }
         }
-        .padding(.top, 14)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.redTheme)
         .navigationTitle("Vehicle Details")
