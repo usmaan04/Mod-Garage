@@ -9,6 +9,8 @@ import SwiftUI
 
 struct VehicleDetailView: View {
     
+    @StateObject private var viewModel = VehicleDetailViewModel()
+    
     let vehicle:VehicleModel
     
     var body: some View {
@@ -91,6 +93,33 @@ struct VehicleDetailView: View {
                                 .frame(width: .infinity)
                         )
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                        
+                        // Add modification and Fuel Log buttons
+                        HStack{
+                            Button(action: {
+                                viewModel.isShowingAddModification = true
+                            }) {
+                                Text("Add Modification")
+                                    .font(.system(size: 14).weight(.bold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.redTheme)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(100)
+                            }
+                            Button(action: {
+                                viewModel.isShowingAddFuelLog = true
+                            }) {
+                                Text("Add Fuel Log")
+                                    .font(.system(size: 14).weight(.bold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.redTheme)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(100)
+                            }
+                            
+                        }
                     }
                 }
                 .padding(17)
@@ -113,7 +142,100 @@ struct VehicleDetailView: View {
             }
         }
         .toolbarColorScheme(.dark, for: .navigationBar)
-        
+        .sheet(isPresented: $viewModel.isShowingAddModification){
+            VStack(alignment:.leading, spacing: 8){
+                Text("Add a Modification")
+                
+                Text("Modification Type")
+                    .font(.system(size: 14).weight(.medium))
+                Picker("Exhaust", selection: $viewModel.modType) {
+                    ForEach(viewModel.modTypes, id: \.self) {
+                        Text($0)
+                    }
+                    .pickerStyle(.menu)
+                }
+                .font(.system(size: 12))
+                .keyboardType(.asciiCapable)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .padding(.vertical, 16)
+                .padding(.horizontal, 12)
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.rectBorder, lineWidth: 1)
+                )
+                
+                Text("Modification Name")
+                    .font(.system(size: 14).weight(.medium))
+                TextField(
+                    "",
+                    text: $viewModel.modName,
+                    prompt: Text("Search by registration, make or model...")
+                        .foregroundStyle(Color("bodyText"))
+                )
+                .font(.system(size: 12))
+                .keyboardType(.asciiCapable)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .padding(.vertical, 16)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.rectBorder, lineWidth: 1)
+                )
+                Text("Cost")
+                    .font(.system(size: 14).weight(.medium))
+                TextField(
+                    "",
+                    value: $viewModel.modCost,
+                    format: .currency(code: "GBP"),
+                    prompt: Text("140.58")
+                        .foregroundStyle(Color("bodyText"))
+                )
+                .font(.system(size: 12))
+                .keyboardType(.decimalPad)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .padding(.vertical, 16)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.rectBorder, lineWidth: 1)
+                )
+                Text("Description")
+                    .font(.system(size: 14).weight(.medium))
+                TextField(
+                    "",
+                    text: $viewModel.modDesc,
+                    prompt: Text("Add a description to sum up the modifcation you added to your vehicle")
+                        .foregroundStyle(Color("bodyText"))
+                )
+                .font(.system(size: 12))
+                .keyboardType(.asciiCapable)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .padding(.vertical, 16)
+                .padding(.horizontal, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.rectBorder, lineWidth: 1)
+                )
+                Button(action: {
+                    //
+                }) {
+                    Text("Save")
+                        .font(.system(size: 14).weight(.bold))
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.redTheme)
+                        .foregroundColor(.white)
+                        .cornerRadius(100)
+                }
+            }
+            .padding(17)
+            .frame(alignment: .top)
+        }
     }
 }
 
