@@ -45,7 +45,7 @@ struct HomeView: View {
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
     var body: some View {
-        VStack {
+        VStack(spacing: 12) {
             HStack() {
                 Image("AdaptiveLaunch")
                     .resizable()
@@ -70,7 +70,6 @@ struct DashboardView: View {
                     
                 }
             }
-            .padding(.horizontal, 17)
             if let vehicle = viewModel.primaryVehicle {
                 VStack(alignment: .leading, spacing: 22){
                     Text("\(vehicle.make) " + "\(vehicle.model) ")
@@ -84,27 +83,16 @@ struct DashboardView: View {
                         .foregroundStyle(Color.black)
                         .background(
                             RoundedRectangle(cornerRadius: 1)
-                                .stroke(Color.black, lineWidth: 1)
+                                .stroke(Color.black, lineWidth: 3)
                                 .fill(Color.yellow)
                         )
-                        
-                    HStack(spacing: 15){
-                        Image(systemName: "drop.halffull")
-                            .font(.system(size: 16))
-                        Text("\(vehicle.fuelType)")
-                        Divider()
-                            .background(Color.rectBorder)
-                            .frame(maxWidth: 1, maxHeight: 20)
-                        Image(systemName: "paintbrush")
-                            .font(.system(size: 16))
-                        Text("\(vehicle.colour)")
-                    }
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.navText)
                 }
-                .padding(.horizontal,17)
-                .frame(maxWidth: .infinity, maxHeight: 170, alignment: .leading)
-                .background(Color.rectFill)
+                .padding(16)
+                .frame(maxWidth: .infinity, maxHeight: 140, alignment: .leading)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.rectFill)
+                )
                 
                 HStack(spacing: 17) {
                     VStack(alignment: .leading) {
@@ -116,7 +104,7 @@ struct DashboardView: View {
                                     Image("mot")
                                         .resizable()
                                         .scaledToFit()
-                                        .frame(width: 24, height: 24)
+                                        .frame(width: 28, height: 28)
                                         .foregroundStyle(Color.redTheme)
                                 )
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -210,17 +198,41 @@ struct DashboardView: View {
                     )
                 }
                 .padding(.top, 12)
-                .padding(.horizontal, 17)
+                
+                Text("Recent Activity")
+                    .foregroundColor(.lightBlack)
+                    .font(.system(size: 17).weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                List {
+                    ForEach(viewModel.modifications.sorted { $0.createdAt > $1.createdAt
+                    }
+                    ) { modification in
+                        ModificationCard(
+                            modification: modification,
+                        )
+                        .environmentObject(viewModel)
+                        .padding(.vertical, 10)
+                        .listRowInsets(.init())
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+                    }
+                }
+                .listStyle(.plain)
             
             } else {
                 Text("Add a vehicle")
             }
             
         }
+        .padding(.horizontal, 17)
         .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
         .onAppear {
             Task {
                 await viewModel.loadVehicleData()
+                if let vehicleID = viewModel.primaryVehicle?.id, !vehicleID.isEmpty {
+                    await viewModel.loadModifications(vehicleID)
+                }
             }
         }
     }
@@ -255,6 +267,77 @@ struct PulsingCircle: View {
         } else {
             return .easeInOut(duration: 0.8).repeatForever(autoreverses: true)
         }
+    }
+}
+
+struct ModificationCard: View {
+    @EnvironmentObject var viewModel: HomeViewModel
+
+    let modification: ModificationModel
+
+    var body: some View {
+        HStack{
+            ZStack{
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.rectFill)
+                    .frame(width:46, height: 46)
+                
+                switch modification.type {
+                case "Exhaust":
+                    Image(systemName: "pipe.and.drop.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                case "Windows":
+                    Image(systemName: "car.window.right")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                case "Lights":
+                    Image(systemName: "lightbulb.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                case "Engine":
+                    Image(systemName: "engine.combustion.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                case "Bodykit":
+                    Image(systemName: "car.side.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                default:
+                    Image(systemName: "car.side.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                }
+            }
+            VStack(alignment: .leading, spacing: 4){
+                Text(modification.name)
+                    .font(.system(size: 14).weight(.medium))
+                    .foregroundStyle(Color.lightBlack)
+                Text(viewModel.modDateFormatter(modification.createdAt))
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.bodyText)
+                    .tracking(-0.4)
+
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.rectBorder, lineWidth: 1)
+        )
     }
 }
 

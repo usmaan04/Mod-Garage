@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct VehicleDetailView: View {
     
@@ -15,90 +16,88 @@ struct VehicleDetailView: View {
     
     var body: some View {
         VStack {
-            ZStack(alignment: .top){
+            ZStack(alignment: .top) {
                 RoundedRectangle(cornerRadius: 20)
                     .fill(Color.background)
                     .stroke(Color.rectBorder, lineWidth: 1)
-                
+
                 ScrollView(.vertical) {
                     VStack(spacing: 30) {
                         Image("AdaptiveLaunch")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 140, height: 140)
-                        
+
                         Divider()
-                        
-                        HStack(){
-                            VStack(alignment: .leading){
+
+                        HStack {
+                            VStack(alignment: .leading) {
                                 Text(vehicle.make)
                                     .font(.system(size: 12))
                                     .foregroundStyle(Color.bodyText)
+
                                 Text(vehicle.model)
                                     .font(.system(size: 16).weight(.semibold))
                             }
-                            
-                            
-                            Text("\(vehicle.registration)")
+
+                            Text(vehicle.registration)
                                 .font(.system(size: 15).weight(.bold))
-                                .padding(.vertical,6)
-                                .padding(.horizontal,20)
+                                .padding(.vertical, 6)
+                                .padding(.horizontal, 20)
                                 .foregroundStyle(Color.black)
                                 .background(
                                     RoundedRectangle(cornerRadius: 1)
-                                       
                                         .fill(Color.yellow)
                                 )
-                                .frame(maxWidth: .infinity,alignment: .trailing)
-                            
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                        
-                        VStack(alignment: .leading, spacing: 14){
-                            HStack(spacing: 10){
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            HStack(spacing: 10) {
                                 Image(systemName: "drop.halffull")
                                 Text("Fuel Type")
                                     .font(.system(size: 14))
                                 Text(vehicle.fuelType)
                                     .font(.system(size: 12))
                                     .foregroundStyle(Color.navText)
-                                    .frame(maxWidth:.infinity, alignment: .trailing)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
                             Divider()
-                            HStack(spacing: 10){
+
+                            HStack(spacing: 10) {
                                 Image(systemName: "paintbrush")
                                 Text("Colour")
                                     .font(.system(size: 14))
                                 Text(vehicle.colour)
                                     .font(.system(size: 12))
                                     .foregroundStyle(Color.navText)
-                                    .frame(maxWidth:.infinity, alignment: .trailing)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
                             Divider()
-                            HStack(spacing: 10){
+
+                            HStack(spacing: 10) {
                                 Image(systemName: "calendar")
                                 Text("Year")
                                     .font(.system(size: 14))
                                 Text("\(vehicle.year)")
                                     .font(.system(size: 12))
                                     .foregroundStyle(Color.navText)
-                                    .frame(maxWidth:.infinity, alignment: .trailing)
-                                    
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
                             }
                         }
                         .padding(20)
                         .background(
                             Rectangle()
                                 .fill(Color.rectFill)
-                                .frame(width: .infinity)
                         )
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                        
+                        .frame(maxWidth: .infinity)
+
                         // Add modification and Fuel Log buttons
-                        HStack{
-                            Button(action: {
+                        HStack {
+                            Button {
                                 viewModel.isShowingAddModification = true
-                            }) {
+                            } label: {
                                 Text("Add Modification")
                                     .font(.system(size: 14).weight(.bold))
                                     .frame(maxWidth: .infinity)
@@ -107,9 +106,10 @@ struct VehicleDetailView: View {
                                     .foregroundColor(.white)
                                     .cornerRadius(100)
                             }
-                            Button(action: {
+
+                            Button {
                                 viewModel.isShowingAddFuelLog = true
-                            }) {
+                            } label: {
                                 Text("Add Fuel Log")
                                     .font(.system(size: 14).weight(.bold))
                                     .frame(maxWidth: .infinity)
@@ -117,8 +117,7 @@ struct VehicleDetailView: View {
                                     .background(Color.redTheme)
                                     .foregroundColor(.white)
                                     .cornerRadius(100)
-                            }
-                            
+                            }                            
                         }
                     }
                 }
@@ -137,104 +136,18 @@ struct VehicleDetailView: View {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.white)
-                    
                 }
             }
         }
         .toolbarColorScheme(.dark, for: .navigationBar)
-        .sheet(isPresented: $viewModel.isShowingAddModification){
-            VStack(alignment:.leading, spacing: 8){
-                Text("Add a Modification")
-                
-                Text("Modification Type")
-                    .font(.system(size: 14).weight(.medium))
-                Picker("Exhaust", selection: $viewModel.modType) {
-                    ForEach(viewModel.modTypes, id: \.self) {
-                        Text($0)
-                    }
-                    .pickerStyle(.menu)
-                }
-                .font(.system(size: 12))
-                .keyboardType(.asciiCapable)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .padding(.vertical, 16)
-                .padding(.horizontal, 12)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.rectBorder, lineWidth: 1)
-                )
-                
-                Text("Modification Name")
-                    .font(.system(size: 14).weight(.medium))
-                TextField(
-                    "",
-                    text: $viewModel.modName,
-                    prompt: Text("Search by registration, make or model...")
-                        .foregroundStyle(Color("bodyText"))
-                )
-                .font(.system(size: 12))
-                .keyboardType(.asciiCapable)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .padding(.vertical, 16)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.rectBorder, lineWidth: 1)
-                )
-                Text("Cost")
-                    .font(.system(size: 14).weight(.medium))
-                TextField(
-                    "",
-                    value: $viewModel.modCost,
-                    format: .currency(code: "GBP"),
-                    prompt: Text("140.58")
-                        .foregroundStyle(Color("bodyText"))
-                )
-                .font(.system(size: 12))
-                .keyboardType(.decimalPad)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .padding(.vertical, 16)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.rectBorder, lineWidth: 1)
-                )
-                Text("Description")
-                    .font(.system(size: 14).weight(.medium))
-                TextField(
-                    "",
-                    text: $viewModel.modDesc,
-                    prompt: Text("Add a description to sum up the modifcation you added to your vehicle")
-                        .foregroundStyle(Color("bodyText"))
-                )
-                .font(.system(size: 12))
-                .keyboardType(.asciiCapable)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .padding(.vertical, 16)
-                .padding(.horizontal, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.rectBorder, lineWidth: 1)
-                )
-                Button(action: {
-                    //
-                }) {
-                    Text("Save")
-                        .font(.system(size: 14).weight(.bold))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.redTheme)
-                        .foregroundColor(.white)
-                        .cornerRadius(100)
-                }
+        .sheet(isPresented: $viewModel.isShowingAddModification) {
+            NavigationStack {
+                AddModificationView(vehicleId: vehicle.id)
+                    .environmentObject(viewModel)
             }
-            .padding(17)
-            .frame(alignment: .top)
+        }
+        .onAppear {
+            Task { await viewModel.loadModifications(vehicle.id) }
         }
     }
 }

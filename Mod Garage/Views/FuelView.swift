@@ -15,8 +15,7 @@ struct FuelView: View {
     var body: some View {
         NavigationView{
             VStack {
-                VStack(){
-                    
+                VStack{
                     if let vehicle = viewModel.primaryVehicle{
                         ScrollView(.vertical) {
                             VStack(spacing: 30) {
@@ -79,7 +78,6 @@ struct FuelView: View {
             .navigationTitle("Fuel Log")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .onAppear { Task {await viewModel.loadVehicleData()} }
         }
         
     }
