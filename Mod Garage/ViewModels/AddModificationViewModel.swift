@@ -33,13 +33,13 @@ final class AddModificationViewModel: ObservableObject {
         errorMessage = nil
 
         // Validate
-        if modName.isEmpty || modDesc.isEmpty {
+        if modType == "Select Type" || modName.isEmpty || modDesc.isEmpty {
             errorMessage = "Please fill all fields"
             return
         }
 
-        // Ensure name is not more than 20 characters
-        if modName.count > 20 {
+        // Ensure name is not more than 40 characters
+        if modName.count > 40 {
             errorMessage = "Invalid modification name"
             return
         }

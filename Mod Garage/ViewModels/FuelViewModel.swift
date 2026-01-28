@@ -12,19 +12,11 @@ import FirebaseFirestore
 
 @MainActor
 class FuelViewModel: ObservableObject {
-    @Published var name: String = ""
     @Published var primaryVehicle : VehicleModel?
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
 
     private let db = Firestore.firestore()
-    
-    init() {
-        Task {
-            await loadVehicleData()
-        }
-    }
-
     
     func loadVehicleData() async{
         guard let uid = Auth.auth().currentUser?.uid else {

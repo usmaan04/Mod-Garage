@@ -87,6 +87,16 @@ class HomeViewModel: ObservableObject {
         return "\(day)\(suffix) \(monthYear)"
     }
     
+    // Returns the signed number of days between today and the provided date.
+    func daysBetweenToday(date: Date?) -> Int {
+        guard let date = date else { return 0 }
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let targetStart = calendar.startOfDay(for: date)
+        let components = calendar.dateComponents([.day], from: todayStart, to: targetStart)
+        return components.day ?? 0
+    }
+    
     // Format Date as Day(st, nd, rd, th) Month Year
     func modDateFormatter(_ date: Date?) -> String {
         guard let date = date else { return "Could not get date" }
@@ -94,18 +104,9 @@ class HomeViewModel: ObservableObject {
         let calendar = Calendar.current
         let day = calendar.component(.day, from: date)
 
-        // Determine the suffix (st, nd, rd, th)
-        let suffix: String
-        switch day {
-        case 1, 21, 31: suffix = "st"
-        case 2, 22: suffix = "nd"
-        case 3, 23: suffix = "rd"
-        default: suffix = "th"
-        }
-
         // Format month and year
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
+        formatter.dateFormat = "MMM yyyy"
 
         let monthYear = formatter.string(from: date)
 

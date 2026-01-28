@@ -24,7 +24,7 @@ struct FuelView: View {
                                     .scaledToFit()
                                     .frame(width: 140, height: 140)
                                 
-                                NavigationLink(destination: VehicleDetailView(vehicle: vehicle)){                                HStack(){
+                                NavigationLink(destination: VehicleDetailView(vehicle: vehicle)){                                HStack{
                                         VStack(alignment: .leading){
                                             Text(vehicle.make)
                                                 .font(.system(size: 12))
@@ -35,18 +35,6 @@ struct FuelView: View {
                                         }
                                         
                                         HStack{
-                                            Text("\(vehicle.registration)")
-                                                .font(.system(size: 15).weight(.bold))
-                                                .padding(.vertical,6)
-                                                .padding(.horizontal,20)
-                                                .foregroundStyle(Color.black)
-                                                .background(
-                                                    RoundedRectangle(cornerRadius: 1)
-                                                       
-                                                        .fill(Color.yellow)
-                                                )
-                                            Image(systemName: "chevron.right")
-                                            foregroundStyle(Color.redTheme)
                                         }
                                         .frame(maxWidth: .infinity,alignment: .trailing)
                                         
@@ -57,7 +45,41 @@ struct FuelView: View {
                                             .fill(Color.rectFill)
                                     )
                                 }
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                                HStack{
+                                    ZStack{
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.lightPink)
+                                            .frame(width: 40, height: 40)
+                                        
+                                        Image(systemName: "wallet.bifold")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 20, height: 20)
+                                            .foregroundStyle(Color.redTheme)
+                                    }
+                                    VStack(alignment: .leading, spacing: 4){
+                                        Text("Total Spending")
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(Color.bodyText)
+                                            .tracking(-0.4)
+                                        Text("£1000")
+                                            .font(.system(size: 14).weight(.medium))
+                                            .foregroundStyle(Color.lightBlack)
+
+                                    }
+                                    Image(systemName:"fuelpump.fill")
+                                        .scaledToFill()
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                        .font(.system(size:22))
+                                        .foregroundStyle(Color.bodyText)
+                                        .opacity(0.4)
+                                }
+                                .padding(12)
+                                .frame(maxWidth: .infinity,alignment: .leading)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                )
                             }
                         }
                         .padding(17)
@@ -65,8 +87,8 @@ struct FuelView: View {
                     else{
                         Text("Hey there, please add a vehicle to see your fuel details")
                     }
-                    
-                    
+                
+                
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                 .background(RoundedRectangle(cornerRadius: 20)
@@ -78,8 +100,12 @@ struct FuelView: View {
             .navigationTitle("Fuel Log")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
+            .onAppear {
+                Task {
+                    await viewModel.loadVehicleData()
+                    }
+            }
         }
-        
     }
 }
 

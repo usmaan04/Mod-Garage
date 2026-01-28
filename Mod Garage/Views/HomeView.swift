@@ -45,7 +45,7 @@ struct HomeView: View {
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             HStack() {
                 Image("AdaptiveLaunch")
                     .resizable()
@@ -71,27 +71,58 @@ struct DashboardView: View {
                 }
             }
             if let vehicle = viewModel.primaryVehicle {
-                VStack(alignment: .leading, spacing: 22){
-                    Text("\(vehicle.make) " + "\(vehicle.model) ")
-                        .font(.system(size: 20).weight(.bold))
-                        .foregroundStyle(Color.lightBlack)
-                    
-                    Text("\(vehicle.registration)")
-                        .font(.system(size: 15).weight(.bold))
-                        .padding(.vertical,6)
-                        .padding(.horizontal,20)
-                        .foregroundStyle(Color.black)
-                        .background(
-                            RoundedRectangle(cornerRadius: 1)
-                                .stroke(Color.black, lineWidth: 3)
-                                .fill(Color.yellow)
+                
+                VStack(alignment: .leading, spacing: 4){
+                    Text("PRIMARY")
+                        .font(.system(size:10).weight(.bold))
+                        .foregroundStyle(Color.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.redTheme)
                         )
+                    VStack(alignment: .leading, spacing: 8){
+                        Text("\(vehicle.year) " + "\(vehicle.make) " + "\(vehicle.model) ")
+                            .font(.system(size: 26).weight(.bold))
+                            .foregroundStyle(Color.white)
+                        
+                        VStack(alignment: .leading, spacing: 8){
+                            Text("REGISTRATION")
+                                .font(.system(size: 8).weight(.semibold))
+                                .tracking(-0.4)
+                                .foregroundStyle(Color.white)
+                            Text("\(vehicle.registration)")
+                                .font(.system(size: 14).weight(.bold))
+                                .foregroundStyle(Color.white)
+                                .multilineTextAlignment(.leading)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.ultraThinMaterial)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.rectBorder, lineWidth: 0.1)
+                                )
+                        )
+                    }
+                   
+                    
                 }
-                .padding(16)
-                .frame(maxWidth: .infinity, maxHeight: 140, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 30)
+                .frame(maxWidth: .infinity, maxHeight: 220, alignment: .bottomLeading)
                 .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.rectFill)
+                    ZStack {
+                        Image("carimg")
+                            .resizable()
+                            .frame(maxWidth: .infinity, maxHeight: 220)
+                            .clipped()
+                        Rectangle()
+                            .fill(Color.black.opacity(0.3))
+                            .frame(maxWidth: .infinity, maxHeight: 220)
+                    }
                 )
                 
                 HStack(spacing: 17) {
@@ -121,10 +152,15 @@ struct DashboardView: View {
                         }
                         .padding(.bottom, 10)
 
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text("MOT")
                                 .font(.system(size: 12).weight(.medium))
-
+                
+                            Text(" \(viewModel.daysBetweenToday(date: vehicle.motExpiryDate)) Days ")
+                                .font(.system(size: 14).weight(.regular))
+                                .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
+                                .padding(-4)
+                                
                             if vehicle.motStatus == "Valid" {
                                 Text("Expires \(viewModel.dateFormatter(vehicle.motExpiryDate))")
                                     .font(.system(size: 11))
@@ -140,7 +176,7 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 8)
                     .padding(.horizontal, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
@@ -171,9 +207,14 @@ struct DashboardView: View {
                         }
                         .padding(.bottom, 10)
 
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: 10) {
                             Text("Road Tax")
                                 .font(.system(size: 12).weight(.medium))
+                            
+                            Text(" \(viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)) Days ")
+                                .font(.system(size: 14).weight(.regular))
+                                .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
+                                .padding(-4)
 
                             if vehicle.taxStatus == "Taxed" {
                                 Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
@@ -190,7 +231,7 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     }
-                    .padding(.vertical, 12)
+                    .padding(.vertical, 8)
                     .padding(.horizontal, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
@@ -212,7 +253,7 @@ struct DashboardView: View {
                             modification: modification,
                         )
                         .environmentObject(viewModel)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 8)
                         .listRowInsets(.init())
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
@@ -245,27 +286,35 @@ struct PulsingCircle: View {
     @State private var animate = false
 
     var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: 6, height: 6)
-            .scaleEffect(isValid && animate ? 1.4 : 1.0)
-            .shadow(
-                color: !isValid ? color.opacity(animate ? 1.6 : 0.3) : .clear,
-                radius: !isValid ? (animate ? 6 : 6) : 0
-            )
-        
-            .animation(animation, value: animate)
-            .onAppear {
-                animate = true
-            }
+        ZStack {
+            // Inner constant dot
+            Circle()
+                .fill(color)
+                .frame(width: 8, height: 8)
+                .shadow(
+                    color: !isValid ? color.opacity(0.6) : .clear,
+                    radius: !isValid ? 6 : 0
+                )
+
+            // Outward pulsing ring
+            Circle()
+                .stroke(color.opacity(0.9), lineWidth: 2)
+                .frame(width: 8, height: 8)
+                .scaleEffect(animate ? 2.0 : 1.0)
+                .opacity(animate ? 0.0 : (isValid ? 0.6 : 0.9))
+                .animation(animation, value: animate)
+        }
+        .onAppear {
+            animate = true
+        }
     }
 
     // Animation picker
     private var animation: Animation {
         if isValid {
-            return .easeInOut(duration: 1.5).repeatForever(autoreverses: true)
+            return .easeOut(duration: 2).repeatForever(autoreverses: false)
         } else {
-            return .easeInOut(duration: 0.8).repeatForever(autoreverses: true)
+            return .easeOut(duration: 0.8).repeatForever(autoreverses: false)
         }
     }
 }
@@ -332,7 +381,7 @@ struct ModificationCard: View {
 
             }
         }
-        .padding(10)
+        .padding(6)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 12)
@@ -346,3 +395,4 @@ struct ModificationCard: View {
     HomeView()
         .environmentObject(AppViewModel())
 }
+

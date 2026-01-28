@@ -15,117 +15,109 @@ struct VehicleDetailView: View {
     let vehicle:VehicleModel
     
     var body: some View {
-        VStack {
-            ZStack(alignment: .top) {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.background)
-                    .stroke(Color.rectBorder, lineWidth: 1)
-
-                ScrollView(.vertical) {
-                    VStack(spacing: 30) {
-                        Image("AdaptiveLaunch")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 140, height: 140)
-
-                        Divider()
-
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(vehicle.make)
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(Color.bodyText)
-
-                                Text(vehicle.model)
-                                    .font(.system(size: 16).weight(.semibold))
-                            }
-
-                            Text(vehicle.registration)
-                                .font(.system(size: 15).weight(.bold))
-                                .padding(.vertical, 6)
-                                .padding(.horizontal, 20)
-                                .foregroundStyle(Color.black)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 1)
-                                        .fill(Color.yellow)
-                                )
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        VStack(alignment: .leading, spacing: 14) {
-                            HStack(spacing: 10) {
+        ZStack(alignment: .top) {
+            Image("AdaptiveLaunch")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 100, height: 100)
+            ScrollView(.vertical) {
+                VStack(spacing: 30) {
+                    
+                    HStack {
+                        Text("\(vehicle.make) " + "\(vehicle.model) ")
+                            .font(.system(size: 22))
+                            .foregroundStyle(Color.lightBlack)
+                        
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    HStack{
+                        VStack(spacing: 10) {
+                    
+                            HStack(spacing: 10){
                                 Image(systemName: "drop.halffull")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.redTheme)
                                 Text("Fuel Type")
                                     .font(.system(size: 14))
-                                Text(vehicle.fuelType)
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(Color.navText)
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .foregroundStyle(Color.redTheme)
+                                   
+                                 
                             }
-                            Divider()
-
-                            HStack(spacing: 10) {
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Text(vehicle.fuelType)
+                                .font(.system(size: 16))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 22)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.rectBorder, lineWidth: 1)
+                        )
+                        
+                        VStack(spacing: 10) {
+                    
+                            HStack(spacing: 10){
                                 Image(systemName: "paintbrush")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.redTheme)
                                 Text("Colour")
                                     .font(.system(size: 14))
-                                Text(vehicle.colour)
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(Color.navText)
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .foregroundStyle(Color.redTheme)
+                                   
+                                 
                             }
-                            Divider()
-
-                            HStack(spacing: 10) {
-                                Image(systemName: "calendar")
-                                Text("Year")
-                                    .font(.system(size: 14))
-                                Text("\(vehicle.year)")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(Color.navText)
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
-                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Text(vehicle.colour)
+                                .font(.system(size: 16))
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        .padding(20)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 22)
                         .background(
-                            Rectangle()
-                                .fill(Color.rectFill)
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.rectBorder, lineWidth: 1)
                         )
-                        .frame(maxWidth: .infinity)
+                        
+                        
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                        // Add modification and Fuel Log buttons
-                        HStack {
-                            Button {
-                                viewModel.isShowingAddModification = true
-                            } label: {
-                                Text("Add Modification")
-                                    .font(.system(size: 14).weight(.bold))
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.redTheme)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(100)
-                            }
+                    // Add modification and Fuel Log buttons
+                    HStack {
+                        Button {
+                            viewModel.isShowingAddModification = true
+                        } label: {
+                            Text("Add Modification")
+                                .font(.system(size: 14).weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.redTheme)
+                                .foregroundColor(.white)
+                                .cornerRadius(100)
+                        }
 
-                            Button {
-                                viewModel.isShowingAddFuelLog = true
-                            } label: {
-                                Text("Add Fuel Log")
-                                    .font(.system(size: 14).weight(.bold))
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.redTheme)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(100)
-                            }                            
+                        Button {
+                            viewModel.isShowingAddFuelLog = true
+                        } label: {
+                            Text("Add Fuel Log")
+                                .font(.system(size: 14).weight(.bold))
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.redTheme)
+                                .foregroundColor(.white)
+                                .cornerRadius(100)
                         }
                     }
                 }
-                .padding(17)
             }
+            .padding(.horizontal, 17)
+            .padding(.top, 40)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.redTheme)
         .navigationTitle("Vehicle Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -143,6 +135,12 @@ struct VehicleDetailView: View {
         .sheet(isPresented: $viewModel.isShowingAddModification) {
             NavigationStack {
                 AddModificationView(vehicleId: vehicle.id)
+                    .environmentObject(viewModel)
+            }
+        }
+        .sheet(isPresented: $viewModel.isShowingAddFuelLog) {
+            NavigationStack {
+                AddFuelLogView(vehicleId: vehicle.id)
                     .environmentObject(viewModel)
             }
         }

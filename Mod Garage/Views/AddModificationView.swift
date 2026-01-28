@@ -32,12 +32,11 @@ struct AddModificationView:View {
                         "",
                         text: $viewModel.modName,
                         prompt: Text("Sport Exhaust System")
-                            .foregroundStyle(Color("lightBlack"))
+                            .foregroundStyle(Color("bodyText"))
                     )
                     .font(.system(size: 13))
                     .keyboardType(.asciiCapable)
                     .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
                     .padding(.vertical, 16)
                     .padding(.horizontal, 12)
                     .background(
@@ -57,8 +56,6 @@ struct AddModificationView:View {
                     .font(.system(size: 13))
                     .foregroundStyle(Color("lightBlack"))
                     .keyboardType(.decimalPad)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
                     .padding(.vertical, 16)
                     .padding(.horizontal, 12)
                     .background(
@@ -78,7 +75,7 @@ struct AddModificationView:View {
                         .keyboardType(.asciiCapable)
                         
                         if viewModel.modDesc == "" {
-                            Text("Upgraded exhaust for improved sound and slight performance enhancement")
+                            Text("Enter description")
                                 .tracking(-0.2)
                                 .frame(maxWidth: .infinity, alignment:.leading)
                                 .padding(.horizontal, 4)
