@@ -15,6 +15,7 @@ struct HomeView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             
+            
             // Main content area based on the selected tab
             Group {
                 switch viewModel.selectedTab {
@@ -31,7 +32,7 @@ struct HomeView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(.background))
+            .background(Color.background)
             .environmentObject(viewModel)
             .environmentObject(settingsViewModel)
             .preferredColorScheme(settingsViewModel.overrideColorScheme)
@@ -45,7 +46,7 @@ struct HomeView: View {
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 8) {
             HStack() {
                 Image("AdaptiveLaunch")
                     .resizable()
@@ -124,6 +125,7 @@ struct DashboardView: View {
                             .frame(maxWidth: .infinity, maxHeight: 220)
                     }
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 
                 HStack(spacing: 17) {
                     VStack(alignment: .leading) {
@@ -181,6 +183,7 @@ struct DashboardView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.rectBorder, lineWidth: 1)
+                            .fill(Color.boxbackground)
                     )
                     VStack(alignment: .leading) {
                         ZStack(alignment: .topTrailing) {
@@ -211,10 +214,19 @@ struct DashboardView: View {
                             Text("Road Tax")
                                 .font(.system(size: 12).weight(.medium))
                             
-                            Text(" \(viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)) Days ")
-                                .font(.system(size: 14).weight(.regular))
-                                .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
-                                .padding(-4)
+                            let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
+                            if date < 40{
+                                Text(" \(date) Days ")
+                                    .font(.system(size: 14).weight(.regular))
+                                    .foregroundStyle(Color.orange)
+                                    .padding(-4)
+                            }
+                            else{
+                                Text(" \(date) Days ")
+                                    .font(.system(size: 14).weight(.regular))
+                                    .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
+                                    .padding(-4)
+                            }
 
                             if vehicle.taxStatus == "Taxed" {
                                 Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
@@ -236,6 +248,7 @@ struct DashboardView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 8)
                             .stroke(Color.rectBorder, lineWidth: 1)
+                            .fill(Color.boxbackground)
                     )
                 }
                 .padding(.top, 12)
@@ -271,10 +284,10 @@ struct DashboardView: View {
         .onAppear {
             Task {
                 await viewModel.loadVehicleData()
-                if let vehicleID = viewModel.primaryVehicle?.id, !vehicleID.isEmpty {
-                    await viewModel.loadModifications(vehicleID)
-                }
             }
+        }
+        .task {
+            await viewModel.refreshOncePerLaunch()
         }
     }
 }
@@ -386,6 +399,7 @@ struct ModificationCard: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.rectBorder, lineWidth: 1)
+                .fill(Color.boxbackground)
         )
     }
 }

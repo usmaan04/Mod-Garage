@@ -20,10 +20,25 @@ class HomeViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
 
     private let db = Firestore.firestore()
+    
+    private var didRefreshOnThisLaunch = false
 
     init() {
         fetchUserName()
     }
+    
+    func refreshOncePerLaunch() async {
+        guard !didRefreshOnThisLaunch else { return }
+        didRefreshOnThisLaunch = true
+        
+        await loadVehicleData()
+        
+        if let vehicle = primaryVehicle, !vehicle.id.isEmpty {
+            await updateDvlaDates(registration: vehicle.registration, vehicleId: vehicle.id)
+            await loadModifications(vehicle.id)
+        }
+    }
+    
 
     func fetchUserName() {
         guard let user = Auth.auth().currentUser else {
@@ -111,6 +126,70 @@ class HomeViewModel: ObservableObject {
         let monthYear = formatter.string(from: date)
 
         return "\(day) \(monthYear)"
+    }
+    
+    // Fetches and update the latest MOT and Tax dates from DVLA
+    func updateDvlaDates(registration: String, vehicleId: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            errorMessage = "No logged in user."
+            return
+        }
+
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
+
+        do {
+            let dvla = try await DVLAService().fetchVehicle(for: registration)
+
+            // DVLA dates are typically "yyyy-MM-dd"
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_GB")
+            df.timeZone = TimeZone(secondsFromGMT: 0)
+            df.dateFormat = "yyyy-MM-dd"
+
+            var update: [String: Any] = [:]
+
+            // MOT
+            if let motStatus = dvla.motStatus {
+                update["motStatus"] = motStatus
+            }
+            if let motExpiryStr = dvla.motExpiryDate,
+               let motDate = df.date(from: motExpiryStr) {
+                update["motExpiryDate"] = Timestamp(date: motDate)
+            }
+
+            // TAX
+            if let taxStatus = dvla.taxStatus {
+                update["taxStatus"] = taxStatus
+            }
+            if let taxDueStr = dvla.taxDueDate,
+               let taxDate = df.date(from: taxDueStr) {
+                update["taxExpiryDate"] = Timestamp(date: taxDate) // your Firestore field name
+            }
+
+            guard !update.isEmpty else {
+                errorMessage = "DVLA returned no MOT/Tax fields to update."
+                return
+            }
+
+            try await db.collection("users")
+                .document(uid)
+                .collection("vehicles")
+                .document(vehicleId)
+                .updateData(update)
+
+            // Refresh local model
+            await loadVehicleData()
+            if let id = primaryVehicle?.id {
+                await loadModifications(id)
+            }
+
+        } catch let urlError as URLError {
+            errorMessage = "Failed to refresh from DVLA: \(urlError.localizedDescription)"
+        } catch {
+            errorMessage = "Failed to refresh from DVLA: \(error.localizedDescription)"
+        }
     }
     
     func loadVehicleData() async{

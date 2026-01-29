@@ -494,6 +494,7 @@ struct VehicleView: View {
                 .padding(.horizontal, 17)
                 .padding(.top, 10)
                 .frame(maxWidth: .infinity, alignment: .top)
+                .background(Color.background)
 
                 // Modal
                 if viewModel.isShowingAddVehicle {
@@ -509,7 +510,7 @@ struct VehicleView: View {
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.rectBorder, lineWidth: 2)
-                                    .fill(Color.background)
+                                    .fill(Color.boxbackground)
                             )
                             .shadow(radius: 8)
                             .padding(.horizontal, 25)
@@ -594,6 +595,7 @@ struct VehicleCard: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color.rectBorder, lineWidth: 1)
+                    .fill(Color.boxbackground)
             )
         }
         .buttonStyle(.plain)

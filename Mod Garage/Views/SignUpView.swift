@@ -175,7 +175,7 @@ struct SignUpView: View {
             Spacer()
         }
         .padding(.horizontal, 8)
-        .background(Color(.background))
+        .background(Color.backgroundW)
         .alert(isPresented: $viewModel.showAlert) {
             Alert(
                 title: Text("Notice"),

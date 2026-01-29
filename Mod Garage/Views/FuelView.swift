@@ -96,10 +96,9 @@ struct FuelView: View {
                     .stroke(Color.rectBorder, lineWidth: 1))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .background(Color.redTheme)
+            .background(Color.background)
             .navigationTitle("Fuel Log")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .onAppear {
                 Task {
                     await viewModel.loadVehicleData()

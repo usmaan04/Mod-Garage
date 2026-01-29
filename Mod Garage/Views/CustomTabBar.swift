@@ -34,7 +34,7 @@ struct CustomTabBar: View {
                         ZStack {
                             // Outer circle
                             Circle()
-                                .fill(Color.background)
+                                .fill(Color.backgroundW)
                                 .frame(width: 62, height: 62)
                                 .overlay(
                                     Circle()
@@ -91,7 +91,7 @@ struct CustomTabBar: View {
                 .stroke(Color.rectBorder, lineWidth: 1)
                 .shadow(radius: 12)
         )
-        .background(Color.background)
+        .background(Color.backgroundW)
     }
 }
 

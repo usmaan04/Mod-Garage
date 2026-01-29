@@ -23,10 +23,6 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Settings")
-                    .foregroundColor(.black)
-                    .font(.system(size: 18).weight(.semibold))
-                    .frame(maxWidth: .infinity, alignment: .center)
                 HStack(){
                     Image("AdaptiveLaunch")
                         .resizable()
@@ -160,10 +156,9 @@ struct SettingsView: View {
                 
             }
             .padding(.horizontal, 17)
-            .padding(.top, 14)
-            .background(Color(.background))
+            .background(Color.background)
             .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
-            .navigationTitle("")
+            .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $viewModel.showProfile) {
                 ProfileView()
@@ -222,6 +217,7 @@ struct SettingComponent: View {
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Color(.rectBorder), lineWidth: 1)
+                    .fill(Color.boxbackground)
             )
         }
     }
