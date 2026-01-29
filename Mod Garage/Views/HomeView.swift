@@ -46,7 +46,7 @@ struct HomeView: View {
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             HStack() {
                 Image("AdaptiveLaunch")
                     .resizable()
@@ -87,26 +87,22 @@ struct DashboardView: View {
                             .font(.system(size: 26).weight(.bold))
                             .foregroundStyle(Color.white)
                         
-                        VStack(alignment: .leading, spacing: 8){
-                            Text("REGISTRATION")
-                                .font(.system(size: 8).weight(.semibold))
-                                .tracking(-0.4)
-                                .foregroundStyle(Color.white)
-                            Text("\(vehicle.registration)")
-                                .font(.system(size: 14).weight(.bold))
-                                .foregroundStyle(Color.white)
-                                .multilineTextAlignment(.leading)
+                        GlassEffectContainer{
+                            VStack(alignment: .leading, spacing: 8){
+                                Text("REGISTRATION")
+                                    .font(.system(size: 8).weight(.semibold))
+                                    .tracking(-0.4)
+                                    .foregroundStyle(Color.white)
+                                Text("\(vehicle.registration)")
+                                    .font(.system(size: 14).weight(.bold))
+                                    .foregroundStyle(Color.white)
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 12)
+                            
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.ultraThinMaterial)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.rectBorder, lineWidth: 0.1)
-                                )
-                        )
+                        .glassEffect(in: RoundedRectangle(cornerRadius: 8))
                     }
                    
                     
@@ -126,6 +122,11 @@ struct DashboardView: View {
                     }
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                Text("MOT and Tax")
+                    .foregroundColor(.lightBlack)
+                    .font(.system(size: 17).weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 
                 HStack(spacing: 17) {
                     VStack(alignment: .leading) {
@@ -156,10 +157,10 @@ struct DashboardView: View {
 
                         VStack(alignment: .leading, spacing: 10) {
                             Text("MOT")
-                                .font(.system(size: 12).weight(.medium))
+                                .font(.system(size: 14).weight(.bold))
                 
                             Text(" \(viewModel.daysBetweenToday(date: vehicle.motExpiryDate)) Days ")
-                                .font(.system(size: 14).weight(.regular))
+                                .font(.system(size: 18).weight(.heavy))
                                 .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
                                 .padding(-4)
                                 
@@ -178,11 +179,10 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 8)
+                    .padding(12)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.rectBorder, lineWidth: 4)
                             .fill(Color.boxbackground)
                     )
                     VStack(alignment: .leading) {
@@ -212,18 +212,18 @@ struct DashboardView: View {
 
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Road Tax")
-                                .font(.system(size: 12).weight(.medium))
+                                .font(.system(size: 14).weight(.bold))
                             
                             let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
                             if date < 40{
                                 Text(" \(date) Days ")
-                                    .font(.system(size: 14).weight(.regular))
+                                    .font(.system(size: 18).weight(.heavy))
                                     .foregroundStyle(Color.orange)
                                     .padding(-4)
                             }
                             else{
                                 Text(" \(date) Days ")
-                                    .font(.system(size: 14).weight(.regular))
+                                    .font(.system(size: 18).weight(.heavy))
                                     .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
                                     .padding(-4)
                             }
@@ -243,15 +243,13 @@ struct DashboardView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 8)
+                    .padding( 12)
                     .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.rectBorder, lineWidth: 4)
                             .fill(Color.boxbackground)
                     )
                 }
-                .padding(.top, 12)
                 
                 Text("Recent Activity")
                     .foregroundColor(.lightBlack)
@@ -338,7 +336,7 @@ struct ModificationCard: View {
     let modification: ModificationModel
 
     var body: some View {
-        HStack{
+        HStack(spacing:10){
             ZStack{
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.rectFill)
@@ -385,20 +383,21 @@ struct ModificationCard: View {
             }
             VStack(alignment: .leading, spacing: 4){
                 Text(modification.name)
-                    .font(.system(size: 14).weight(.medium))
+                    .font(.system(size: 18).weight(.medium))
                     .foregroundStyle(Color.lightBlack)
                 Text(viewModel.modDateFormatter(modification.createdAt))
-                    .font(.system(size: 11))
+                    .font(.system(size: 14))
                     .foregroundStyle(Color.bodyText)
                     .tracking(-0.4)
 
             }
         }
-        .padding(6)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.rectBorder, lineWidth: 1)
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(Color.rectBorder, lineWidth: 2)
                 .fill(Color.boxbackground)
         )
     }
