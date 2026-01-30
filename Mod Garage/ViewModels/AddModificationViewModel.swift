@@ -21,9 +21,11 @@ final class AddModificationViewModel: ObservableObject {
     @Published var modName: String = ""
     @Published var modCost: Double = 0
     @Published var modDesc: String = ""
+    @Published var modDate: Date = Date()
     @Published var beforeImage: PhotosPickerItem?
     @Published var afterImage: PhotosPickerItem?
 
+    @Published var showDatePicker = false
     @Published var errorMessage: String? = nil
 
     // Called when the modification is ready to be saved to Firestore by the parent view
@@ -45,9 +47,6 @@ final class AddModificationViewModel: ObservableObject {
         }
 
         do {
-            // Upload images (if provided) and get download URLs
-            //let beforeURL = try await uploadPickedImage(beforeImage, uid: uid, folder: "before")
-            //let afterURL  = try await uploadPickedImage(afterImage, uid: uid, folder: "after")
 
             // Build model using URL strings (or nil)
             let newModification = ModificationModel(
@@ -56,6 +55,7 @@ final class AddModificationViewModel: ObservableObject {
                 name: modName,
                 cost: modCost,
                 description: modDesc,
+                date: modDate,
                 beforeImageURL: nil,     // String?
                 afterImageURL: nil,       // String?
                 createdAt: Date()
@@ -76,6 +76,7 @@ final class AddModificationViewModel: ObservableObject {
         modName = ""
         modCost = 0
         modDesc = ""
+        modDate = Date()
         beforeImage = nil
         afterImage = nil
         errorMessage = nil

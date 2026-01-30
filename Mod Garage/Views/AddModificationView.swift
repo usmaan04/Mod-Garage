@@ -20,62 +20,102 @@ struct AddModificationView:View {
     var body: some View {
         VStack(spacing: 24){
             ScrollView{
-                VStack(spacing: 12){
-                    Text("Modification Type")
-                        .font(.system(size: 14).weight(.medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    ModTypeDropdown(selection: $viewModel.modType, options: viewModel.modTypes)
-                    Text("Modification Name")
-                        .font(.system(size: 14).weight(.medium))
+                VStack(spacing: 14){
+                    Text("MOD NAME")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                        .tracking(-0.6)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     TextField(
                         "",
                         text: $viewModel.modName,
                         prompt: Text("Sport Exhaust System")
-                            .foregroundStyle(Color("bodyText"))
+                            .foregroundStyle(Color.navText)
                     )
-                    .font(.system(size: 13))
+                    .font(.system(size: 14))
                     .keyboardType(.asciiCapable)
                     .textInputAutocapitalization(.never)
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 12)
+                    .padding(16)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.rectBorder, lineWidth: 3)
+                            .fill(Color.boxbackground)
                     )
-                    Text("Cost")
-                        .font(.system(size: 14).weight(.medium))
+                    Text("MOD TYPE")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    TextField(
-                        "",
-                        value: $viewModel.modCost,
-                        format: .currency(code: "GBP"),
-                        prompt: Text("140.58")
-                            .foregroundStyle(Color("bodyText"))
-                    )
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color("lightBlack"))
-                    .keyboardType(.decimalPad)
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 1)
-                    )
-                    Text("Description")
-                        .font(.system(size: 14).weight(.medium))
+                    ModTypeDropdown(selection: $viewModel.modType, options: viewModel.modTypes)
+                    HStack{
+                        Text("COST")
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("INSTALL DATE")
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    HStack{
+                        TextField(
+                            "",
+                            value: $viewModel.modCost,
+                            format: .currency(code: "GBP"),
+                            prompt: Text("140.58")
+                                .foregroundStyle(Color.navText)
+                        )
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.lightBlack)
+                        .keyboardType(.decimalPad)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.rectBorder, lineWidth: 3)
+                                .fill(Color.boxbackground)
+                        )
+                        Button {
+                            viewModel.showDatePicker.toggle()
+                        } label: {
+                            HStack(spacing: 26){
+                                Text(viewModel.modDate.formatted(date: .abbreviated, time: .omitted))
+                                Image(systemName: "calendar")
+                            }
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.lightBlack)
+                            .padding(16)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.rectBorder, lineWidth: 3)
+                                    .fill(Color.boxbackground)
+                            )
+                        }
+                        .sheet(isPresented: $viewModel.showDatePicker) {
+                            DatePicker(
+                                "Select date",
+                                selection: $viewModel.modDate,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.graphical)
+                            .presentationDetents([.medium])
+                        }
+                    }
+                    Text("DESCRIPTION")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                        .foregroundStyle(Color.navText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     ZStack(alignment: .top){
                         TextEditor(
                             text: $viewModel.modDesc)
                         
-                        .font(.system(size: 13))
+                        .font(.system(size: 14))
                         .tracking(-0.2)
                         .keyboardType(.asciiCapable)
                         
                         if viewModel.modDesc == "" {
-                            Text("Enter description")
+                            Text("Enter description, include part numbers, seller details or installation notes here")
                                 .tracking(-0.2)
                                 .frame(maxWidth: .infinity, alignment:.leading)
                                 .padding(.horizontal, 4)
@@ -84,56 +124,66 @@ struct AddModificationView:View {
                     
                     }
                     .font(.system(size: 13))
-                    .foregroundStyle(Color("bodyText"))
+                    .foregroundStyle(Color.navText)
                     .frame(height: 80, alignment: .leading)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 16)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.rectBorder, lineWidth: 3)
+                            .fill(Color.boxbackground)
                     )
-                    Text("Before Image")
-                        .font(.system(size: 14).weight(.medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack(spacing: 12){
-                        Image(systemName: "photo.badge.plus")
-                            .font(.system(size: 24))
-                        VStack(spacing: 4){
-                            Text("Add Image")
-                                .font(.system(size: 14).weight(.medium))
-                            PhotosPicker("Click to upload an image (PDF, JPG, PNG)", selection: $viewModel.beforeImage)
-                                .font(.system(size: 10))
-                                .foregroundStyle(Color.bodyText)
-                        }
+                    HStack{
+                        Text("BEFORE IMAGE")
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("AFTER IMAGE")
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .padding(.vertical, 24)
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
-                    )
-                    Text("After Image")
-                        .font(.system(size: 14).weight(.medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    VStack(spacing: 12){
-                        Image(systemName: "photo.badge.plus")
-                            .font(.system(size: 24))
-                        VStack(spacing: 4){
-                            Text("Add Image")
-                                .font(.system(size: 14).weight(.medium))
-                            PhotosPicker("Click to upload an image (PDF, JPG, PNG)", selection: $viewModel.afterImage)
-                                .font(.system(size: 10))
-                                .foregroundStyle(Color.bodyText)
+                    HStack{
+                        VStack(spacing: 12){
+                            Image(systemName: "photo.badge.plus")
+                                .font(.system(size: 24))
+                            VStack(spacing: 4){
+                                Text("Add Image")
+                                    .font(.system(size: 12).weight(.medium))
+                                PhotosPicker("Click to upload an image (PDF, JPG, PNG)", selection: $viewModel.beforeImage)
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(Color.bodyText)
+                            }
                         }
+                        .padding(.vertical, 24)
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.rectBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
+                                .fill(Color.boxbackground)
+                        )
+                        VStack(spacing: 12){
+                            Image(systemName: "photo.badge.plus")
+                                .font(.system(size: 24))
+                            VStack(spacing: 4){
+                                Text("Add Image")
+                                    .font(.system(size: 12).weight(.medium))
+                                PhotosPicker("Click to upload an image (PDF, JPG, PNG)", selection: $viewModel.afterImage)
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(Color.bodyText)
+                            }
+                        }
+                        .padding(.vertical, 24)
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.rectBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
+                                .fill(Color.boxbackground)
+                        )
                     }
-                    .padding(.vertical, 24)
-                    .padding(.horizontal, 12)
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
-                    )
+                    
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
@@ -167,6 +217,7 @@ struct AddModificationView:View {
         .navigationTitle("Add a Modification")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.light, for: .navigationBar)
+        .background(Color.background)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading){
                 Button(role: .close) {
@@ -176,7 +227,7 @@ struct AddModificationView:View {
         }
         .onAppear {
             
-            // Important: link AddModificationViewModel → VehicleDetailViewModel
+            // link AddModificationViewModel → VehicleDetailViewModel
             viewModel.onModificationReady = { modification in
                 Task {
                     await detailViewModel.addModification(modification, vehicleId: vehicleId)
@@ -203,22 +254,22 @@ struct ModTypeDropdown: View {
         } label: {
             HStack {
                 Text(selection.isEmpty ? "Select" : selection)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color("lightBlack"))
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color.navText)
 
                 Spacer()
 
                 Image(systemName: "chevron.down")
                     .padding(.trailing, 8)
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
-            .padding(.vertical, 14)
-            .padding(.horizontal, 12)
+            .padding(16)
             .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.rectBorder, lineWidth: 1)
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.rectBorder, lineWidth: 3)
+                    .fill(Color.boxbackground)
             )
             .contentShape(Rectangle())
         }

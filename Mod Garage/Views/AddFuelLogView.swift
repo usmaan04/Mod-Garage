@@ -21,76 +21,102 @@ struct AddFuelLogView:View {
         VStack(spacing: 24){
             ScrollView{
                 VStack(spacing: 12){
-                    Text("Cost")
-                        .font(.system(size: 14).weight(.medium))
+                    Text("COST")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                        .tracking(-0.6)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     TextField(
                         "",
                         value: $viewModel.cost,
-                        format: .currency(code: "GBP"),
+                        format: .currency(code: "GBP")
+                            .precision(.fractionLength(2)),
                         prompt: Text("140.58")
                             .foregroundStyle(Color("bodyText"))
                     )
-                    .font(.system(size: 13))
+                    .font(.system(size: 14))
                     .foregroundStyle(Color("lightBlack"))
                     .keyboardType(.decimalPad)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 12)
+                    .padding(16)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.rectBorder, lineWidth: 3)
+                            .fill(Color.boxbackground)
                     )
-                    Text("Litres")
-                        .font(.system(size: 14).weight(.medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    TextField(
-                        "",
-                        value: $viewModel.litres,
-                        format: .currency(code: "GBP"),
-                        prompt: Text("140.58")
-                            .foregroundStyle(Color("bodyText"))
-                    )
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color("lightBlack"))
-                    .keyboardType(.decimalPad)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 1)
-                    )
-                    Text("Price per Litre")
-                        .font(.system(size: 14).weight(.medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Text(String(describing: viewModel.pricePerLitre))
+                    Text("LITRES")
                         .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                        .tracking(-0.6)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack{
+                        TextField(
+                            "",
+                            value: $viewModel.litres,
+                            format: .number
+                                .precision(.fractionLength(2)),
+                            prompt: Text("140.58").foregroundStyle(Color("bodyText"))
+                        )
+                        .keyboardType(.decimalPad)
+                        Text("L")
+                    }
                     
-                    Text("Mileage")
-                        .font(.system(size: 14).weight(.medium))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    TextField(
-                        "",
-                        value: $viewModel.mileage,
-                        format: .number,
-                        prompt: Text("140.58")
-                            .foregroundStyle(Color("bodyText"))
-                    )
-                    .font(.system(size: 13))
+                    .font(.system(size: 14))
                     .foregroundStyle(Color("lightBlack"))
-                    .keyboardType(.decimalPad)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 12)
+                    .padding(16)
                     .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.rectBorder, lineWidth: 3)
+                            .fill(Color.boxbackground)
                     )
+                    
+                    Text("ODOMETER MILEAGE")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                        .tracking(-0.6)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack{
+                        TextField(
+                            "",
+                            value: $viewModel.mileage,
+                            format: .number,
+                            prompt: Text("53,427")
+                                .foregroundStyle(Color("bodyText"))
+                        )
+                        .keyboardType(.decimalPad)
+                        Text("MILES")
+                    }
+                    .font(.system(size: 14))
+                    .foregroundStyle(Color("lightBlack"))
+                    .textInputAutocapitalization(.never)
+                    .padding(16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.rectBorder, lineWidth: 3)
+                            .fill(Color.boxbackground)
+                    )
+                    VStack{
+                        Text("PRICE PER LITRE")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                        
+                        HStack(spacing:0){
+                            Text((String(describing: viewModel.pricePerLitre)))
+                                .font(.system(size: 30).weight(.medium))
+                            Text("p")
+                                .font(.system(size: 14).weight(.medium))
+                                .frame(maxHeight:.infinity, alignment: .bottomLeading)
+                        }
+                    }
+                    .foregroundStyle(Color.redTheme)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 24)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .stroke(Color.rectBorder, lineWidth: 3)
+                            .fill(Color.boxbackground)
+                    )
+                    
                 }
                 
                 if let errorMessage = viewModel.errorMessage {
@@ -124,6 +150,7 @@ struct AddFuelLogView:View {
         .navigationTitle("Add a Fuel Log")
         .navigationBarTitleDisplayMode(.inline)
         .toolbarColorScheme(.light, for: .navigationBar)
+        .background(Color.background)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading){
                 Button(role: .close) {

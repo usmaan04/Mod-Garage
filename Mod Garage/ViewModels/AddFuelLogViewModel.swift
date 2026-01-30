@@ -12,27 +12,36 @@ import FirebaseAuth
 import FirebaseStorage
 import PhotosUI
 
+extension Double {
+    func rounded(to places: Int) -> Double {
+        let factor = pow(10, Double(places))
+        return (self * factor).rounded() / factor
+    }
+}
+
 @MainActor
 final class AddFuelLogViewModel: ObservableObject {
 
     let modTypes = ["Exhaust", "Windows", "Lights", "Engine", "Bodykit"]
     
-    @Published var litres: Double = 0.0000 {
-        didSet {
-            pricePerLitre = litres == 0 ? 0 : cost / litres
-        }
-    }
-    @Published var cost: Double = 0 {
-        didSet {
-            pricePerLitre = litres == 0 ? 0 : cost / litres
-        }
-    }
-    @Published var pricePerLitre: Double = 0
+    @Published var litres: Double = 0
+    @Published var cost: Double = 0
+    @Published private(set) var pricePerLitre: Double = 0
     @Published var mileage: Int = 0
     @Published var date: Date = Date()
     @Published var mpg: Double?
 
     @Published var errorMessage: String? = nil
+    
+    init() {
+        Publishers.CombineLatest($cost, $litres)
+            .map { cost, litres -> Double in
+                guard litres != 0 else { return 0 }
+                return (cost / litres).rounded(to: 2)
+            }
+            .assign(to: &$pricePerLitre)
+    }
+    
 
     // Called when the modification is ready to be saved to Firestore by the parent view
     var onFuelLogReady: ((FuelLogModel) -> Void)?

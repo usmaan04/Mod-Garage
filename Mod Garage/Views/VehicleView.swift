@@ -589,12 +589,12 @@ struct VehicleCard: View {
                 }
                 .frame(maxWidth: maxCardWidth / 3, alignment: .trailing)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 20)
+            .padding(.horizontal, 30)
+            .padding(.vertical, 30)
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.rectBorder, lineWidth: 1)
+                    .stroke(Color.rectBorder, lineWidth: 3)
                     .fill(Color.boxbackground)
             )
         }

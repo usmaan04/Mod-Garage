@@ -46,7 +46,7 @@ struct HomeView: View {
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             HStack() {
                 Image("AdaptiveLaunch")
                     .resizable()
@@ -125,7 +125,7 @@ struct DashboardView: View {
                 
                 Text("MOT and Tax")
                     .foregroundColor(.lightBlack)
-                    .font(.system(size: 17).weight(.semibold))
+                    .font(.system(size: 18).weight(.semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
                 HStack(spacing: 17) {
@@ -160,7 +160,7 @@ struct DashboardView: View {
                                 .font(.system(size: 14).weight(.bold))
                 
                             Text(" \(viewModel.daysBetweenToday(date: vehicle.motExpiryDate)) Days ")
-                                .font(.system(size: 18).weight(.heavy))
+                                .font(.system(size: 16).weight(.heavy))
                                 .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
                                 .padding(-4)
                                 
@@ -217,13 +217,13 @@ struct DashboardView: View {
                             let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
                             if date < 40{
                                 Text(" \(date) Days ")
-                                    .font(.system(size: 18).weight(.heavy))
+                                    .font(.system(size: 16).weight(.heavy))
                                     .foregroundStyle(Color.orange)
                                     .padding(-4)
                             }
                             else{
                                 Text(" \(date) Days ")
-                                    .font(.system(size: 18).weight(.heavy))
+                                    .font(.system(size: 16).weight(.heavy))
                                     .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
                                     .padding(-4)
                             }
@@ -253,25 +253,24 @@ struct DashboardView: View {
                 
                 Text("Recent Activity")
                     .foregroundColor(.lightBlack)
-                    .font(.system(size: 17).weight(.semibold))
+                    .font(.system(size: 18).weight(.semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                List {
-                    ForEach(viewModel.modifications.sorted { $0.createdAt > $1.createdAt
-                    }
-                    ) { modification in
-                        ModificationCard(
-                            modification: modification,
-                        )
-                        .environmentObject(viewModel)
-                        .padding(.vertical, 8)
-                        .listRowInsets(.init())
-                        .listRowSeparator(.hidden)
-                        .listRowBackground(Color.clear)
+                ScrollView(.horizontal){
+                    LazyHStack(alignment: .top){
+                        ForEach(viewModel.modifications.sorted { $0.createdAt > $1.createdAt
+                        }
+                        ) { modification in
+                            ModificationCard(
+                                modification: modification,
+                            )
+                            .environmentObject(viewModel)
+                            
+                        }
                     }
                 }
-                .listStyle(.plain)
-            
+                
+                
             } else {
                 Text("Add a vehicle")
             }
@@ -336,42 +335,42 @@ struct ModificationCard: View {
     let modification: ModificationModel
 
     var body: some View {
-        HStack(spacing:10){
+        VStack(spacing: 14){
             ZStack{
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.rectFill)
-                    .frame(width:46, height: 46)
+                    .frame(width:52, height: 52)
                 
                 switch modification.type {
                 case "Exhaust":
                     Image(systemName: "pipe.and.drop.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 30, height: 30)
                         .foregroundStyle(Color.redTheme)
                 case "Windows":
                     Image(systemName: "car.window.right")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 30, height: 30)
                         .foregroundStyle(Color.redTheme)
                 case "Lights":
                     Image(systemName: "lightbulb.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 30, height: 30)
                         .foregroundStyle(Color.redTheme)
                 case "Engine":
                     Image(systemName: "engine.combustion.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 30, height: 30)
                         .foregroundStyle(Color.redTheme)
                 case "Bodykit":
                     Image(systemName: "car.side.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 24, height: 24)
+                        .frame(width: 30, height: 30)
                         .foregroundStyle(Color.redTheme)
                 default:
                     Image(systemName: "car.side.fill")
@@ -381,22 +380,22 @@ struct ModificationCard: View {
                         .foregroundStyle(Color.redTheme)
                 }
             }
-            VStack(alignment: .leading, spacing: 4){
+            VStack(spacing: 6){
                 Text(modification.name)
-                    .font(.system(size: 18).weight(.medium))
+                    .font(.system(size: 14).weight(.semibold))
                     .foregroundStyle(Color.lightBlack)
-                Text(viewModel.modDateFormatter(modification.createdAt))
-                    .font(.system(size: 14))
+                    .multilineTextAlignment(.center)
+                
+                Text(viewModel.modDateFormatter(modification.date))
+                    .font(.system(size: 12).weight(.regular))
                     .foregroundStyle(Color.bodyText)
                     .tracking(-0.4)
-
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 18)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .frame(width: 150, height: 150)
         .background(
-            RoundedRectangle(cornerRadius: 4)
+            RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.rectBorder, lineWidth: 2)
                 .fill(Color.boxbackground)
         )

@@ -14,6 +14,7 @@ struct ModificationModel: Identifiable, Codable {
     var name: String
     var cost: Double
     var description: String?
+    var date: Date
     var beforeImageURL: String?
     var afterImageURL: String?
     var createdAt: Date
