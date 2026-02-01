@@ -16,6 +16,7 @@ struct AddFuelLogView:View {
     @EnvironmentObject var detailViewModel: VehicleDetailViewModel
     
     let vehicleId: String
+    let previousMileage: Int?
     
     var body: some View {
         VStack(spacing: 24){
@@ -72,7 +73,6 @@ struct AddFuelLogView:View {
                     Text("ODOMETER MILEAGE")
                         .font(.system(size: 12).weight(.medium))
                         .foregroundStyle(Color.navText)
-                        .tracking(-0.6)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     HStack{
                         TextField(
@@ -159,7 +159,8 @@ struct AddFuelLogView:View {
             }
         }
         .onAppear {
-            
+            viewModel.previousMileage = previousMileage
+                    
             // Important: link AddModificationViewModel → VehicleDetailViewModel
             viewModel.onFuelLogReady = { fuelLog in
                 Task {

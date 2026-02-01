@@ -137,15 +137,21 @@ struct VehicleDetailView: View {
                 AddModificationView(vehicleId: vehicle.id)
                     .environmentObject(viewModel)
             }
+            .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: $viewModel.isShowingAddFuelLog) {
             NavigationStack {
-                AddFuelLogView(vehicleId: vehicle.id)
+                AddFuelLogView(
+                    vehicleId: vehicle.id,
+                    previousMileage: viewModel.latestFuelLogMileage)
                     .environmentObject(viewModel)
             }
+            .presentationDragIndicator(.visible)
         }
         .onAppear {
-            Task { await viewModel.loadModifications(vehicle.id) }
+            Task { await viewModel.loadModifications(vehicle.id)
+                await viewModel.loadFuelLogs(vehicle.id)
+            }
         }
     }
 }

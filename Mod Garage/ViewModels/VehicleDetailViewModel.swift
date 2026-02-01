@@ -20,6 +20,10 @@ final class VehicleDetailViewModel: ObservableObject {
     @Published var fuelLogs: [FuelLogModel] = []
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
+    
+    var latestFuelLogMileage: Int? {
+        fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
+    }
 
     private let db = Firestore.firestore()
 
@@ -53,19 +57,18 @@ final class VehicleDetailViewModel: ObservableObject {
             errorMessage = "No logged in user."
             return
         }
-        
-        let modsCollection = db
+
+        let logsCollection = db
             .collection("users")
             .document(uid)
             .collection("vehicles")
             .document(vehicleId)
-            .collection("fuel-logs")
-        
+            .collection("fuelLogs")
+
         do {
-            try modsCollection.addDocument(from: fuelLog)
-            await loadModifications(vehicleId)
-            isShowingAddModification = false
-        
+            try logsCollection.addDocument(from: fuelLog)
+            await loadFuelLogs(vehicleId)
+            isShowingAddFuelLog = false
         } catch {
             errorMessage = "Failed to save fuel log: \(error.localizedDescription)"
         }
@@ -87,7 +90,7 @@ final class VehicleDetailViewModel: ObservableObject {
                 .document(uid)
                 .collection("vehicles")
                 .document(vehicleId)
-                .collection("modifcations")
+                .collection("modifications")
                 .order(by: "createdAt", descending: false)
                 .getDocuments()
             
@@ -119,7 +122,7 @@ final class VehicleDetailViewModel: ObservableObject {
                 .document(uid)
                 .collection("vehicles")
                 .document(vehicleId)
-                .collection("fuel-logs")
+                .collection("fuelLogs")
                 .order(by: "createdAt", descending: false)
                 .getDocuments()
             

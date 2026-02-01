@@ -14,6 +14,6 @@ struct FuelLogModel: Identifiable, Codable {
     var cost: Double
     var mileage: Int
     var date: Date
-    var mpg: Double?
+    var mpg: Double
     var createdAt: Date
 }

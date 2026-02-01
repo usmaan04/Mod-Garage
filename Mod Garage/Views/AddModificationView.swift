@@ -24,7 +24,6 @@ struct AddModificationView:View {
                     Text("MOD NAME")
                         .font(.system(size: 12).weight(.medium))
                         .foregroundStyle(Color.navText)
-                        .tracking(-0.6)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     TextField(
                         "",
@@ -212,7 +211,6 @@ struct AddModificationView:View {
             .frame(maxHeight: .infinity)
         }
         .padding(.horizontal,17)
-        .padding(.top,17)
         .frame(maxHeight: .infinity, alignment: .top)
         .navigationTitle("Add a Modification")
         .navigationBarTitleDisplayMode(.inline)

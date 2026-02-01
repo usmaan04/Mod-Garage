@@ -1,5 +1,5 @@
 //
-//  AddFuelLogViewModwl.swift
+//  AddFuelLogViewModel.swift
 //  Mod Garage
 //
 //  Created by Usmaan Ahmed on 17/01/2026.
@@ -23,25 +23,30 @@ extension Double {
 final class AddFuelLogViewModel: ObservableObject {
 
     let modTypes = ["Exhaust", "Windows", "Lights", "Engine", "Bodykit"]
-    
+
     @Published var litres: Double = 0
     @Published var cost: Double = 0
     @Published private(set) var pricePerLitre: Double = 0
     @Published var mileage: Int = 0
     @Published var date: Date = Date()
-    @Published var mpg: Double?
+
+    // Calculated as (miles driven since last fill) / litres / 4.456 filled
+    @Published var mpg: Double = 0
+
+    // Set this from the parent view (latest/previous fuel log mileage)
+    @Published var previousMileage: Int? = nil
+    
 
     @Published var errorMessage: String? = nil
-    
+
     init() {
         Publishers.CombineLatest($cost, $litres)
             .map { cost, litres -> Double in
                 guard litres != 0 else { return 0 }
-                return (cost / litres).rounded(to: 2)
+                return (cost / litres).rounded(to: 3)
             }
             .assign(to: &$pricePerLitre)
     }
-    
 
     // Called when the modification is ready to be saved to Firestore by the parent view
     var onFuelLogReady: ((FuelLogModel) -> Void)?
@@ -49,41 +54,57 @@ final class AddFuelLogViewModel: ObservableObject {
     func confirmFuelLog() async {
         errorMessage = nil
 
-        // Validate
-        if litres == 0 || cost  == 0 || mileage == 0 || date == Date() {
+        // Validate basic fields
+        if litres == 0 || cost == 0 || mileage == 0 {
             errorMessage = "Please fill all fields"
             return
         }
 
+        // Prevent future dates:
+        if date > Date() {
+            errorMessage = "Date cannot be in the future"
+            return
+        }
+
+        // Compute mpg (distance / litres) using previous mileage
+        if let prev = previousMileage {
+            let distance = mileage - prev
+            guard distance > 0 else {
+                errorMessage = "Mileage must be greater than the previous fuel log mileage (\(prev))."
+                return
+            }
+            mpg = (Double(distance) / (litres / 4.546) ).rounded(to: 2)
+        } else {
+            // No previous log so can't calculate mpg yet
+            mpg = 0
+        }
 
         do {
-            // Build model using URL strings (or nil)
             let newFuelLog = FuelLogModel(
                 id: UUID().uuidString,
                 litres: litres,
-                pricePerLitre: cost / litres,
+                pricePerLitre: pricePerLitre,
                 cost: cost,
                 mileage: mileage,
-                date: date,    
+                date: date,
+                mpg: mpg,
                 createdAt: Date()
             )
 
-            // Send to parent to save into Firestore
             onFuelLogReady?(newFuelLog)
-
             resetView()
         } catch {
-            errorMessage = "Failed to upload image(s): \(error.localizedDescription)"
+            errorMessage = "Failed to save fuel log: \(error.localizedDescription)"
         }
     }
 
-
     func resetView() {
-        litres = 0.0000
+        litres = 0
         cost = 0
         mileage = 0
         date = Date()
         pricePerLitre = 0
+        mpg = 0
         errorMessage = nil
     }
 }
