@@ -56,8 +56,8 @@ final class AddModificationViewModel: ObservableObject {
                 cost: modCost,
                 description: modDesc,
                 date: modDate,
-                beforeImageURL: nil,     // String?
-                afterImageURL: nil,       // String?
+                beforeImageURL: nil,
+                afterImageURL: nil,      
                 createdAt: Date()
             )
 

@@ -24,6 +24,7 @@ final class AddFuelLogViewModel: ObservableObject {
 
     let modTypes = ["Exhaust", "Windows", "Lights", "Engine", "Bodykit"]
 
+    @Published var location: String = ""
     @Published var litres: Double = 0
     @Published var cost: Double = 0
     @Published private(set) var pricePerLitre: Double = 0
@@ -36,7 +37,7 @@ final class AddFuelLogViewModel: ObservableObject {
     // Set this from the parent view (latest/previous fuel log mileage)
     @Published var previousMileage: Int? = nil
     
-
+    @Published var showDatePicker = false
     @Published var errorMessage: String? = nil
 
     init() {
@@ -55,8 +56,14 @@ final class AddFuelLogViewModel: ObservableObject {
         errorMessage = nil
 
         // Validate basic fields
-        if litres == 0 || cost == 0 || mileage == 0 {
+        if location.isEmpty || litres == 0 || cost == 0 || mileage == 0 {
             errorMessage = "Please fill all fields"
+            return
+        }
+        
+        // Validate basic fields
+        if location.count > 30 {
+            errorMessage = "Please entar a shorter name for the location"
             return
         }
 
@@ -82,6 +89,7 @@ final class AddFuelLogViewModel: ObservableObject {
         do {
             let newFuelLog = FuelLogModel(
                 id: UUID().uuidString,
+                location: location,
                 litres: litres,
                 pricePerLitre: pricePerLitre,
                 cost: cost,
@@ -99,6 +107,7 @@ final class AddFuelLogViewModel: ObservableObject {
     }
 
     func resetView() {
+        location = ""
         litres = 0
         cost = 0
         mileage = 0

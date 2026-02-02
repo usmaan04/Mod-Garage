@@ -22,78 +22,132 @@ struct AddFuelLogView:View {
         VStack(spacing: 24){
             ScrollView{
                 VStack(spacing: 12){
-                    Text("COST")
+                    Text("LOCATION")
                         .font(.system(size: 12).weight(.medium))
                         .foregroundStyle(Color.navText)
-                        .tracking(-0.6)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                    
                     TextField(
-                        "",
-                        value: $viewModel.cost,
-                        format: .currency(code: "GBP")
-                            .precision(.fractionLength(2)),
-                        prompt: Text("140.58")
-                            .foregroundStyle(Color("bodyText"))
+                        "e.g. Shell, High Street",
+                        text: $viewModel.location
                     )
                     .font(.system(size: 14))
                     .foregroundStyle(Color("lightBlack"))
-                    .keyboardType(.decimalPad)
+                    .textInputAutocapitalization(.words)
+                    .autocorrectionDisabled(false)
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(Color.rectBorder, lineWidth: 3)
                             .fill(Color.boxbackground)
                     )
-                    Text("LITRES")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
-                        .tracking(-0.6)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     HStack{
-                        TextField(
-                            "",
-                            value: $viewModel.litres,
-                            format: .number
-                                .precision(.fractionLength(2)),
-                            prompt: Text("140.58").foregroundStyle(Color("bodyText"))
-                        )
-                        .keyboardType(.decimalPad)
-                        Text("L")
+                        Text("TOTAL COST")
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("LITRES")
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color("lightBlack"))
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.rectBorder, lineWidth: 3)
-                            .fill(Color.boxbackground)
-                    )
-                    
-                    Text("ODOMETER MILEAGE")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                     HStack{
                         TextField(
                             "",
-                            value: $viewModel.mileage,
-                            format: .number,
-                            prompt: Text("53,427")
+                            value: $viewModel.cost,
+                            format: .currency(code: "GBP")
+                                .precision(.fractionLength(2)),
+                            prompt: Text("140.58")
                                 .foregroundStyle(Color("bodyText"))
                         )
+                        .padding(16)
                         .keyboardType(.decimalPad)
-                        Text("MILES")
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.rectBorder, lineWidth: 3)
+                                .fill(Color.boxbackground)
+                        )
+                        HStack{
+                            TextField(
+                                "",
+                                value: $viewModel.litres,
+                                format: .number
+                                    .precision(.fractionLength(2)),
+                                prompt: Text("140.58").foregroundStyle(Color("bodyText"))
+                            )
+                            .keyboardType(.decimalPad)
+                            Text("L")
+                        }
+                        .padding(16)
+                        .keyboardType(.decimalPad)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.rectBorder, lineWidth: 3)
+                                .fill(Color.boxbackground)
+                        )
                     }
                     .font(.system(size: 14))
                     .foregroundStyle(Color("lightBlack"))
-                    .textInputAutocapitalization(.never)
-                    .padding(16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.rectBorder, lineWidth: 3)
-                            .fill(Color.boxbackground)
-                    )
+                    HStack{
+                        Text("ODOMETER MILEAGE")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Text("RE-FUEL DATE")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .font(.system(size: 12).weight(.medium))
+                    .foregroundStyle(Color.navText)
+                    
+                    HStack{
+                        HStack{
+                            TextField(
+                                "",
+                                value: $viewModel.mileage,
+                                format: .number,
+                                prompt: Text("53,427")
+                                    .foregroundStyle(Color("bodyText"))
+                            )
+                            .keyboardType(.decimalPad)
+                            Text("MILES")
+                        }
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color("lightBlack"))
+                        .textInputAutocapitalization(.never)
+                        .padding(16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(Color.rectBorder, lineWidth: 3)
+                                .fill(Color.boxbackground)
+                        )
+                        
+                        Button {
+                            viewModel.showDatePicker.toggle()
+                        } label: {
+                            HStack(spacing: 26){
+                                Text(viewModel.date.formatted(date: .abbreviated, time: .omitted))
+                                Image(systemName: "calendar")
+                            }
+                            .font(.system(size: 14))
+                            .foregroundStyle(Color.lightBlack)
+                            .padding(16)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.rectBorder, lineWidth: 3)
+                                    .fill(Color.boxbackground)
+                            )
+                        }
+                        .sheet(isPresented: $viewModel.showDatePicker) {
+                            DatePicker(
+                                "Select date",
+                                selection: $viewModel.date,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.graphical)
+                            .presentationDetents([.medium])
+                        }
+                    }
+
                     VStack{
                         Text("PRICE PER LITRE")
                         .font(.system(size: 12).weight(.medium))

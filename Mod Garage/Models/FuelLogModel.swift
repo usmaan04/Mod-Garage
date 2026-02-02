@@ -9,6 +9,7 @@ import Foundation
 
 struct FuelLogModel: Identifiable, Codable {
     var id: String
+    var location: String
     var litres: Double
     var pricePerLitre: Double
     var cost: Double

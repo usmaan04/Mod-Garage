@@ -159,10 +159,25 @@ struct DashboardView: View {
                             Text("MOT")
                                 .font(.system(size: 14).weight(.bold))
                 
-                            Text(" \(viewModel.daysBetweenToday(date: vehicle.motExpiryDate)) Days ")
-                                .font(.system(size: 16).weight(.heavy))
-                                .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
-                                .padding(-4)
+                            let date = viewModel.daysBetweenToday(date: vehicle.motExpiryDate)
+                            if date < 0{
+                                Text(" \(date * -1) Days Overdue")
+                                    .font(.system(size: 15).weight(.heavy))
+                                    .foregroundStyle(Color.redTheme)
+                                    .padding(-4)
+                            }
+                            else if date < 40{
+                                Text(" \(date) Days ")
+                                    .font(.system(size: 16).weight(.heavy))
+                                    .foregroundStyle(Color.orange)
+                                    .padding(-4)
+                            }
+                            else{
+                                Text(" \(date) Days ")
+                                    .font(.system(size: 16).weight(.heavy))
+                                    .foregroundStyle(Color.green)
+                                    .padding(-4)
+                            }
                                 
                             if vehicle.motStatus == "Valid" {
                                 Text("Expires \(viewModel.dateFormatter(vehicle.motExpiryDate))")
@@ -215,7 +230,13 @@ struct DashboardView: View {
                                 .font(.system(size: 14).weight(.bold))
                             
                             let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
-                            if date < 40{
+                            if date < 0{
+                                Text(" \(date * -1) Days Overdue")
+                                    .font(.system(size: 15).weight(.heavy))
+                                    .foregroundStyle(Color.redTheme)
+                                    .padding(-4)
+                            }
+                            else if date < 40{
                                 Text(" \(date) Days ")
                                     .font(.system(size: 16).weight(.heavy))
                                     .foregroundStyle(Color.orange)
@@ -224,7 +245,7 @@ struct DashboardView: View {
                             else{
                                 Text(" \(date) Days ")
                                     .font(.system(size: 16).weight(.heavy))
-                                    .foregroundStyle(vehicle.taxStatus == "Taxed" ? .green : .redTheme)
+                                    .foregroundStyle(Color.green)
                                     .padding(-4)
                             }
 

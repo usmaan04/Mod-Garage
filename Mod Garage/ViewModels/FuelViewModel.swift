@@ -79,7 +79,7 @@ class FuelViewModel: ObservableObject {
         filteredLogs.reduce(0) { $0 + $1.cost }
     }
 
-    /// Nil when there are no logs in the selected timeframe
+    // Nil when there are no logs in the selected timeframe
     var averageMPG: Double? {
         guard !filteredLogs.isEmpty else { return nil }
         let total = filteredLogs.reduce(0) { $0 + $1.mpg }
