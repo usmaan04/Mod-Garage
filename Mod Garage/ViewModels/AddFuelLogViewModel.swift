@@ -62,7 +62,7 @@ final class AddFuelLogViewModel: ObservableObject {
         }
         
         // Validate basic fields
-        if location.count > 30 {
+        if location.count > 25 {
             errorMessage = "Please entar a shorter name for the location"
             return
         }

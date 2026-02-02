@@ -15,6 +15,7 @@ import SwiftUI
 class SettingsViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var email: String = ""
+    @Published var memberDate: String = ""
     @Published var selectedTab: Tab = .home
     // App appearance preference: "system", "light", or "dark"
     @AppStorage("preferredColorScheme") private var preferredColorSchemeRaw: String = "system"
@@ -71,6 +72,7 @@ class SettingsViewModel: ObservableObject {
                 Task { @MainActor in
                     self.name = "User"
                     self.email = "Email"
+                    self.memberDate = "2026"
                 }
                 return
             }
@@ -79,14 +81,27 @@ class SettingsViewModel: ObservableObject {
                 let data = document.data() ?? [:]
                 let fetchedName = data["name"] as? String ?? "User"
                 let fetchedEmail = data["email"] as? String ?? userEmailAtCapture ?? ""
+                
+                // Date formatter
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MMMM yyyy"
+                
+                var formattedDate = ""
+                if let timestamp = data["memberDate"] as? Timestamp {
+                    let date = timestamp.dateValue()
+                    formattedDate = formatter.string(from: date)
+                }
+                
                 DispatchQueue.main.async {
                     self.name = fetchedName
                     self.email = fetchedEmail
+                    self.memberDate = formattedDate
                 }
             } else {
                 Task { @MainActor in
                     self.name = "User"
                     self.email = userEmailAtCapture ?? ""
+                    self.memberDate = "2026"
                 }
             }
         }

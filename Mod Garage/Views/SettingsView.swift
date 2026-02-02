@@ -22,142 +22,157 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(){
+            VStack(alignment: .leading, spacing: 12) {
+                VStack(){
                     Image("AdaptiveLaunch")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 54, height: 54)
+                        .frame(width: 100, height: 100)
                     VStack(spacing:4){
                         if viewModel.name.isEmpty {
                             ProgressView("Loading...")
                                 .padding()
                         } else {
                             Text("\(viewModel.name)")
-                                .font(.system(size: 16).weight(.semibold))
-                                .tracking(-0.2)
+                                .font(.system(size: 18).weight(.semibold))
                                 .foregroundColor(Color.lightBlack)
-                                .frame(maxWidth: .infinity,alignment: .leading)
-                            Text("\(viewModel.email)")
-                                .font(.system(size: 12))
-                                .tracking(-0.2)
-                                .foregroundColor(Color.bodyText)
-                                .frame(maxWidth: .infinity,alignment: .leading)
+                                .frame(maxWidth: .infinity,alignment: .center)
                         }
-                    }
-                    Button(action: {
-                        appViewModel.signOut()
-                    }) {
-                        Text("Log Out")
-                            .font(.system(size: 14))
-                            .padding(.trailing, 6)
-                            .foregroundColor(.redTheme)
+                        Text("Member since \(viewModel.memberDate)")
+                            .font(.system(size: 10))
+                            .foregroundColor(Color.navText)
+                            .frame(maxWidth: .infinity,alignment: .center)
                     }
                     
                 }
-                .padding(8)
-                .frame(maxWidth: .infinity, maxHeight: 72)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.rectFill)
-                )
                     
                 Text("General")
                     .foregroundColor(.lightBlack)
                     .font(.system(size: 17).weight(.semibold))
-                SettingComponent(
-                    iconName: "person",
-                    title: "Profile",
-                    toggleValue: .constant(false)
-                ) {
-                    if viewModel.isEmailPasswordUser {
-                            viewModel.showProfile = true
-                    } else {
-                        viewModel.alertMessage = "Your profile details are managed by Google. You cannot edit your name or email here."
-                        viewModel.showAlert = true
-                    }
-                }
-                SettingComponent(
-                    iconName: "bell",
-                    title: "Notifications",
-                    toggleValue: .constant(false)
-                ) {
-                    print("Go to Notification view")
-                }
-                SettingComponent(
-                    iconName: "moon",
-                    title: "Dark Mode",
-                    showsToggle: true,
-                    toggleValue: Binding(
-                        get: {
-                            // Prefer the user choices in view model; otherwise mirror system appearance
-                            if let override = viewModel.overrideColorScheme {
-                                return override == .dark
-                            } else {
-                                return systemColorScheme == .dark
-                            }
-                        },
-                        set: { newValue in
-                            // Update view model override when user toggles
-                            viewModel.overrideColorScheme = newValue ? .dark : .light
+                
+                VStack{
+                    SettingComponent(
+                        iconName: "person",
+                        title: "Profile",
+                        toggleValue: .constant(false)
+                    ) {
+                        if viewModel.isEmailPasswordUser {
+                                viewModel.showProfile = true
+                        } else {
+                            viewModel.alertMessage = "Your profile details are managed by Google. You cannot edit your name or email here."
+                            viewModel.showAlert = true
                         }
-                    )
-                ) {
-                    // No action need as toggle handles changes
-                }
-                .contextMenu{
-                    Button("Follow System"){
-                        viewModel.overrideColorScheme = nil
                     }
                 }
-                    
-                Text("Legal")
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color(.rectBorder), lineWidth: 3)
+                        .fill(Color.boxbackground)
+                )
+                
+                Text("Preferences")
                     .foregroundColor(.lightBlack)
                     .font(.system(size: 17).weight(.semibold))
-                SettingComponent(
-                    iconName: "shield",
-                    title: "Privacy Policy",
-                    toggleValue: .constant(false)
-                ) {
-                    if let url = URL(string: "https://www.apple.com/legal/privacy/") {
-                        openURL(url)
+                
+                VStack{
+                    SettingComponent(
+                        iconName: "bell",
+                        title: "Notifications",
+                        toggleValue: .constant(false)
+                    ) {
+                        print("Go to Notification view")
+                    }
+                    Divider()
+                    SettingComponent(
+                        iconName: "moon",
+                        title: "Dark Mode",
+                        showsToggle: true,
+                        toggleValue: Binding(
+                            get: {
+                                // Prefer the user choices in view model; otherwise mirror system appearance
+                                if let override = viewModel.overrideColorScheme {
+                                    return override == .dark
+                                } else {
+                                    return systemColorScheme == .dark
+                                }
+                            },
+                            set: { newValue in
+                                // Update view model override when user toggles
+                                viewModel.overrideColorScheme = newValue ? .dark : .light
+                            }
+                        )
+                    ) {
+                        // No action need as toggle handles changes
+                    }
+                    .contextMenu{
+                        Button("Follow System"){
+                            viewModel.overrideColorScheme = nil
+                        }
                     }
                 }
-                SettingComponent(
-                    iconName: "clipboard",
-                    title: "Terms of Use",
-                    toggleValue: .constant(false)
-                ) {
-                    if let url = URL(string: "https://www.apple.com/legal/internet-services/terms/site.html") {
-                        openURL(url)
-                    }
-                }
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color(.rectBorder), lineWidth: 3)
+                        .fill(Color.boxbackground)
+                )
+                
                 Text("Support")
                     .foregroundColor(.lightBlack)
                     .font(.system(size: 17).weight(.semibold))
-                SettingComponent(
-                    iconName: "ellipsis.bubble",
-                    title: "Contact & Support",
-                    toggleValue: .constant(false)
-                ) {
-                    print("Go to Support view")
+                
+                VStack{
+                    SettingComponent(
+                        iconName: "shield",
+                        title: "Privacy Policy",
+                        toggleValue: .constant(false)
+                    ) {
+                        if let url = URL(string: "https://www.apple.com/legal/privacy/") {
+                            openURL(url)
+                        }
+                    }
+                    Divider()
+                    SettingComponent(
+                        iconName: "ellipsis.bubble",
+                        title: "Contact & Support",
+                        toggleValue: .constant(false)
+                    ) {
+                        print("Go to Support view")
+                    }
+                    
                 }
-                Text("Delete")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 17).weight(.semibold))
-                SettingComponent(
-                    iconName: "trash",
-                    title: "Delete Account",
-                    isDestructive: true,
-                    toggleValue: .constant(false)
-                ) {
-                    print("Delete Account")
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 22)
+                        .stroke(Color(.rectBorder), lineWidth: 3)
+                        .fill(Color.boxbackground)
+                )
+                
+                VStack{
+                    Button(action: {
+                        appViewModel.signOut()
+                    }) {
+                        Text("Log Out")
+                            .font(.system(size: 14).weight(.semibold))
+                            .foregroundColor(.redTheme)
+                    }
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 18)
+                    .frame(alignment: .center)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(.redTheme).opacity(0.2), lineWidth: 1)
+                            .fill(Color.boxbackground)
+                    )
                 }
+                .frame(maxWidth: .infinity, alignment: .center)
+                
                 
             }
             .padding(.horizontal, 17)
-            .background(Color.background)
             .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
+            .background(Color.background)
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $viewModel.showProfile) {
@@ -188,17 +203,17 @@ struct SettingComponent: View {
                         .resizable()
                         .font(.system(size:4))
                         .frame(width: 16, height: 20)
-                        .foregroundStyle(isDestructive ? .redTheme : .lightBlack)
+                        .foregroundStyle(Color.redTheme)
                 }else{
                     Image(systemName: iconName)
                         .resizable()
                         .font(.system(size:4))
                         .frame(width: 20, height: 20)
-                        .foregroundStyle(isDestructive ? .redTheme : .lightBlack)
+                        .foregroundStyle(Color.redTheme)
                 }
                 
                 Text(title)
-                    .font(.system(size:16))
+                    .font(.system(size:14))
                     .tracking(-0.1)
                     .foregroundColor(.lightBlack)
                 
@@ -209,16 +224,12 @@ struct SettingComponent: View {
                         .labelsHidden()
                 } else {
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(Color.redTheme)
+                        .foregroundStyle(Color.navText)
                 }
             }
-            .padding(12)
+            .padding(.horizontal, 24)
+            .padding(.vertical, 10)
             .frame(maxWidth: .infinity, minHeight: 46)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color(.rectBorder), lineWidth: 1)
-                    .fill(Color.boxbackground)
-            )
         }
     }
 }
@@ -232,3 +243,4 @@ struct SettingComponent: View {
             .environmentObject(SettingsViewModel())
     }
 }
+

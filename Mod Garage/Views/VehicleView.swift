@@ -453,7 +453,7 @@ struct VehicleView: View {
                                 
                             // Display each vehicle 
                             }else{
-                                List {
+                                List() {
                                     ForEach(filteredVehicles.sorted {
                                         // Primary vehicles first
                                         ($0.isPrimary ? 0 : 1) < ($1.isPrimary ? 0 : 1)
@@ -474,6 +474,7 @@ struct VehicleView: View {
                                 }
                                 .listStyle(.plain)
                                 .refreshable {Task { await viewModel.loadVehicles() }}
+                                .scrollIndicators(.hidden)
                             }
                         }
                     }

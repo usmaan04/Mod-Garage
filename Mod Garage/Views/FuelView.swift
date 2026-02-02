@@ -18,6 +18,7 @@ private func currencyString(from value: Double) -> String {
 struct FuelView: View {
     @StateObject private var viewModel = FuelViewModel()
     @EnvironmentObject var homeViewModel: HomeViewModel
+    @Namespace private var timeframeNamespace
 
     var body: some View {
         NavigationView {
@@ -26,7 +27,7 @@ struct FuelView: View {
                     ProgressView()
                         .padding(.top, 30)
                 } else if let _ = viewModel.primaryVehicle {
-                    ScrollView(.vertical) {
+                    ScrollView(.vertical, showsIndicators: false) {
                         VStack(spacing: 20) {
                             // Timeframe Filters
                             timeframePills
@@ -129,37 +130,38 @@ struct FuelView: View {
         HStack(spacing: 10) {
             ForEach(FuelTimeframe.allCases) { timeframe in
                 Button {
-                    viewModel.selectedTimeframe = timeframe
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.8, blendDuration: 0.2)) {
+                        viewModel.selectedTimeframe = timeframe
+                    }
                 } label: {
-                    Text(timeframe.label)
-                        .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(
-                            viewModel.selectedTimeframe == timeframe ? Color.boxbackground : Color.navText
-                        )
-                        .padding(.vertical, 12)
-                        .frame(maxWidth:.infinity, maxHeight: 80)
-                        .background(
+                    ZStack {
+                        if viewModel.selectedTimeframe == timeframe {
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(viewModel.selectedTimeframe == timeframe ? Color.redTheme : Color.boxbackground)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .fill(viewModel.selectedTimeframe == timeframe ? Color.redTheme : Color.boxbackground)
-                                )
-                        )
+                                .fill(Color.backgroundW)
+                                .matchedGeometryEffect(id: "timeframeHighlight", in: timeframeNamespace)
+                        }
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.clear)
+                        Text(timeframe.label)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(
+                                viewModel.selectedTimeframe == timeframe ? Color.redTheme : Color.navText
+                            )
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, maxHeight: 44)
+                    }
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
+        .padding(6)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.boxbackground)
+                .fill(Color.rectBorder)
         )
     }
 
-    // Reusable UI bits
-
+    // Reusable UI
     private func summaryCard(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
@@ -219,45 +221,42 @@ struct FuelLogCard: View {
     let fuelLog: FuelLogModel
 
     var body: some View {
-        HStack(spacing: 14){
+        HStack(spacing: 20){
             ZStack{
                 RoundedRectangle(cornerRadius: 8)
                     .fill(Color.lightPink)
-                    .frame(width:44, height: 44)
+                    .frame(width:50, height: 50)
                 
                 Image(systemName: "fuelpump")
-                    .font(.system(size: 20).weight(.heavy))
+                    .font(.system(size: 20).weight(.bold))
                     .foregroundStyle(Color.redTheme)
             }
-            VStack(alignment: .leading, spacing: 8 ){
+            VStack(alignment: .leading, spacing: 6){
                 HStack() {
                     Text(fuelLog.location)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(currencyString(from: fuelLog.cost))
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .font(.system(size: 16).weight(.semibold))
+                .font(.system(size: 17).weight(.bold))
                 .foregroundStyle(Color.lightBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                HStack(spacing: 2) {
+                HStack(spacing: 4) {
                     Text(homeViewModel.modDateFormatter(fuelLog.date))
-                    Text("●")
-                        .font(.system(size: 4))
-                    Text(String(format: "£%.2f/L", fuelLog.pricePerLitre))
                     Text("●")
                         .font(.system(size: 4))
                     Text(String(format: "%.2f L", fuelLog.litres))
                     
                     if fuelLog.mpg > 30 {
                         Text(String(format: "%.2f MPG", fuelLog.mpg))
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
                             .foregroundStyle(Color.green)
                             .frame(alignment: .trailing)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     } else {
                         Text(String(format: "%.2f MPG", fuelLog.mpg))
-                            .fontWeight(.medium)
+                            .fontWeight(.semibold)
                             .foregroundStyle(Color.red)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
@@ -280,3 +279,4 @@ struct FuelLogCard: View {
 #Preview {
     FuelView()
 }
+
