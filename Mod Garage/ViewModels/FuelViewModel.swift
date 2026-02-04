@@ -50,6 +50,44 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
     }
 }
 
+struct MPGChartPoint: Identifiable {
+    let id: String
+    let x: Date
+    let avgMPG: Double
+}
+
+struct MonthlySpendPoint: Identifiable {
+    let id: String          // "YYYY-MM"
+    let monthStart: Date
+    let totalSpend: Double
+}
+
+extension Calendar {
+    func startOfMonth(for date: Date) -> Date {
+        self.date(from: dateComponents([.year, .month], from: date))!
+    }
+
+    func endOfMonth(for date: Date) -> Date {
+        let start = startOfMonth(for: date)
+        let next = self.date(byAdding: .month, value: 1, to: start)!
+        return self.date(byAdding: .day, value: -1, to: next)!
+    }
+    func midOfMonth(for date: Date) -> Date {
+        let start = startOfMonth(for: date)
+        let days = range(of: .day, in: .month, for: start)!.count
+        return self.date(byAdding: .day, value: days / 2, to: start)!
+    }
+
+    func midOfYear(for date: Date) -> Date {
+        let start = self.date(from: DateComponents(
+            year: component(.year, from: date),
+            month: 1,
+            day: 1
+        ))!
+        return self.date(byAdding: .month, value: 6, to: start)!
+    }
+}
+
 @MainActor
 class FuelViewModel: ObservableObject {
     @Published var primaryVehicle: VehicleModel?
@@ -85,6 +123,121 @@ class FuelViewModel: ObservableObject {
         let total = filteredLogs.reduce(0) { $0 + $1.mpg }
         return total / Double(filteredLogs.count)
     }
+    
+    var mpgChartPoints: [MPGChartPoint] {
+        switch selectedTimeframe {
+        case .oneMonth:
+            return dailyMPGPointsForCurrentMonth()
+        case .sixMonths, .oneYear:
+            return monthlyMPGPoints()
+        case .all:
+            return yearlyMPGPoints()
+        }
+    }
+
+    // Domain for the chart X axis
+    var mpgChartDomain: ClosedRange<Date>? {
+        let cal = Calendar.current
+        let now = Date()
+
+        switch selectedTimeframe {
+        case .oneMonth:
+            let start = cal.startOfMonth(for: now)
+            let next = cal.date(byAdding: .month, value: 1, to: start)!
+            let end = cal.date(byAdding: .second, value: -1, to: next)!
+            return start...end
+
+        case .sixMonths:
+            // last 6 calendar months inclusive
+            let start = cal.date(byAdding: .month, value: -5, to: cal.startOfMonth(for: now))!
+            let end = cal.endOfMonth(for: now)
+            return start...end
+
+        case .oneYear:
+            let start = cal.date(byAdding: .month, value: -11, to: cal.startOfMonth(for: now))!
+            let end = cal.endOfMonth(for: now)
+            return start...end
+
+        case .all:
+            guard let minDate = fuelLogs.map(\.date).min() else { return nil }
+            let start = cal.startOfMonth(for: minDate)
+            let end = cal.endOfMonth(for: now)
+            return start...end
+        }
+    }
+    
+    private func dailyMPGPointsForCurrentMonth() -> [MPGChartPoint] {
+        var cal = Calendar.current
+        cal.timeZone = .current
+
+        let now = Date()
+
+        let monthStart = cal.startOfMonth(for: now)
+        let nextMonthStart = cal.date(byAdding: .month, value: 1, to: monthStart)!
+
+        // Only logs in the CURRENT calendar month (in local time)
+        let monthLogs = filteredLogs.filter { log in
+            let localDay = cal.startOfDay(for: log.date)
+            return localDay >= monthStart && localDay < nextMonthStart
+        }
+
+        // Group by local day (startOfDay)
+        let grouped = Dictionary(grouping: monthLogs) { log in
+            cal.startOfDay(for: log.date)
+        }
+
+        var points: [MPGChartPoint] = grouped.compactMap { (dayStart, logs) in
+            guard !logs.isEmpty else { return nil }
+
+            let avg = logs.reduce(0) { $0 + $1.mpg } / Double(logs.count)
+
+            let midday = cal.date(bySettingHour: 12, minute: 0, second: 0, of: dayStart) ?? dayStart
+
+            let id = ISO8601DateFormatter().string(from: dayStart)
+
+            return MPGChartPoint(id: id, x: midday, avgMPG: avg)
+        }
+
+        points.sort { $0.x < $1.x }
+        return points
+    }
+
+    private func monthlyMPGPoints() -> [MPGChartPoint] {
+        let grouped = Dictionary(grouping: filteredLogs) { log in
+            monthId(for: log.date) // "YYYY-MM"
+        }
+        
+        let cal = Calendar.current
+
+        var points: [MPGChartPoint] = grouped.compactMap { (id, logs) in
+            guard let monthStart = monthStart(from: id), !logs.isEmpty else { return nil }
+            let avg = logs.reduce(0) { $0 + $1.mpg } / Double(logs.count)
+            let midMonth = cal.midOfMonth(for: monthStart)
+            return MPGChartPoint(id: id, x: midMonth, avgMPG: avg)
+        }
+
+        points.sort { $0.x < $1.x }
+        return points
+    }
+
+    private func yearlyMPGPoints() -> [MPGChartPoint] {
+        let grouped = Dictionary(grouping: filteredLogs) { log in
+            yearId(for: log.date) // "YYYY"
+        }
+        
+        let cal = Calendar.current
+
+        var points: [MPGChartPoint] = grouped.compactMap { (id, logs) in
+            guard let yearStart = yearStart(from: id), !logs.isEmpty else { return nil }
+            let avg = logs.reduce(0) { $0 + $1.mpg } / Double(logs.count)
+            let midYear = cal.midOfYear(for: yearStart)
+            return MPGChartPoint(id: id, x: midYear, avgMPG: avg)
+        }
+
+        points.sort { $0.x < $1.x }
+        return points
+    }
+
 
     init() {
         // Provide a mock vehicle for previews/development when not logged in
@@ -201,4 +354,50 @@ class FuelViewModel: ObservableObject {
 
         fuelLogs = decoded
     }
+    
+    private func monthId(for date: Date) -> String {
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month], from: date)
+        let year = comps.year ?? 0
+        let month = comps.month ?? 1
+        return String(format: "%04d-%02d", year, month)
+    }
+
+    private func monthStart(from id: String) -> Date? {
+        let parts = id.split(separator: "-")
+        guard parts.count == 2,
+              let year = Int(parts[0]),
+              let month = Int(parts[1]) else { return nil }
+        return Calendar.current.date(from: DateComponents(year: year, month: month, day: 1))
+    }
+
+    private func dayId(for date: Date) -> String {
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month, .day], from: date)
+        let y = comps.year ?? 0
+        let m = comps.month ?? 1
+        let d = comps.day ?? 1
+        return String(format: "%04d-%02d-%02d", y, m, d)
+    }
+
+    private func dayStart(from id: String) -> Date? {
+        let parts = id.split(separator: "-")
+        guard parts.count == 3,
+              let year = Int(parts[0]),
+              let month = Int(parts[1]),
+              let day = Int(parts[2]) else { return nil }
+        return Calendar.current.date(from: DateComponents(year: year, month: month, day: day))
+    }
+
+    private func yearId(for date: Date) -> String {
+        let year = Calendar.current.component(.year, from: date)
+        return String(format: "%04d", year)
+    }
+
+    private func yearStart(from id: String) -> Date? {
+        guard let year = Int(id) else { return nil }
+        return Calendar.current.date(from: DateComponents(year: year, month: 1, day: 1))
+    }
+
+
 }

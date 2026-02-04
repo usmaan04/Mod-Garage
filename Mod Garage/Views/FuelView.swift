@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Charts
 
 private func currencyString(from value: Double) -> String {
     let formatter = NumberFormatter()
@@ -50,8 +51,61 @@ struct FuelView: View {
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundStyle(Color.gray)
                                 
-                                // Replace this with your line chart later
-                                chartPlaceholder(text: "Line chart goes here (MPG per month)")
+                                if viewModel.mpgChartPoints.isEmpty {
+                                        emptyChartState("No MPG data for this timeframe.")
+                                } else {
+                                    Chart(viewModel.mpgChartPoints) { point in
+                                        LineMark(
+                                            x: .value("Date", point.x),
+                                            y: .value("Avg MPG", point.avgMPG)
+                                        )
+                                        PointMark(
+                                            x: .value("Date", point.x),
+                                            y: .value("Avg MPG", point.avgMPG)
+                                        )
+                                    }
+                                    .frame(height: 180)
+                                    .chartXScale(domain: viewModel.mpgChartDomain ?? Date.distantPast...Date())
+                                    .chartXScale(range: .plotDimension(padding: 0))
+                                    .chartYScale(domain: 0...80)                     
+                                    .chartXAxis {
+                                        switch viewModel.selectedTimeframe {
+                                        case .oneMonth:
+                                            AxisMarks(values: .stride(by: .day, count: 7)) { value in
+                                                AxisGridLine()
+                                                AxisTick()
+                                                AxisValueLabel(centered: true) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.day())
+                                                    }
+                                                }
+                                            }
+
+
+                                        case .sixMonths, .oneYear:
+                                            AxisMarks(values: .stride(by: .month)) { value in
+                                                AxisGridLine()
+                                                AxisTick()
+                                                AxisValueLabel(centered: true) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.month(.abbreviated))
+                                                            .frame(maxWidth: .infinity, alignment: .center)
+                                                    }
+                                                }
+                                            }
+
+                                        case .all:
+                                            AxisMarks(values: .stride(by: .year)) { value in
+                                                AxisGridLine()
+                                                AxisTick()
+                                                AxisValueLabel(centered: true)
+                                            }
+                                        }
+                                    }
+                                    .chartYAxis {
+                                        AxisMarks(position: .leading)
+                                    }
+                                }
                             }
                             .padding(12)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -67,8 +121,7 @@ struct FuelView: View {
                                     .font(.system(size: 14, weight: .semibold))
                                     .foregroundStyle(Color.gray)
 
-                                // Replace this with your bar chart later
-                                chartPlaceholder(text: "Bar chart goes here (spending per month)")
+                                
                             }
                             .padding(12)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -124,7 +177,7 @@ struct FuelView: View {
         }
     }
 
-    // MARK: - Timeframe pills UI
+    // Timeframe pills UI
 
     private var timeframePills: some View {
         HStack(spacing: 10) {
@@ -184,12 +237,12 @@ struct FuelView: View {
                 .fill(Color.boxbackground)
         )
     }
-
-    private func chartPlaceholder(text: String) -> some View {
+    
+    private func emptyChartState(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 12))
             .foregroundStyle(Color.navText.opacity(0.8))
-            .frame(maxWidth: .infinity, minHeight: 140, alignment: .center)
+            .frame(maxWidth: .infinity, minHeight: 180, alignment: .center)
             .background(
                 RoundedRectangle(cornerRadius: 10)
                     .fill(Color.boxbackground.opacity(0.6))
@@ -201,7 +254,6 @@ struct FuelView: View {
     }
 
     // Formatting helpers
-
     private func currencyString(_ value: Double) -> String {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -250,18 +302,16 @@ struct FuelLogCard: View {
                     
                     if fuelLog.mpg > 30 {
                         Text(String(format: "%.2f MPG", fuelLog.mpg))
-                            .fontWeight(.semibold)
                             .foregroundStyle(Color.green)
                             .frame(alignment: .trailing)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     } else {
                         Text(String(format: "%.2f MPG", fuelLog.mpg))
-                            .fontWeight(.semibold)
                             .foregroundStyle(Color.red)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     }
                 }
-                .font(.system(size: 12))
+                .font(.system(size: 12).weight(.semibold))
                 .foregroundStyle(Color.navText)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }

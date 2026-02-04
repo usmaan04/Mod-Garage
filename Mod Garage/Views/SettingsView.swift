@@ -67,7 +67,7 @@ struct SettingsView: View {
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(.rectBorder), lineWidth: 3)
+                        .stroke(Color(.rectBorder), lineWidth: 1)
                         .fill(Color.boxbackground)
                 )
                 
@@ -114,7 +114,7 @@ struct SettingsView: View {
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(.rectBorder), lineWidth: 3)
+                        .stroke(Color(.rectBorder), lineWidth: 1)
                         .fill(Color.boxbackground)
                 )
                 
@@ -133,6 +133,8 @@ struct SettingsView: View {
                         }
                     }
                     Divider()
+                        .foregroundStyle(Color.rectBorder)
+                        .frame(height: 1)
                     SettingComponent(
                         iconName: "ellipsis.bubble",
                         title: "Contact & Support",
@@ -145,7 +147,7 @@ struct SettingsView: View {
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(.rectBorder), lineWidth: 3)
+                        .stroke(Color(.rectBorder), lineWidth: 1)
                         .fill(Color.boxbackground)
                 )
                 
@@ -198,23 +200,30 @@ struct SettingComponent: View {
             action?()
         }) {
             HStack(spacing: 14) {
-                if iconName == "clipboard" || iconName == "shield"{
-                    Image(systemName: iconName)
-                        .resizable()
-                        .font(.system(size:4))
-                        .frame(width: 16, height: 20)
-                        .foregroundStyle(Color.redTheme)
-                }else{
-                    Image(systemName: iconName)
-                        .resizable()
-                        .font(.system(size:4))
-                        .frame(width: 20, height: 20)
-                        .foregroundStyle(Color.redTheme)
+                ZStack{
+                    RoundedRectangle(cornerRadius: 16)
+                        .scaledToFit()
+                        .padding(4)
+                        .frame(width: 48, height: 48)
+                        .foregroundStyle(Color.lightPink)
+                    if iconName == "clipboard" || iconName == "shield"{
+                        Image(systemName: iconName)
+                            .resizable()
+                            .font(.system(size:4))
+                            .frame(width: 16, height: 20)
+                            .foregroundStyle(Color.redTheme)
+                    }else{
+                        Image(systemName: iconName)
+                            .resizable()
+                            .font(.system(size:4))
+                            .frame(width: 20, height: 20)
+                            .foregroundStyle(Color.redTheme)
+                    }
                 }
                 
+                
                 Text(title)
-                    .font(.system(size:14))
-                    .tracking(-0.1)
+                    .font(.system(size:15).weight(.semibold))
                     .foregroundColor(.lightBlack)
                 
                 Spacer()
@@ -227,8 +236,8 @@ struct SettingComponent: View {
                         .foregroundStyle(Color.navText)
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 0)
             .frame(maxWidth: .infinity, minHeight: 46)
         }
     }

@@ -67,12 +67,6 @@ final class AddFuelLogViewModel: ObservableObject {
             return
         }
 
-        // Prevent future dates:
-        if date > Date() {
-            errorMessage = "Date cannot be in the future"
-            return
-        }
-
         // Compute mpg (distance / litres) using previous mileage
         if let prev = previousMileage {
             let distance = mileage - prev
