@@ -16,10 +16,21 @@ class VehicleViewModel: ObservableObject {
     
     @Published var isShowingAddVehicle = false
     @Published var vehicles: [VehicleModel] = []
+    @Published var showDetails: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     
     private let db = Firestore.firestore()
+    
+    // Returns the signed number of days between today and the provided date.
+    func daysBetweenToday(date: Date?) -> Int {
+        guard let date = date else { return 0 }
+        let calendar = Calendar.current
+        let todayStart = calendar.startOfDay(for: Date())
+        let targetStart = calendar.startOfDay(for: date)
+        let components = calendar.dateComponents([.day], from: todayStart, to: targetStart)
+        return components.day ?? 0
+    }
     
     // Add a new vehicle
     func addVehicle(_ vehicle: VehicleModel) async {

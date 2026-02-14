@@ -49,6 +49,7 @@ struct VehicleView: View {
         .padding(.horizontal, 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
+                .fill(Color.boxbackground)
                 .stroke(Color.rectBorder, lineWidth: 1)
         )
     }
@@ -84,7 +85,7 @@ struct VehicleView: View {
                 }
             }
         }
-        .padding(12)
+        .padding(14)
         .foregroundStyle(Color.white)
         .background(
             RoundedRectangle(cornerRadius: 12)
@@ -118,11 +119,11 @@ struct VehicleView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(12)
+        .padding(14)
         .foregroundStyle(Color.white)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.redTheme)
+                .fill(Color.gray)
                 .stroke(Color(.rectBorder), lineWidth: 1)
         )
     }
@@ -496,6 +497,9 @@ struct VehicleView: View {
                 .padding(.top, 10)
                 .frame(maxWidth: .infinity, alignment: .top)
                 .background(Color.background)
+                .navigationDestination(isPresented: $viewModel.showDetails) {
+                    VehicleDetailView()
+                }
 
                 // Modal
                 if viewModel.isShowingAddVehicle {
@@ -539,66 +543,115 @@ struct VehicleCard: View {
     @Binding var showDeleteConfirmation: Bool
 
     var body: some View {
-        HStack{
-            NavigationLink(destination: VehicleDetailView(vehicle: vehicle)) {
-                VStack(alignment: .leading, spacing: 12) {
+        NavigationLink(destination: VehicleDetailView(vehicle: vehicle)) {
+            HStack{
+                VStack(alignment: .leading, spacing: 16){
+                    VStack(alignment: .leading, spacing: 6){
+                        if vehicle.isPrimary {
+                            Text("PRIMARY")
+                                .font(.system(size: 12).weight(.bold))
+                                .foregroundStyle(Color.redTheme)
+                            
+                        }
+                        Text("\(vehicle.make) \(vehicle.model)")
+                            .font(.system(size: 18).weight(.bold))
+                            .foregroundStyle(Color.lightBlack)
+                                            
+                    }
+                    
+                    HStack(spacing: 14) {
+                        Image(systemName: "drop.halffull")
+                        Text("\(vehicle.fuelType)")
+                            .textCase(.uppercase)
+                                            
+                        Image(systemName: "paintbrush")
+                        Text("\(vehicle.colour)")
+                            .textCase(.uppercase)
+                    }
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.navText)
+                    
+                    HStack{
+                        HStack{
+                            Circle()
+                                .fill(vehicle.motStatus == "Valid" ? Color.green : Color.redTheme)
+                                    .frame(width: 8, height: 8)
+                                
+                                Text("Mot: \((vehicle.motStatus ?? "-"))")
+                                    .font(.system(size: 10).weight(.medium))
+                                    .foregroundStyle(Color.navText)
+                                    .textCase(.uppercase)
+                                    .tracking(-0.4)
+                                
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.rectFill)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                )
+                        )
+                        
+                        HStack{
+                            Circle()
+                                .fill(vehicle.taxStatus == "Taxed" ? Color.green : Color.redTheme)
+                                    .frame(width: 8, height: 8)
+                                
+                                Text("Tax: \((vehicle.taxStatus ?? "-"))")
+                                    .font(.system(size: 10).weight(.medium))
+                                    .foregroundStyle(Color.navText)
+                                    .textCase(.uppercase)
+                                    .tracking(-0.4)
+                                
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 8)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.rectFill)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                )
+                        )
+                    }
+                    
+                }
+                
+                VStack(alignment: .trailing, spacing: 20){
+                    Button {
+                        print("hey")
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Color.gray)
+                    }
+                    
                     Text("\(vehicle.registration)")
                         .font(.system(size: 10).weight(.bold))
                         .padding(.vertical, 6)
                         .padding(.horizontal, 20)
                         .foregroundStyle(Color.black)
+                        .frame(alignment: .trailing)
                         .background(
                             RoundedRectangle(cornerRadius: 1)
-                                .stroke(Color.black, lineWidth: 1)
-                                .fill(Color.yellow)
+                            .stroke(Color.black, lineWidth: 1)
+                            .fill(Color.yellow)
                         )
-
-                    Text("\(vehicle.make) \(vehicle.model)")
-                        .font(.system(size: 14).weight(.bold))
-                        .foregroundStyle(Color.lightBlack)
-
-                    Divider()
-                        .frame(maxWidth: .infinity, maxHeight: 1)
-                        .background(Color.rectBorder)
-
-                    HStack(spacing: 15) {
-                        Image(systemName: "drop.halffull")
-                        Text("\(vehicle.fuelType)")
-
-                        Divider()
-
-                        Image(systemName: "paintbrush")
-                        Text("\(vehicle.colour)")
-                    }
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.navText)
-                    .frame(maxWidth: .infinity, maxHeight: 12, alignment: .leading)
                 }
-               
-
-                VStack {
-                    if vehicle.isPrimary {
-                        Text("Primary")
-                            .font(.system(size: 12).weight(.bold))
-                            .foregroundStyle(Color.white)
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 8)
-                            .background(Capsule().fill(Color.redTheme))
-                            .frame(maxHeight: .infinity, alignment: .top)
-                            .offset(y: -10)
-                    }
-                }
-                .frame(maxWidth: maxCardWidth / 3, alignment: .trailing)
+                .frame(maxHeight: .infinity, alignment: .top)
             }
-            .padding(.horizontal, 30)
-            .padding(.vertical, 30)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.rectBorder, lineWidth: 3)
-                    .fill(Color.boxbackground)
-            )
+            
         }
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.rectBorder, lineWidth: 3)
+                .fill(Color.boxbackground)
+        )
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
@@ -618,9 +671,12 @@ struct VehicleCard: View {
             .tint(vehicle.isPrimary ? .gray : .yellow)
             .disabled(vehicle.isPrimary)
         }
+    
+    
     }
 }
 
 #Preview {
     VehicleView()
 }
+
