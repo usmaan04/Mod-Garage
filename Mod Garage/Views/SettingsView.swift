@@ -22,6 +22,14 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
+            VStack{
+                Text("Settings")
+                    .foregroundColor(.lightBlack)
+                    .font(.system(size: 18).weight(.semibold))
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity)
+            .background(Color.backgroundW)
             VStack(alignment: .leading, spacing: 12) {
                 VStack(){
                     Image("AdaptiveLaunch")
@@ -52,7 +60,7 @@ struct SettingsView: View {
                 
                 VStack{
                     SettingComponent(
-                        iconName: "person",
+                        iconName: "person.fill",
                         title: "Profile",
                         toggleValue: .constant(false)
                     ) {
@@ -66,9 +74,10 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 8)
                 .background(
-                    RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(.rectBorder), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color(.rectBorder), lineWidth: 2)
                         .fill(Color.boxbackground)
+                        .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                 )
                 
                 Text("Preferences")
@@ -77,7 +86,7 @@ struct SettingsView: View {
                 
                 VStack{
                     SettingComponent(
-                        iconName: "bell",
+                        iconName: "bell.fill",
                         title: "Notifications",
                         toggleValue: .constant(false)
                     ) {
@@ -85,8 +94,8 @@ struct SettingsView: View {
                     }
                     Divider()
                     SettingComponent(
-                        iconName: "moon",
-                        title: "Dark Mode",
+                        iconName: "moon.fill",
+                        title: "Theme",
                         showsToggle: true,
                         toggleValue: Binding(
                             get: {
@@ -113,9 +122,10 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 8)
                 .background(
-                    RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(.rectBorder), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color(.rectBorder), lineWidth: 2)
                         .fill(Color.boxbackground)
+                        .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                 )
                 
                 Text("Support")
@@ -124,7 +134,7 @@ struct SettingsView: View {
                 
                 VStack{
                     SettingComponent(
-                        iconName: "shield",
+                        iconName: "shield.fill",
                         title: "Privacy Policy",
                         toggleValue: .constant(false)
                     ) {
@@ -136,7 +146,7 @@ struct SettingsView: View {
                         .foregroundStyle(Color.rectBorder)
                         .frame(height: 1)
                     SettingComponent(
-                        iconName: "ellipsis.bubble",
+                        iconName: "questionmark.circle.fill",
                         title: "Contact & Support",
                         toggleValue: .constant(false)
                     ) {
@@ -146,9 +156,10 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 8)
                 .background(
-                    RoundedRectangle(cornerRadius: 22)
-                        .stroke(Color(.rectBorder), lineWidth: 1)
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color(.rectBorder), lineWidth: 2)
                         .fill(Color.boxbackground)
+                        .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                 )
                 
                 VStack{
@@ -175,8 +186,6 @@ struct SettingsView: View {
             .padding(.horizontal, 17)
             .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
             .background(Color.background)
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(isPresented: $viewModel.showProfile) {
                 ProfileView()
             }
@@ -201,29 +210,29 @@ struct SettingComponent: View {
         }) {
             HStack(spacing: 14) {
                 ZStack{
-                    RoundedRectangle(cornerRadius: 16)
+                    Circle()
                         .scaledToFit()
                         .padding(4)
                         .frame(width: 48, height: 48)
                         .foregroundStyle(Color.lightPink)
-                    if iconName == "clipboard" || iconName == "shield"{
+                    if iconName == "shield.fill"{
                         Image(systemName: iconName)
                             .resizable()
                             .font(.system(size:4))
-                            .frame(width: 16, height: 20)
+                            .frame(width: 14, height: 16)
                             .foregroundStyle(Color.redTheme)
                     }else{
                         Image(systemName: iconName)
                             .resizable()
                             .font(.system(size:4))
-                            .frame(width: 20, height: 20)
+                            .frame(width: 16, height: 16)
                             .foregroundStyle(Color.redTheme)
                     }
                 }
                 
                 
                 Text(title)
-                    .font(.system(size:15).weight(.semibold))
+                    .font(.system(size: 14).weight(.semibold))
                     .foregroundColor(.lightBlack)
                 
                 Spacer()
@@ -233,7 +242,8 @@ struct SettingComponent: View {
                         .labelsHidden()
                 } else {
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(Color.navText)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.navText.opacity(0.3))
                 }
             }
             .padding(.horizontal, 18)

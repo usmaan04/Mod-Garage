@@ -10,12 +10,40 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
+
+enum ActivityItem: Identifiable {
+    case modification(ModificationModel)
+    case fuel(FuelLogModel)
+
+    var id: String {
+        switch self {
+        case .modification(let m):
+            // Prefer a stable Firestore docId on your model if you have it.
+            return "mod-\(m.id)"
+        case .fuel(let f):
+            return "fuel-\(f.id)"
+        }
+    }
+
+    var sortDate: Date {
+        switch self {
+        case .modification(let m):
+            // Use createdAt if you want "added recently", or date if "installed date"
+            return m.createdAt
+        case .fuel(let f):
+            return f.createdAt
+        }
+    }
+}
+
 @MainActor
 class HomeViewModel: ObservableObject {
     @Published var name: String = ""
     @Published var selectedTab: Tab = .home
     @Published var primaryVehicle : VehicleModel?
     @Published var modifications: [ModificationModel] = []
+    @Published var fuelLogs: [FuelLogModel] = []
+    @Published var recentActivity: [ActivityItem] = []
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
 
@@ -30,12 +58,17 @@ class HomeViewModel: ObservableObject {
     func refreshOncePerLaunch() async {
         guard !didRefreshOnThisLaunch else { return }
         didRefreshOnThisLaunch = true
-        
+
         await loadVehicleData()
-        
+
         if let vehicle = primaryVehicle, !vehicle.id.isEmpty {
             await updateDvlaDates(registration: vehicle.registration, vehicleId: vehicle.id)
-            await loadModifications(vehicle.id)
+
+            async let mods: Void = loadModifications(vehicle.id)
+            async let fuels: Void = loadFuelLogs(vehicle.id)
+            _ = await (mods, fuels)
+
+            rebuildRecentActivity(limit: 5)
         }
     }
     
@@ -229,6 +262,17 @@ class HomeViewModel: ObservableObject {
         isLoading = false
     }
     
+    func rebuildRecentActivity(limit: Int = 5) {
+        let items: [ActivityItem] =
+            modifications.map { .modification($0) } +
+            fuelLogs.map { .fuel($0) }
+
+        recentActivity = items
+            .sorted { $0.sortDate > $1.sortDate }
+            .prefix(limit)
+            .map { $0 }
+    }
+    
     // Load modification list
     func loadModifications(_ vehicleId: String) async {
         guard let uid = Auth.auth().currentUser?.uid else {
@@ -254,8 +298,42 @@ class HomeViewModel: ObservableObject {
             }
             
             modifications = decoded
+            rebuildRecentActivity(limit: 5)
         } catch {
             errorMessage = "Failed to load modifications: \(error.localizedDescription)"
+        }
+        
+        isLoading = false
+    }
+    
+    // Load fuel logs
+    func loadFuelLogs(_ vehicleId: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            errorMessage = "No logged in user."
+            return
+        }
+        
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let snapshot = try await db
+                .collection("users")
+                .document(uid)
+                .collection("vehicles")
+                .document(vehicleId)
+                .collection("fuelLogs")
+                .order(by: "createdAt", descending: false)
+                .getDocuments()
+            
+            let decoded = try snapshot.documents.map { doc in
+                try doc.data(as: FuelLogModel.self)
+            }
+            
+            fuelLogs = decoded
+            rebuildRecentActivity(limit: 5)
+        } catch {
+            errorMessage = "Failed to load fuel logs: \(error.localizedDescription)"
         }
         
         isLoading = false

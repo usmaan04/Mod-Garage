@@ -16,6 +16,7 @@ class VehicleViewModel: ObservableObject {
     
     @Published var isShowingAddVehicle = false
     @Published var vehicles: [VehicleModel] = []
+    @Published var vehicleToPass: VehicleModel?
     @Published var showDetails: Bool = false
     @Published var isLoading = false
     @Published var errorMessage: String? = nil

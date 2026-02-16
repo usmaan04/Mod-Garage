@@ -11,11 +11,29 @@ import Combine
 import FirebaseFirestore
 import FirebaseAuth
 
+enum ListOption: String, CaseIterable, Identifiable {
+    case mods
+    case logs
+
+    // Required for SwiftUI ForEach
+    var id: String { rawValue }
+
+    // Display label for the UI pills
+    var label: String {
+        switch self {
+        case .mods: return "Mods"
+        case .logs: return "Fuel Logs"
+        }
+    }
+
+}
+
 @MainActor
 final class VehicleDetailViewModel: ObservableObject {
 
     @Published var isShowingAddModification = false
     @Published var isShowingAddFuelLog = false
+    @Published var listOption: ListOption = .mods
     @Published var modifications: [ModificationModel] = []
     @Published var fuelLogs: [FuelLogModel] = []
     @Published var isLoading = false

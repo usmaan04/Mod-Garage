@@ -84,10 +84,10 @@ class SettingsViewModel: ObservableObject {
                 
                 // Date formatter
                 let formatter = DateFormatter()
-                formatter.dateFormat = "MMMM yyyy"
+                formatter.dateFormat = "MMM yyyy"
                 
                 var formattedDate = ""
-                if let timestamp = data["memberDate"] as? Timestamp {
+                if let timestamp = data["createdAt"] as? Timestamp {
                     let date = timestamp.dateValue()
                     formattedDate = formatter.string(from: date)
                 }

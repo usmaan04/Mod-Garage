@@ -46,266 +46,299 @@ struct HomeView: View {
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
     var body: some View {
-        VStack(spacing: 16) {
-            HStack() {
-                Image("AdaptiveLaunch")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 64, height: 64)
-                VStack(spacing: 4){
-                    Text("Welcome Back!")
-                        .font(.system(size: 12))
-                        .tracking(-0.2)
-                        .foregroundColor(Color.bodyText)
-                        .frame(maxWidth: .infinity,alignment: .leading)
-
-                    if viewModel.name.isEmpty {
-                        ProgressView("Loading...")
-                            .padding()
-                    } else {
-                        Text("\(viewModel.name)")
-                            .font(.system(size: 16).weight(.semibold))
-                            .foregroundColor(Color.black)
+        VStack(spacing: 16){
+            VStack{
+                HStack() {
+                    Image("AdaptiveLaunch")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 64, height: 64)
+                    VStack(spacing: 4){
+                        Text("Welcome Back!")
+                            .font(.system(size: 12))
+                            .tracking(-0.2)
+                            .foregroundColor(Color.bodyText)
                             .frame(maxWidth: .infinity,alignment: .leading)
+
+                        if viewModel.name.isEmpty {
+                            ProgressView("Loading...")
+                                .padding()
+                        } else {
+                            Text("\(viewModel.name)")
+                                .font(.system(size: 16).weight(.semibold))
+                                .foregroundColor(Color.black)
+                                .frame(maxWidth: .infinity,alignment: .leading)
+                        }
                     }
                     
+                    Button{
+                        print("notif")
+                    }label:{
+                        ZStack{
+                            Image(systemName: "bell")
+                                .font(.system(size: 24))
+                                .foregroundStyle(Color.navText.opacity(0.8))
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 8)
+                                .offset(x: 6, y: -8)
+                                .overlay(Circle()
+                                    .fill(Color.redTheme)
+                                    .frame(width: 6)
+                                    .offset(x: 6, y: -8)
+                                )
+                        }
+                        .padding(10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.rectBorder, lineWidth: 1)
+                        )
+                    }
                 }
             }
-            if let vehicle = viewModel.primaryVehicle {
+            .padding(.horizontal, 17)
+            .padding(.bottom, 8)
+            .background(Color.backgroundW)
+            VStack(spacing: 16) {
                 
-                VStack(alignment: .leading, spacing: 4){
-                    Text("PRIMARY")
-                        .font(.system(size:10).weight(.bold))
-                        .foregroundStyle(Color.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.redTheme)
-                        )
-                    VStack(alignment: .leading, spacing: 8){
-                        Text("\(vehicle.year) " + "\(vehicle.make) " + "\(vehicle.model) ")
-                            .font(.system(size: 26).weight(.bold))
-                            .foregroundStyle(Color.white)
-                        
-                        GlassEffectContainer{
-                            VStack(alignment: .leading, spacing: 8){
-                                Text("REGISTRATION")
-                                    .font(.system(size: 8).weight(.semibold))
-                                    .tracking(-0.4)
+                if let vehicle = viewModel.primaryVehicle {
+                    ScrollView{
+                        VStack(spacing: 16){
+                            VStack(alignment: .leading, spacing: 4){
+                                Text("PRIMARY")
+                                    .font(.system(size:10).weight(.bold))
                                     .foregroundStyle(Color.white)
-                                Text("\(vehicle.registration)")
-                                    .font(.system(size: 14).weight(.bold))
-                                    .foregroundStyle(Color.white)
-                                    .multilineTextAlignment(.leading)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(RoundedRectangle(cornerRadius: 8)
+                                        .fill(Color.redTheme)
+                                    )
+                                VStack(alignment: .leading, spacing: 8){
+                                    Text("\(vehicle.year) " + "\(vehicle.make) " + "\(vehicle.model) ")
+                                        .font(.system(size: 26).weight(.bold))
+                                        .foregroundStyle(Color.white)
+                                    
+                                    GlassEffectContainer{
+                                        VStack(alignment: .leading, spacing: 8){
+                                            Text("REGISTRATION")
+                                                .font(.system(size: 8).weight(.semibold))
+                                                .tracking(-0.4)
+                                                .foregroundStyle(Color.white)
+                                            Text("\(vehicle.registration)")
+                                                .font(.system(size: 14).weight(.bold))
+                                                .foregroundStyle(Color.white)
+                                                .multilineTextAlignment(.leading)
+                                        }
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        
+                                    }
+                                    .glassEffect(in: RoundedRectangle(cornerRadius: 8))
+                                }
+                               
+                                
                             }
                             .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            
-                        }
-                        .glassEffect(in: RoundedRectangle(cornerRadius: 8))
-                    }
-                   
-                    
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 30)
-                .frame(maxWidth: .infinity, maxHeight: 220, alignment: .bottomLeading)
-                .background(
-                    ZStack {
-                        Image("carimg")
-                            .resizable()
-                            .frame(maxWidth: .infinity, maxHeight: 220)
-                            .clipped()
-                        Rectangle()
-                            .fill(Color.black.opacity(0.3))
-                            .frame(maxWidth: .infinity, maxHeight: 220)
-                    }
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                
-                Text("MOT and Tax")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 18).weight(.semibold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                HStack(spacing: 17) {
-                    VStack(alignment: .leading) {
-                        ZStack(alignment: .topTrailing) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.lightPink)
-                                .frame(width: 40, height: 40)
-                                .overlay(
-                                    Image("mot")
+                            .padding(.vertical, 30)
+                            .frame(maxWidth: .infinity, maxHeight: 220, alignment: .bottomLeading)
+                            .background(
+                                ZStack {
+                                    Image("carimg")
                                         .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 28, height: 28)
-                                        .foregroundStyle(Color.redTheme)
-                                )
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            HStack(spacing: 8) {
-                                PulsingCircle(
-                                        isValid: vehicle.motStatus == "Valid",
-                                        color: vehicle.motStatus == "Valid" ? .green : .redTheme
-                                )
-
-                                Text(vehicle.motStatus ?? "-")
-                                    .font(.system(size: 10).weight(.medium))
-                                    .foregroundStyle(Color.lightBlack)
-                            }
-                        }
-                        .padding(.bottom, 10)
-
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("MOT")
-                                .font(.system(size: 14).weight(.bold))
-                
-                            let date = viewModel.daysBetweenToday(date: vehicle.motExpiryDate)
-                            if date < 0{
-                                Text(" \(date * -1) Days Overdue")
-                                    .font(.system(size: 15).weight(.heavy))
-                                    .foregroundStyle(Color.redTheme)
-                                    .padding(-4)
-                            }
-                            else if date < 40{
-                                Text(" \(date) Days ")
-                                    .font(.system(size: 16).weight(.heavy))
-                                    .foregroundStyle(Color.orange)
-                                    .padding(-4)
-                            }
-                            else{
-                                Text(" \(date) Days ")
-                                    .font(.system(size: 16).weight(.heavy))
-                                    .foregroundStyle(Color.green)
-                                    .padding(-4)
-                            }
-                                
-                            if vehicle.motStatus == "Valid" {
-                                Text("Expires \(viewModel.dateFormatter(vehicle.motExpiryDate))")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Color.bodyText)
-                                    .tracking(-0.4)
-                            } else {
-                                Text("Expired \(viewModel.dateFormatter(vehicle.motExpiryDate))")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Color.bodyText)
-                                    .tracking(-0.4)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    }
-                    .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 4)
-                            .fill(Color.boxbackground)
-                    )
-                    VStack(alignment: .leading) {
-                        ZStack(alignment: .topTrailing) {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.lightPink)
-                                .frame(width: 40, height: 40)
-                                .overlay(
-                                    Image(systemName: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90")
-                                        .font(.system(size: 24, weight: .regular))
-                                        .scaledToFit()
-                                        .foregroundColor(Color.redTheme)
-                                )
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            HStack(spacing: 8) {
-                                PulsingCircle(
-                                        isValid: vehicle.taxStatus == "Taxed",
-                                        color: vehicle.taxStatus == "Taxed" ? .green : .redTheme
-                                )
-
-                                Text(vehicle.taxStatus ?? "-")
-                                    .font(.system(size: 10).weight(.medium))
-                                    .foregroundStyle(Color.lightBlack)
-                            }
-                        }
-                        .padding(.bottom, 10)
-
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Road Tax")
-                                .font(.system(size: 14).weight(.bold))
-                            
-                            let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
-                            if date < 0{
-                                Text(" \(date * -1) Days Overdue")
-                                    .font(.system(size: 15).weight(.heavy))
-                                    .foregroundStyle(Color.redTheme)
-                                    .padding(-4)
-                            }
-                            else if date < 40{
-                                Text(" \(date) Days ")
-                                    .font(.system(size: 16).weight(.heavy))
-                                    .foregroundStyle(Color.orange)
-                                    .padding(-4)
-                            }
-                            else{
-                                Text(" \(date) Days ")
-                                    .font(.system(size: 16).weight(.heavy))
-                                    .foregroundStyle(Color.green)
-                                    .padding(-4)
-                            }
-
-                            if vehicle.taxStatus == "Taxed" {
-                                Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Color.bodyText)
-                                    .tracking(-0.4)
-                            } else {
-                                Text("Expired \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(Color.bodyText)
-                                    .tracking(-0.4)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                    }
-                    .padding( 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder, lineWidth: 4)
-                            .fill(Color.boxbackground)
-                    )
-                }
-                
-                Text("Recent Activity")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 18).weight(.semibold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                
-                ScrollView(.horizontal){
-                    LazyHStack(alignment: .top){
-                        ForEach(viewModel.modifications.sorted { $0.createdAt > $1.createdAt
-                        }
-                        ) { modification in
-                            ModificationCard(
-                                modification: modification,
+                                        .frame(maxWidth: .infinity, maxHeight: 220)
+                                        .clipped()
+                                    Rectangle()
+                                        .fill(Color.black.opacity(0.3))
+                                        .frame(maxWidth: .infinity, maxHeight: 220)
+                                }
                             )
-                            .environmentObject(viewModel)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                             
+                            Text("MOT and Tax")
+                                .foregroundColor(.lightBlack)
+                                .font(.system(size: 18).weight(.semibold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            HStack(spacing: 17) {
+                                VStack(alignment: .leading) {
+                                    ZStack(alignment: .topTrailing) {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.lightPink)
+                                            .frame(width: 40, height: 40)
+                                            .overlay(
+                                                Image("mot")
+                                                    .resizable()
+                                                    .scaledToFit()
+                                                    .frame(width: 28, height: 28)
+                                                    .foregroundStyle(Color.redTheme)
+                                            )
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        HStack(spacing: 8) {
+                                            PulsingCircle(
+                                                    isValid: vehicle.motStatus == "Valid",
+                                                    color: vehicle.motStatus == "Valid" ? .green : .redTheme
+                                            )
+
+                                            Text(vehicle.motStatus ?? "-")
+                                                .font(.system(size: 10).weight(.medium))
+                                                .foregroundStyle(Color.lightBlack)
+                                        }
+                                    }
+                                    .padding(.bottom, 10)
+
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        Text("MOT")
+                                            .font(.system(size: 14).weight(.bold))
+                            
+                                        let date = viewModel.daysBetweenToday(date: vehicle.motExpiryDate)
+                                        if date < 0{
+                                            Text(" \(date * -1) Days Overdue")
+                                                .font(.system(size: 15).weight(.heavy))
+                                                .foregroundStyle(Color.redTheme)
+                                                .padding(-4)
+                                        }
+                                        else if date < 40{
+                                            Text(" \(date) Days ")
+                                                .font(.system(size: 16).weight(.heavy))
+                                                .foregroundStyle(Color.orange)
+                                                .padding(-4)
+                                        }
+                                        else{
+                                            Text(" \(date) Days ")
+                                                .font(.system(size: 16).weight(.heavy))
+                                                .foregroundStyle(Color.green)
+                                                .padding(-4)
+                                        }
+                                            
+                                        if vehicle.motStatus == "Valid" {
+                                            Text("Expires \(viewModel.dateFormatter(vehicle.motExpiryDate))")
+                                                .font(.system(size: 11))
+                                                .foregroundStyle(Color.bodyText)
+                                                .tracking(-0.4)
+                                        } else {
+                                            Text("Expired \(viewModel.dateFormatter(vehicle.motExpiryDate))")
+                                                .font(.system(size: 11))
+                                                .foregroundStyle(Color.bodyText)
+                                                .tracking(-0.4)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                }
+                                .padding(12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.rectBorder, lineWidth: 4)
+                                        .fill(Color.boxbackground)
+                                )
+                                VStack(alignment: .leading) {
+                                    ZStack(alignment: .topTrailing) {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.lightPink)
+                                            .frame(width: 40, height: 40)
+                                            .overlay(
+                                                Image(systemName: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90")
+                                                    .font(.system(size: 24, weight: .regular))
+                                                    .scaledToFit()
+                                                    .foregroundColor(Color.redTheme)
+                                            )
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        HStack(spacing: 8) {
+                                            PulsingCircle(
+                                                    isValid: vehicle.taxStatus == "Taxed",
+                                                    color: vehicle.taxStatus == "Taxed" ? .green : .redTheme
+                                            )
+
+                                            Text(vehicle.taxStatus ?? "-")
+                                                .font(.system(size: 10).weight(.medium))
+                                                .foregroundStyle(Color.lightBlack)
+                                        }
+                                    }
+                                    .padding(.bottom, 10)
+
+                                    VStack(alignment: .leading, spacing: 10) {
+                                        Text("Road Tax")
+                                            .font(.system(size: 14).weight(.bold))
+                                        
+                                        let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
+                                        if date < 0{
+                                            Text(" \(date * -1) Days Overdue")
+                                                .font(.system(size: 15).weight(.heavy))
+                                                .foregroundStyle(Color.redTheme)
+                                                .padding(-4)
+                                        }
+                                        else if date < 40{
+                                            Text(" \(date) Days ")
+                                                .font(.system(size: 16).weight(.heavy))
+                                                .foregroundStyle(Color.orange)
+                                                .padding(-4)
+                                        }
+                                        else{
+                                            Text(" \(date) Days ")
+                                                .font(.system(size: 16).weight(.heavy))
+                                                .foregroundStyle(Color.green)
+                                                .padding(-4)
+                                        }
+
+                                        if vehicle.taxStatus == "Taxed" {
+                                            Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
+                                                .font(.system(size: 11))
+                                                .foregroundStyle(Color.bodyText)
+                                                .tracking(-0.4)
+                                        } else {
+                                            Text("Expired \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
+                                                .font(.system(size: 11))
+                                                .foregroundStyle(Color.bodyText)
+                                                .tracking(-0.4)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                }
+                                .padding( 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color.rectBorder, lineWidth: 4)
+                                        .fill(Color.boxbackground)
+                                )
+                            }
+                            
+                            Text("Recent Activity")
+                                .foregroundColor(.lightBlack)
+                                .font(.system(size: 18).weight(.semibold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            VStack(spacing: 10){
+                                ForEach(viewModel.recentActivity) { item in
+                                    switch item {
+                                    case .modification(let mod):
+                                        RecentCard(modification: mod, fuelLog: nil)
+                                            .environmentObject(viewModel)
+                                        
+                                    case .fuel(let log):
+                                        RecentCard(modification: nil, fuelLog: log)
+                                            .environmentObject(viewModel)
+                                    }
+                                }
+                            }
                         }
                     }
+                    .scrollIndicators(.hidden)
+                } else {
+                    Text("Add a vehicle")
                 }
                 
-                
-            } else {
-                Text("Add a vehicle")
             }
-            
-        }
-        .padding(.horizontal, 17)
-        .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
-        .onAppear {
-            Task {
-                await viewModel.loadVehicleData()
+            .padding(.horizontal, 17)
+            .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
+            .onAppear {
+                Task {
+                    await viewModel.loadVehicleData()
+                }
             }
-        }
-        .task {
-            await viewModel.refreshOncePerLaunch()
+            .task {
+                await viewModel.refreshOncePerLaunch()
+            }
         }
     }
 }
@@ -350,17 +383,110 @@ struct PulsingCircle: View {
     }
 }
 
+struct RecentCard: View{
+    let modification: ModificationModel?
+    let fuelLog: FuelLogModel?
+    
+    @EnvironmentObject var viewModel: HomeViewModel
+    
+    var body: some View{
+        if let mod = modification {
+            HStack(spacing: 20) {
+                ZStack{
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.lightPink)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "wrench.and.screwdriver.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(Color.redTheme)
+                }
+                
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack() {
+                        Text(mod.name)
+                            .font(.system(size: 16).weight(.bold))
+                            .foregroundStyle(Color.lightBlack)
+                            .multilineTextAlignment(.leading)
+                        
+                        Text(viewModel.modDateFormatter(mod.date))
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth:. infinity, alignment: .trailing)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    if let desc = mod.description, !desc.isEmpty {
+                        Text(desc)
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                    }
+                }
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 18)
+            .frame(maxWidth:. infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 26)
+                    .fill(Color.boxbackground)
+            )
+        } else if let log = fuelLog {
+            HStack(spacing: 20) {
+                ZStack{
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.lightPink)
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: "fuelpump.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 16, height: 16)
+                        .foregroundStyle(Color.redTheme)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack{
+                        Text("Fuel Fill-Up")
+                            .font(.system(size: 16).weight(.bold))
+                            .foregroundStyle(Color.lightBlack)
+                                                    
+                        Text(viewModel.modDateFormatter(log.date))
+                            .font(.system(size: 12).weight(.medium))
+                            .foregroundStyle(Color.navText)
+                            .frame(maxWidth:. infinity, alignment: .trailing)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text("\(String(format: "%.2f", log.litres))L @ \(log.location)")
+                        .font(.system(size: 12).weight(.medium))
+                        .foregroundStyle(Color.navText)
+                }
+                
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 18)
+            .frame(maxWidth:. infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 26)
+                    .fill(Color.boxbackground)
+            )
+        }
+    }
+}
+
 struct ModificationCard: View {
     @EnvironmentObject var viewModel: HomeViewModel
 
     let modification: ModificationModel
 
     var body: some View {
-        VStack(spacing: 14){
+        HStack(spacing: 18){
             ZStack{
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 20)
                     .fill(Color.rectFill)
-                    .frame(width:52, height: 52)
+                    .frame(width:70, height: 60)
                 
                 switch modification.type {
                 case "Exhaust":
@@ -401,23 +527,33 @@ struct ModificationCard: View {
                         .foregroundStyle(Color.redTheme)
                 }
             }
-            VStack(spacing: 6){
+            VStack(alignment: .leading, spacing: 4){
                 Text(modification.name)
-                    .font(.system(size: 14).weight(.semibold))
+                    .font(.system(size: 16).weight(.bold))
                     .foregroundStyle(Color.lightBlack)
-                    .multilineTextAlignment(.center)
+                    .multilineTextAlignment(.leading)
                 
-                Text(viewModel.modDateFormatter(modification.date))
-                    .font(.system(size: 12).weight(.regular))
-                    .foregroundStyle(Color.bodyText)
-                    .tracking(-0.4)
+                Text("Installed " + "\(viewModel.modDateFormatter(modification.date))")
+                    .font(.system(size: 12).weight(.medium))
+                    .foregroundStyle(Color.navText)
+                   
+                
+                Text(modification.type)
+                    .font(.system(size: 10).weight(.semibold))
+                    .foregroundStyle(Color.navText)
+                    .padding(.horizontal,8)
+                    .padding(.vertical,6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.rectBorder.opacity(0.4))
+                    )
             }
         }
-        .padding(8)
-        .frame(width: 150, height: 150)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 18)
+        .frame(maxWidth:. infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.rectBorder, lineWidth: 2)
+            RoundedRectangle(cornerRadius: 26)
                 .fill(Color.boxbackground)
         )
     }
