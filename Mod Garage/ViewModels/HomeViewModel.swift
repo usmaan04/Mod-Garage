@@ -45,6 +45,7 @@ class HomeViewModel: ObservableObject {
     @Published var fuelLogs: [FuelLogModel] = []
     @Published var recentActivity: [ActivityItem] = []
     @Published var isLoading = false
+    @Published var showNotifications = false
     @Published var errorMessage: String? = nil
 
     private let db = Firestore.firestore()
@@ -62,7 +63,7 @@ class HomeViewModel: ObservableObject {
         await loadVehicleData()
 
         if let vehicle = primaryVehicle, !vehicle.id.isEmpty {
-            await updateDvlaDates(registration: vehicle.registration, vehicleId: vehicle.id)
+            //await updateDvlaDates(registration: vehicle.registration, vehicleId: vehicle.id)
 
             async let mods: Void = loadModifications(vehicle.id)
             async let fuels: Void = loadFuelLogs(vehicle.id)

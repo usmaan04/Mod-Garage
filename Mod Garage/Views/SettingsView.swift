@@ -12,6 +12,7 @@ import Combine
 struct SettingsView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject private var homeViewModel: HomeViewModel
+    @EnvironmentObject private var vehicleViewModel: VehicleViewModel
     @EnvironmentObject private var viewModel: SettingsViewModel
     
     @State private var isDarkToggleOn: Bool = false
@@ -22,175 +23,186 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            VStack{
-                Text("Settings")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 18).weight(.semibold))
-            }
-            .padding(12)
-            .frame(maxWidth: .infinity)
-            .background(Color.backgroundW)
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(){
-                    Image("AdaptiveLaunch")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 100, height: 100)
-                    VStack(spacing:4){
-                        if viewModel.name.isEmpty {
-                            ProgressView("Loading...")
-                                .padding()
-                        } else {
-                            Text("\(viewModel.name)")
-                                .font(.system(size: 18).weight(.semibold))
-                                .foregroundColor(Color.lightBlack)
+            VStack(spacing: 0){
+                VStack{
+                    Text("Settings")
+                        .foregroundColor(.lightBlack)
+                        .font(.system(size: 18).weight(.semibold))
+                }
+                .frame(maxWidth: .infinity, maxHeight: 72)
+                .background(Color.backgroundW)
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(){
+                        Image("AdaptiveLaunch")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100, height: 100)
+                        VStack(spacing:4){
+                            if viewModel.name.isEmpty {
+                                ProgressView("Loading...")
+                                    .padding()
+                            } else {
+                                Text("\(viewModel.name)")
+                                    .font(.system(size: 18).weight(.semibold))
+                                    .foregroundColor(Color.lightBlack)
+                                    .frame(maxWidth: .infinity,alignment: .center)
+                            }
+                            Text("Member since \(viewModel.memberDate)")
+                                .font(.system(size: 10))
+                                .foregroundColor(Color.navText)
                                 .frame(maxWidth: .infinity,alignment: .center)
                         }
-                        Text("Member since \(viewModel.memberDate)")
-                            .font(.system(size: 10))
-                            .foregroundColor(Color.navText)
-                            .frame(maxWidth: .infinity,alignment: .center)
+                        
                     }
+                        
+                    Text("General")
+                        .foregroundColor(.lightBlack)
+                        .font(.system(size: 17).weight(.semibold))
                     
-                }
-                    
-                Text("General")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 17).weight(.semibold))
-                
-                VStack{
-                    SettingComponent(
-                        iconName: "person.fill",
-                        title: "Profile",
-                        toggleValue: .constant(false)
-                    ) {
-                        if viewModel.isEmailPasswordUser {
-                                viewModel.showProfile = true
-                        } else {
-                            viewModel.alertMessage = "Your profile details are managed by Google. You cannot edit your name or email here."
-                            viewModel.showAlert = true
-                        }
-                    }
-                }
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(Color(.rectBorder), lineWidth: 2)
-                        .fill(Color.boxbackground)
-                        .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
-                )
-                
-                Text("Preferences")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 17).weight(.semibold))
-                
-                VStack{
-                    SettingComponent(
-                        iconName: "bell.fill",
-                        title: "Notifications",
-                        toggleValue: .constant(false)
-                    ) {
-                        print("Go to Notification view")
-                    }
-                    Divider()
-                    SettingComponent(
-                        iconName: "moon.fill",
-                        title: "Theme",
-                        showsToggle: true,
-                        toggleValue: Binding(
-                            get: {
-                                // Prefer the user choices in view model; otherwise mirror system appearance
-                                if let override = viewModel.overrideColorScheme {
-                                    return override == .dark
-                                } else {
-                                    return systemColorScheme == .dark
-                                }
-                            },
-                            set: { newValue in
-                                // Update view model override when user toggles
-                                viewModel.overrideColorScheme = newValue ? .dark : .light
+                    VStack{
+                        SettingComponent(
+                            iconName: "person.fill",
+                            title: "Profile",
+                            toggleValue: .constant(false)
+                        ) {
+                            if viewModel.isEmailPasswordUser {
+                                    viewModel.showProfile = true
+                            } else {
+                                viewModel.alertMessage = "Your profile details are managed by Google. You cannot edit your name or email here."
+                                viewModel.showAlert = true
                             }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color(.rectBorder), lineWidth: 2)
+                            .fill(Color.boxbackground)
+                            .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
+                    )
+                    
+                    Text("Preferences")
+                        .foregroundColor(.lightBlack)
+                        .font(.system(size: 17).weight(.semibold))
+                    
+                    VStack{
+                        SettingComponent(
+                            iconName: "bell.fill",
+                            title: "Notifications",
+                            toggleValue: .constant(false)
+                        ) {
+                            viewModel.showNotification = true
+                        }
+                        Divider()
+                        SettingComponent(
+                            iconName: "moon.fill",
+                            title: "Theme",
+                            showsToggle: true,
+                            toggleValue: Binding(
+                                get: {
+                                    // Prefer the user choices in view model; otherwise mirror system appearance
+                                    if let override = viewModel.overrideColorScheme {
+                                        return override == .dark
+                                    } else {
+                                        return systemColorScheme == .dark
+                                    }
+                                },
+                                set: { newValue in
+                                    // Update view model override when user toggles
+                                    viewModel.overrideColorScheme = newValue ? .dark : .light
+                                }
+                            )
+                        ) {
+                            // No action need as toggle handles changes
+                        }
+                        .contextMenu{
+                            Button("Follow System"){
+                                viewModel.overrideColorScheme = nil
+                            }
+                        }
+                    }
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color(.rectBorder), lineWidth: 2)
+                            .fill(Color.boxbackground)
+                            .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
+                    )
+                    
+                    Text("Support")
+                        .foregroundColor(.lightBlack)
+                        .font(.system(size: 17).weight(.semibold))
+                    
+                    VStack{
+                        SettingComponent(
+                            iconName: "shield.fill",
+                            title: "Privacy Policy",
+                            toggleValue: .constant(false)
+                        ) {
+                            if let url = URL(string: "https://www.apple.com/legal/privacy/") {
+                                openURL(url)
+                            }
+                        }
+                        Divider()
+                            .foregroundStyle(Color.rectBorder)
+                            .frame(height: 2)
+                        SettingComponent(
+                            iconName: "questionmark.circle.fill",
+                            title: "Contact & Support",
+                            toggleValue: .constant(false)
+                        ) {
+                            print("Go to Support view")
+                        }
+                        
+                    }
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color(.rectBorder), lineWidth: 2)
+                            .fill(Color.boxbackground)
+                            .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
+                    )
+                    
+                    VStack{
+                        Button(action: {
+                            appViewModel.signOut()
+                        }) {
+                            Text("Log Out")
+                                .font(.system(size: 14).weight(.semibold))
+                                .foregroundColor(.redTheme)
+                        }
+                        .padding(.horizontal, 28)
+                        .padding(.vertical, 18)
+                        .frame(alignment: .center)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color(.redTheme).opacity(0.2), lineWidth: 1)
+                                .fill(Color.boxbackground)
                         )
-                    ) {
-                        // No action need as toggle handles changes
                     }
-                    .contextMenu{
-                        Button("Follow System"){
-                            viewModel.overrideColorScheme = nil
-                        }
-                    }
-                }
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(Color(.rectBorder), lineWidth: 2)
-                        .fill(Color.boxbackground)
-                        .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
-                )
-                
-                Text("Support")
-                    .foregroundColor(.lightBlack)
-                    .font(.system(size: 17).weight(.semibold))
-                
-                VStack{
-                    SettingComponent(
-                        iconName: "shield.fill",
-                        title: "Privacy Policy",
-                        toggleValue: .constant(false)
-                    ) {
-                        if let url = URL(string: "https://www.apple.com/legal/privacy/") {
-                            openURL(url)
-                        }
-                    }
-                    Divider()
-                        .foregroundStyle(Color.rectBorder)
-                        .frame(height: 1)
-                    SettingComponent(
-                        iconName: "questionmark.circle.fill",
-                        title: "Contact & Support",
-                        toggleValue: .constant(false)
-                    ) {
-                        print("Go to Support view")
-                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    
                     
                 }
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 18)
-                        .stroke(Color(.rectBorder), lineWidth: 2)
-                        .fill(Color.boxbackground)
-                        .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
-                )
-                
-                VStack{
-                    Button(action: {
-                        appViewModel.signOut()
-                    }) {
-                        Text("Log Out")
-                            .font(.system(size: 14).weight(.semibold))
-                            .foregroundColor(.redTheme)
-                    }
-                    .padding(.horizontal, 28)
-                    .padding(.vertical, 18)
-                    .frame(alignment: .center)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(.redTheme).opacity(0.2), lineWidth: 1)
-                            .fill(Color.boxbackground)
-                    )
-                }
-                .frame(maxWidth: .infinity, alignment: .center)
-                
-                
+                .padding(.horizontal, 17)
+                .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
+                .background(Color.background)
             }
-            .padding(.horizontal, 17)
-            .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
-            .background(Color.background)
             .navigationDestination(isPresented: $viewModel.showProfile) {
                 ProfileView()
             }
+            .navigationDestination(isPresented: $viewModel.showNotification) {
+                NotificationView(
+                    viewModel: NotificationViewModel(
+                        vehicleProvider: { vehicleViewModel.vehicles }
+                    )
+                )
+            }
             .alert(viewModel.alertMessage, isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) { }
+            }
+            .task {
+                await vehicleViewModel.loadVehicles()
             }
         }
     }
@@ -259,6 +271,7 @@ struct SettingComponent: View {
         SettingsView()
             .environmentObject(AppViewModel())
             .environmentObject(HomeViewModel())
+            .environmentObject(VehicleViewModel())
             .environmentObject(SettingsViewModel())
     }
 }

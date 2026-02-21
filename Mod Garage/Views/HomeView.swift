@@ -11,6 +11,7 @@ struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @StateObject private var viewModel = HomeViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()
+    @StateObject private var vehicleViewModel = VehicleViewModel()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -21,14 +22,17 @@ struct HomeView: View {
                 switch viewModel.selectedTab {
                 case .home:
                     DashboardView()
+                        .environmentObject(vehicleViewModel)
                 case .vehicle:
                     VehicleView()
+                        .environmentObject(vehicleViewModel)
                 case .add:
                     SettingsView()
                 case .fuel:
                     FuelView()
                 case .settings:
                     SettingsView()
+                        .environmentObject(vehicleViewModel)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -45,8 +49,9 @@ struct HomeView: View {
 
 struct DashboardView: View {
     @StateObject private var viewModel = HomeViewModel()
+    @EnvironmentObject var vehicleViewModel: VehicleViewModel
     var body: some View {
-        VStack(spacing: 16){
+        VStack(spacing:0){
             VStack{
                 HStack() {
                     Image("AdaptiveLaunch")
@@ -97,9 +102,10 @@ struct DashboardView: View {
                 }
             }
             .padding(.horizontal, 17)
-            .padding(.bottom, 8)
+            .frame(maxWidth:.infinity, maxHeight: 72)
             .background(Color.backgroundW)
-            VStack(spacing: 16) {
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+            VStack() {
                 
                 if let vehicle = viewModel.primaryVehicle {
                     ScrollView{
@@ -322,6 +328,7 @@ struct DashboardView: View {
                                 }
                             }
                         }
+                        .offset(y: 16)
                     }
                     .scrollIndicators(.hidden)
                 } else {

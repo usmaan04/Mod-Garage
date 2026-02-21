@@ -14,6 +14,8 @@ import FirebaseAuth
 @MainActor
 class VehicleViewModel: ObservableObject {
     
+    @AppStorage(NotificationKeys.needsSync) private var needsSync: Bool = false
+    
     @Published var isShowingAddVehicle = false
     @Published var vehicles: [VehicleModel] = []
     @Published var vehicleToPass: VehicleModel?
@@ -60,6 +62,7 @@ class VehicleViewModel: ObservableObject {
                     return
                 }
             }
+            needsSync = true
             // Refresh list
             await loadVehicles()
             isShowingAddVehicle = false
@@ -141,6 +144,8 @@ class VehicleViewModel: ObservableObject {
             
             // Delete the vehicle itself
             try await path.delete()
+            
+            needsSync = true
             
             // Refresh list
             await loadVehicles()

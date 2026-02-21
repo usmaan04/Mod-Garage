@@ -21,6 +21,7 @@ class SettingsViewModel: ObservableObject {
     @AppStorage("preferredColorScheme") private var preferredColorSchemeRaw: String = "system"
     @Published var isEmailPasswordUser: Bool = false
     @Published var showProfile: Bool = false
+    @Published var showNotification: Bool = false
     @Published var showAlert = false
     @Published var alertMessage = ""
     

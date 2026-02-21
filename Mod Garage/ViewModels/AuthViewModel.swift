@@ -9,16 +9,29 @@ import Foundation
 import Combine
 import SwiftUI
 
+enum AuthScreen {
+    case login
+    case signup
+    case forgot
+}
+
 @MainActor
 class AuthViewModel: ObservableObject {
-    @Published var showLogin: Bool
+    @Published var currentScreen: AuthScreen
 
-    init(showLogin: Bool = true) {
-        self.showLogin = showLogin
+    init(currentScreen: AuthScreen = .login) {
+        self.currentScreen = currentScreen
     }
 
+    func showLogin() {
+        currentScreen = .login
+    }
 
-    func toggleView() {
-        showLogin.toggle()
+    func showSignup() {
+        currentScreen = .signup
+    }
+
+    func showForgot() {
+        currentScreen = .forgot
     }
 }

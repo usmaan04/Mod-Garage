@@ -52,6 +52,7 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.boxbackground)
                             .stroke(Color.rectBorder, lineWidth: 1)
                     )
                 }
@@ -74,6 +75,7 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.boxbackground)
                             .stroke(Color.rectBorder, lineWidth: 1)
                     )
                 }
@@ -93,6 +95,7 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.boxbackground)
                             .stroke(Color.rectBorder, lineWidth: 1)
                     )
                 }
@@ -128,7 +131,7 @@ struct SignUpView: View {
                         .cornerRadius(100)
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.top, 12)
             
             // Divider with “Or”
             HStack {
@@ -165,7 +168,7 @@ struct SignUpView: View {
                     Color(UIColor { trait in
                         trait.userInterfaceStyle == .dark
                             ? .black
-                            : UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+                        : .backgroundW
                     })
                 )
                 .cornerRadius(100)
@@ -175,7 +178,7 @@ struct SignUpView: View {
             Spacer()
         }
         .padding(.horizontal, 8)
-        .background(Color.backgroundW)
+        .background(Color.background)
         .alert(isPresented: $viewModel.showAlert) {
             Alert(
                 title: Text("Notice"),

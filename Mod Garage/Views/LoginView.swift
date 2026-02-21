@@ -11,6 +11,7 @@ import FirebaseAuth
 import GoogleSignIn
 
 struct LoginView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @StateObject private var viewModel = LoginViewModel()
     
     var body: some View {
@@ -50,6 +51,7 @@ struct LoginView: View {
                             .padding(.horizontal, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.boxbackground)
                                     .stroke(Color.rectBorder, lineWidth: 1)
                             )
                     }
@@ -96,6 +98,7 @@ struct LoginView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.boxbackground)
                                 .stroke(Color.rectBorder, lineWidth: 1)
                         )
                     }
@@ -112,7 +115,7 @@ struct LoginView: View {
                 
                 // Forgot Password
                 Button {
-                    viewModel.forgotPassword()
+                    authViewModel.showForgot()
                 } label: {
                     HStack(spacing: 6) {
                         Text("Forgot password?")
@@ -186,7 +189,7 @@ struct LoginView: View {
                         Color(UIColor { trait in
                             trait.userInterfaceStyle == .dark
                                 ? .black
-                                : UIColor(red: 246/255, green: 246/255, blue: 246/255, alpha: 1)
+                            : .backgroundW
                         })
                     )
                     .cornerRadius(100)

@@ -16,30 +16,65 @@ struct AuthView: View {
             VStack(spacing: 20) {
                 // Main auth content
                 Group {
-                    if viewModel.showLogin {
+                    switch viewModel.currentScreen {
+                    case .login:
                         LoginView()
-                    } else {
+                            .environmentObject(viewModel)
+                    case .signup:
                         SignUpView()
+                    case .forgot:
+                        ForgotPasswordView()
                     }
                 }
+                
+                switch viewModel.currentScreen {
+                case .login:
+                    Button(action: viewModel.showSignup) {
+                        HStack(spacing: 0) {
+                            Text("Don't have an account? ")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color("bodyText"))
 
-                // Toggle between login and sign up
-                Button(action: viewModel.toggleView) {
-                    HStack(spacing: 0) {
-                        Text(viewModel.showLogin ? "Don't have an account? " : "Already have an account? ")
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("bodyText"))
-
-                        Text(viewModel.showLogin ? "Sign Up" : "Log In")
-                            .foregroundColor(Color("redTheme"))
-                            .fontWeight(.semibold)
+                            Text("Sign Up")
+                                .foregroundStyle(Color.redTheme)
+                                .fontWeight(.semibold)
+                        }
+                        .font(.footnote)
+                        .padding(.top)
                     }
-                    .font(.footnote)
-                    .padding(.top)
+                case .signup:
+                    Button(action: viewModel.showLogin) {
+                        HStack(spacing: 0) {
+                            Text("Already have an account? ")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color("bodyText"))
+
+                            Text("Log In")
+                                .foregroundStyle(Color.redTheme)
+                                .fontWeight(.semibold)
+                        }
+                        .font(.footnote)
+                        .padding(.top)
+                    }
+                case .forgot:
+                    Button(action: viewModel.showLogin) {
+                        HStack(spacing: 0) {
+                            Text("Want to go back? ")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color("bodyText"))
+
+                            Text("Log In")
+                                .foregroundStyle(Color.redTheme)
+                                .fontWeight(.semibold)
+                        }
+                        .font(.footnote)
+                        .padding(.top)
+                    }
                 }
             }
             .padding()
-            .background(Color.backgroundW)
+            .background(Color.background)
+            .ignoresSafeArea(.keyboard)
         }
         .ignoresSafeArea(.keyboard)
         

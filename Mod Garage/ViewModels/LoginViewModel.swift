@@ -16,6 +16,7 @@ import GoogleSignIn
 class LoginViewModel: ObservableObject {
     // Published Properties (Bound to LoginView)
     @Published var email = ""
+    @Published var forgotEmail = ""
     @Published var password = ""
     @Published var loginError: String? = nil
     @Published var showAlert = false
@@ -45,9 +46,6 @@ class LoginViewModel: ObservableObject {
             // Login success
             self.isUserLoggedIn = true
         }
-    }
-    func forgotPassword(){
-        
     }
     
     // MARK: - Google Sign-In
