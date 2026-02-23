@@ -101,6 +101,7 @@ struct DashboardView: View {
                     }
                 }
             }
+            .zIndex(30)
             .padding(.horizontal, 17)
             .frame(maxWidth:.infinity, maxHeight: 72)
             .background(Color.backgroundW)
@@ -162,7 +163,7 @@ struct DashboardView: View {
                             
                             Text("MOT and Tax")
                                 .foregroundColor(.lightBlack)
-                                .font(.system(size: 18).weight(.semibold))
+                                .font(.system(size: 16).weight(.semibold))
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
                             HStack(spacing: 17) {
@@ -309,25 +310,31 @@ struct DashboardView: View {
                                 )
                             }
                             
-                            Text("Recent Activity")
-                                .foregroundColor(.lightBlack)
-                                .font(.system(size: 18).weight(.semibold))
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                            
-                            VStack(spacing: 10){
-                                ForEach(viewModel.recentActivity) { item in
-                                    switch item {
-                                    case .modification(let mod):
-                                        RecentCard(modification: mod, fuelLog: nil)
-                                            .environmentObject(viewModel)
-                                        
-                                    case .fuel(let log):
-                                        RecentCard(modification: nil, fuelLog: log)
-                                            .environmentObject(viewModel)
+                            if !viewModel.recentActivity.isEmpty{
+                                Text("Recent Activity")
+                                    .foregroundColor(.lightBlack)
+                                    .font(.system(size: 16).weight(.semibold))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                VStack(spacing: 10){
+                                    ForEach(viewModel.recentActivity) { item in
+                                        switch item {
+                                        case .modification(let mod):
+                                            RecentCard(modification: mod, fuelLog: nil)
+                                                .environmentObject(viewModel)
+                                            
+                                        case .fuel(let log):
+                                            RecentCard(modification: nil, fuelLog: log)
+                                                .environmentObject(viewModel)
+                                        }
                                     }
                                 }
                             }
+                            else{
+                                Text("Hey")
+                            }
                         }
+                        .padding(.horizontal, 17)
                         .offset(y: 16)
                     }
                     .scrollIndicators(.hidden)
@@ -336,7 +343,6 @@ struct DashboardView: View {
                 }
                 
             }
-            .padding(.horizontal, 17)
             .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
             .onAppear {
                 Task {

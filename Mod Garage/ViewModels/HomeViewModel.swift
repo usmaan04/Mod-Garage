@@ -63,7 +63,7 @@ class HomeViewModel: ObservableObject {
         await loadVehicleData()
 
         if let vehicle = primaryVehicle, !vehicle.id.isEmpty {
-            //await updateDvlaDates(registration: vehicle.registration, vehicleId: vehicle.id)
+            await updateDvlaDates(registration: vehicle.registration, vehicleId: vehicle.id)
 
             async let mods: Void = loadModifications(vehicle.id)
             async let fuels: Void = loadFuelLogs(vehicle.id)

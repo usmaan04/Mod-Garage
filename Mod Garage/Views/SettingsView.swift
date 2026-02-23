@@ -26,11 +26,14 @@ struct SettingsView: View {
             VStack(spacing: 0){
                 VStack{
                     Text("Settings")
-                        .foregroundColor(.lightBlack)
+                        .foregroundStyle(Color.lightBlack)
                         .font(.system(size: 18).weight(.semibold))
+                        .padding(.bottom, 12)
                 }
-                .frame(maxWidth: .infinity, maxHeight: 72)
+                .zIndex(30)
+                .frame(maxWidth:.infinity, maxHeight: 48)
                 .background(Color.backgroundW)
+                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
                 VStack(alignment: .leading, spacing: 12) {
                     VStack(){
                         Image("AdaptiveLaunch")
@@ -57,7 +60,7 @@ struct SettingsView: View {
                         
                     Text("General")
                         .foregroundColor(.lightBlack)
-                        .font(.system(size: 17).weight(.semibold))
+                        .font(.system(size: 16).weight(.semibold))
                     
                     VStack{
                         SettingComponent(
@@ -83,7 +86,7 @@ struct SettingsView: View {
                     
                     Text("Preferences")
                         .foregroundColor(.lightBlack)
-                        .font(.system(size: 17).weight(.semibold))
+                        .font(.system(size: 16).weight(.semibold))
                     
                     VStack{
                         SettingComponent(
@@ -131,7 +134,7 @@ struct SettingsView: View {
                     
                     Text("Support")
                         .foregroundColor(.lightBlack)
-                        .font(.system(size: 17).weight(.semibold))
+                        .font(.system(size: 16).weight(.semibold))
                     
                     VStack{
                         SettingComponent(
