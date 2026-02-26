@@ -56,13 +56,27 @@ struct MPGChartPoint: Identifiable {
     let avgMPG: Double
 }
 
-struct MonthlySpendPoint: Identifiable {
-    let id: String          // "YYYY-MM"
-    let monthStart: Date
+struct SpendChartPoint: Identifiable {
+    let id: String
+    let x: Date
     let totalSpend: Double
 }
 
 extension Calendar {
+    
+    func startOfDayLocal(_ date: Date) -> Date {
+            var c = self
+            c.timeZone = .current
+            return c.startOfDay(for: date)
+    }
+
+    func endOfDayLocal(_ date: Date) -> Date {
+        var c = self
+        c.timeZone = .current
+        let start = c.startOfDay(for: date)
+        return c.date(byAdding: .second, value: 86399, to: start)! // 23:59:59
+    }
+
     func startOfMonth(for date: Date) -> Date {
         self.date(from: dateComponents([.year, .month], from: date))!
     }
@@ -88,6 +102,8 @@ extension Calendar {
     }
 }
 
+
+
 @MainActor
 class FuelViewModel: ObservableObject {
     @Published var primaryVehicle: VehicleModel?
@@ -103,6 +119,18 @@ class FuelViewModel: ObservableObject {
     private(set) var hasLoadedOnce = false
 
     private let db = Firestore.firestore()
+    
+    private var chartAnchorDate: Date {
+        let now = Date()
+        let latestLogDate = fuelLogs.map(\.date).max() ?? now
+        return max(now, latestLogDate)
+    }
+    
+    var spendChartYMax: Double {
+        let maxVal = spendChartPoints.map(\.totalSpend).max() ?? 0
+        // add 10% headroom + minimum sensible scale
+        return max(10, maxVal * 1.2)
+    }
 
     // filtered logs derived from selection
     var filteredLogs: [FuelLogModel] {
@@ -124,6 +152,7 @@ class FuelViewModel: ObservableObject {
         return total / Double(filteredLogs.count)
     }
     
+    // Values for plotting MPG chart
     var mpgChartPoints: [MPGChartPoint] {
         switch selectedTimeframe {
         case .oneMonth:
@@ -134,34 +163,73 @@ class FuelViewModel: ObservableObject {
             return yearlyMPGPoints()
         }
     }
+    
+    var spendChartPoints: [SpendChartPoint] {
+        switch selectedTimeframe {
+        case .oneMonth:
+            return dailySpendPointsForAnchorMonth()
+        case .sixMonths, .oneYear:
+            return monthlySpendPointsForTimeframe()
+        case .all:
+            return yearlySpendPointsForAll()
+        }
+    }
+    
+    func dayTicksForAnchorMonth(startAtDay: Int = 5, step: Int = 5) -> [Date] {
+        var cal = Calendar.current
+        cal.timeZone = .current
 
-    // Domain for the chart X axis
-    var mpgChartDomain: ClosedRange<Date>? {
+        let anchor = chartAnchorDate
+        let monthStart = cal.startOfMonth(for: anchor)
+
+        let daysInMonth = cal.range(of: .day, in: .month, for: monthStart)?.count ?? 30
+        let lastDayStart = cal.date(byAdding: .day, value: daysInMonth - 1, to: monthStart)!
+
+        var ticks: [Date] = []
+
+        var day = startAtDay
+        while day <= daysInMonth {
+            let d = cal.date(byAdding: .day, value: day - 1, to: monthStart)!
+            ticks.append(d)
+            day += step
+        }
+
+        // Optional: always include last day if it’s not already on the step
+        if ticks.last != lastDayStart {
+            ticks.append(lastDayStart)
+        }
+
+        return ticks
+    }
+
+    // Domain for the MPG chart X axis
+    var chartDomain: ClosedRange<Date>? {
         let cal = Calendar.current
         let now = Date()
+        let anchor = chartAnchorDate
 
         switch selectedTimeframe {
         case .oneMonth:
-            let start = cal.startOfMonth(for: now)
-            let next = cal.date(byAdding: .month, value: 1, to: start)!
-            let end = cal.date(byAdding: .second, value: -1, to: next)!
+            let start = cal.startOfMonth(for: anchor)
+            let next = cal.date(byAdding: .day, value: 31, to: start)!
+            let end = cal.date(byAdding: .second, value: -31, to: next)!
             return start...end
 
         case .sixMonths:
-            // last 6 calendar months inclusive
-            let start = cal.date(byAdding: .month, value: -5, to: cal.startOfMonth(for: now))!
-            let end = cal.endOfMonth(for: now)
+            let start = cal.date(byAdding: .month, value: -5, to: cal.startOfMonth(for: anchor))!
+            // Extend to the start of the NEXT month to ensure the current month label shows
+            let end = cal.date(byAdding: .month, value: 1, to: cal.startOfMonth(for: anchor))!
             return start...end
 
         case .oneYear:
-            let start = cal.date(byAdding: .month, value: -11, to: cal.startOfMonth(for: now))!
-            let end = cal.endOfMonth(for: now)
+            let start = cal.date(byAdding: .month, value: -11, to: cal.startOfMonth(for: anchor))!
+            let end = cal.date(byAdding: .month, value: 1, to: cal.startOfMonth(for: anchor))!
             return start...end
-
+            
         case .all:
             guard let minDate = fuelLogs.map(\.date).min() else { return nil }
             let start = cal.startOfMonth(for: minDate)
-            let end = cal.endOfMonth(for: now)
+            let end = cal.endOfMonth(for: anchor)
             return start...end
         }
     }
@@ -201,6 +269,40 @@ class FuelViewModel: ObservableObject {
         points.sort { $0.x < $1.x }
         return points
     }
+    
+    private func dailySpendPointsForAnchorMonth() -> [SpendChartPoint] {
+        var cal = Calendar.current
+        cal.timeZone = .current
+
+        let anchor = chartAnchorDate
+        let monthStart = cal.startOfMonth(for: anchor)
+        let nextMonthStart = cal.date(byAdding: .month, value: 1, to: monthStart)!
+
+        // only logs inside anchor month in local time
+        let monthLogs = filteredLogs.filter { log in
+            let day = cal.startOfDay(for: log.date)
+            return day >= monthStart && day < nextMonthStart
+        }
+
+        // group by local startOfDay
+        let grouped = Dictionary(grouping: monthLogs) { log in
+            cal.startOfDay(for: log.date)
+        }
+
+        var points: [SpendChartPoint] = grouped.compactMap { (dayStart, logs) in
+            guard !logs.isEmpty else { return nil }
+            let total = logs.reduce(0) { $0 + $1.cost }
+
+            // plot at midday to avoid timezone drift
+            let x = cal.date(bySettingHour: 12, minute: 0, second: 0, of: dayStart) ?? dayStart
+            let id = ISO8601DateFormatter().string(from: dayStart)
+            return SpendChartPoint(id: id, x: x, totalSpend: total)
+        }
+
+        points.sort { $0.x < $1.x }
+        return points
+    }
+
 
     private func monthlyMPGPoints() -> [MPGChartPoint] {
         let grouped = Dictionary(grouping: filteredLogs) { log in
@@ -219,6 +321,24 @@ class FuelViewModel: ObservableObject {
         points.sort { $0.x < $1.x }
         return points
     }
+    
+    private func monthlySpendPointsForTimeframe() -> [SpendChartPoint] {
+        let grouped = Dictionary(grouping: filteredLogs) { log in
+            monthId(for: log.date) // "YYYY-MM"
+        }
+
+        let cal = Calendar.current
+
+        var points: [SpendChartPoint] = grouped.compactMap { (id, logs) in
+            guard let start = monthStart(from: id), !logs.isEmpty else { return nil }
+            let total = logs.reduce(0) { $0 + $1.cost }
+            let x = cal.midOfMonth(for: start) 
+            return SpendChartPoint(id: id, x: x, totalSpend: total)
+        }
+
+        points.sort { $0.x < $1.x }
+        return points
+    }
 
     private func yearlyMPGPoints() -> [MPGChartPoint] {
         let grouped = Dictionary(grouping: filteredLogs) { log in
@@ -232,6 +352,24 @@ class FuelViewModel: ObservableObject {
             let avg = logs.reduce(0) { $0 + $1.mpg } / Double(logs.count)
             let midYear = cal.midOfYear(for: yearStart)
             return MPGChartPoint(id: id, x: midYear, avgMPG: avg)
+        }
+
+        points.sort { $0.x < $1.x }
+        return points
+    }
+    
+    private func yearlySpendPointsForAll() -> [SpendChartPoint] {
+        let grouped = Dictionary(grouping: filteredLogs) { log in
+            yearId(for: log.date) // "YYYY"
+        }
+
+        let cal = Calendar.current
+
+        var points: [SpendChartPoint] = grouped.compactMap { (id, logs) in
+            guard let start = yearStart(from: id), !logs.isEmpty else { return nil }
+            let total = logs.reduce(0) { $0 + $1.cost }
+            let x = cal.midOfYear(for: start) // ✅ centered in year column
+            return SpendChartPoint(id: id, x: x, totalSpend: total)
         }
 
         points.sort { $0.x < $1.x }

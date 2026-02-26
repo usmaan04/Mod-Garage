@@ -485,7 +485,7 @@ struct VehicleView: View {
                                         .scrollIndicators(.hidden)
                                     }
                                 }
-                                .frame(maxHeight: proxy.size.height - 66)
+                                .frame(maxHeight: proxy.size.height - 64)
                             }
                         }
                     }

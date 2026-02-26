@@ -16,6 +16,15 @@ private func currencyString(from value: Double) -> String {
     return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
 }
 
+private func spendingCurrencyString(from value: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.currencyCode = "GBP"
+    formatter.maximumFractionDigits = 0
+    formatter.minimumFractionDigits = 0
+    return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
+}
+
 struct FuelView: View {
     @StateObject private var viewModel = FuelViewModel()
     @EnvironmentObject var homeViewModel: HomeViewModel
@@ -46,7 +55,7 @@ struct FuelView: View {
                         HStack(spacing: 12) {
                             summaryCard(
                                 title: "Total Spending",
-                                value: currencyString(viewModel.totalSpending)
+                                value: currencyString(from: viewModel.totalSpending)
                             )
 
                             summaryCard(
@@ -69,22 +78,23 @@ struct FuelView: View {
                                         x: .value("Date", point.x),
                                         y: .value("Avg MPG", point.avgMPG)
                                     )
+                                    .foregroundStyle(Color.redTheme)
                                     PointMark(
                                         x: .value("Date", point.x),
                                         y: .value("Avg MPG", point.avgMPG)
                                     )
+                                    .foregroundStyle(Color.redTheme)
                                 }
                                 .frame(height: 180)
-                                .chartXScale(domain: viewModel.mpgChartDomain ?? Date.distantPast...Date())
-                                .chartXScale(range: .plotDimension(padding: 0))
+                                .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
+                                .chartXScale(range: .plotDimension(padding: 10))
                                 .chartYScale(domain: 0...80)
                                 .chartXAxis {
                                     switch viewModel.selectedTimeframe {
                                     case .oneMonth:
-                                        AxisMarks(values: .stride(by: .day, count: 7)) { value in
-                                            AxisGridLine()
-                                            AxisTick()
-                                            AxisValueLabel(centered: true) {
+                                        AxisMarks(values: viewModel.dayTicksForAnchorMonth(step: 5)) {
+                                            value in
+                                            AxisValueLabel(centered: false) {
                                                 if let date = value.as(Date.self) {
                                                     Text(date, format: .dateTime.day())
                                                 }
@@ -94,8 +104,6 @@ struct FuelView: View {
 
                                     case .sixMonths, .oneYear:
                                         AxisMarks(values: .stride(by: .month)) { value in
-                                            AxisGridLine()
-                                            AxisTick()
                                             AxisValueLabel(centered: true) {
                                                 if let date = value.as(Date.self) {
                                                     Text(date, format: .dateTime.month(.abbreviated))
@@ -106,8 +114,6 @@ struct FuelView: View {
 
                                     case .all:
                                         AxisMarks(values: .stride(by: .year)) { value in
-                                            AxisGridLine()
-                                            AxisTick()
                                             AxisValueLabel(centered: true)
                                         }
                                     }
@@ -125,15 +131,82 @@ struct FuelView: View {
                                 .fill(Color.boxbackground)
                         )
 
-                        // Spending (placeholder container)
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Spending")
                                 .font(.system(size: 14, weight: .semibold))
                                 .foregroundStyle(Color.gray)
 
-                            
+                            if viewModel.spendChartPoints.isEmpty {
+                                emptyChartState("No spending data for this timeframe.")
+                            } else {
+                                let barWidth: MarkDimension = {
+                                    switch viewModel.selectedTimeframe {
+                                    case .oneMonth: return .fixed(6)
+                                    case .sixMonths: return .fixed(30)
+                                    case .oneYear: return .fixed(20)
+                                    case .all: return .fixed(16)
+                                    }
+                                }()
+
+                                Chart(viewModel.spendChartPoints) { point in
+                                    BarMark(
+                                        x: .value("Date", point.x),
+                                        y: .value("Total Spend", point.totalSpend),
+                                        width: barWidth
+                                    )
+                                    .foregroundStyle(Color.redTheme)
+                                }
+                                .frame(height: 180)
+                                
+                                .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
+                                .chartXScale(range: .plotDimension(padding: 10))
+                               
+                                .chartXAxis {
+                                    switch viewModel.selectedTimeframe {
+                                    case .oneMonth:
+                                        AxisMarks(values: viewModel.dayTicksForAnchorMonth(step: 5)) { value in
+                                            AxisValueLabel(centered: false) {
+                                                if let date = value.as(Date.self) {
+                                                    Text(date, format: .dateTime.day())
+                                                        
+                                                }
+                                            }
+                                        }
+
+                                    case .sixMonths, .oneYear:
+                                        AxisMarks(values: .stride(by: .month)) { value in
+                                            AxisValueLabel(centered: true) {
+                                                if let date = value.as(Date.self) {
+                                                    Text(date, format: .dateTime.month(.abbreviated))
+                                                }
+                                            }
+                                        }
+
+                                    case .all:
+                                        AxisMarks(values: .stride(by: .year)) { value in
+                                            AxisValueLabel(centered: true) {
+                                                if let date = value.as(Date.self) {
+                                                    Text(date, format: .dateTime.year())
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                .frame(maxWidth: .infinity)
+                                .chartYAxis {
+                                    AxisMarks(position: .leading) { value in
+                                        AxisGridLine()
+                                        AxisTick()
+                                        AxisValueLabel {
+                                            if let v = value.as(Double.self) {
+                                                Text(spendingCurrencyString(from: v))
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        .padding(12)
+                        .padding(10)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
@@ -264,14 +337,6 @@ struct FuelView: View {
                             .stroke(Color.rectBorder.opacity(0.6), lineWidth: 1)
                     )
             )
-    }
-
-    // Formatting helpers
-    private func currencyString(_ value: Double) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "GBP" // change if needed
-        return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
     }
 
     private func mpgString(_ value: Double?) -> String {
