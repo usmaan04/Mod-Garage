@@ -109,6 +109,9 @@ class FuelViewModel: ObservableObject {
     @Published var primaryVehicle: VehicleModel?
     @Published var fuelLogs: [FuelLogModel] = []
 
+    @Published var isShowingAddFuelLog = false
+    @Published var isShowingAllLogs = false
+ 
     // Timeframe selection (drives filtering, cards, charts)
     @Published var selectedTimeframe: FuelTimeframe = .oneMonth
 
@@ -117,6 +120,10 @@ class FuelViewModel: ObservableObject {
 
     // Prevents repeated reloads
     private(set) var hasLoadedOnce = false
+    
+    var latestFuelLogMileage: Int? {
+        fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
+    }
 
     private let db = Firestore.firestore()
     
@@ -194,18 +201,12 @@ class FuelViewModel: ObservableObject {
             day += step
         }
 
-        // Optional: always include last day if it’s not already on the step
-        if ticks.last != lastDayStart {
-            ticks.append(lastDayStart)
-        }
-
         return ticks
     }
 
     // Domain for the MPG chart X axis
     var chartDomain: ClosedRange<Date>? {
         let cal = Calendar.current
-        let now = Date()
         let anchor = chartAnchorDate
 
         switch selectedTimeframe {
@@ -447,6 +448,29 @@ class FuelViewModel: ObservableObject {
         } catch {
             errorMessage = "Failed to load data: \(error.localizedDescription)"
             fuelLogs = []
+        }
+    }
+    
+    // Add a new fuel log
+    func addFuelLog(_ fuelLog: FuelLogModel, vehicleId: String) async {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            errorMessage = "No logged in user."
+            return
+        }
+
+        let logsCollection = db
+            .collection("users")
+            .document(uid)
+            .collection("vehicles")
+            .document(vehicleId)
+            .collection("fuelLogs")
+
+        do {
+            try logsCollection.addDocument(from: fuelLog)
+            await refreshFuelLogs()
+            isShowingAddFuelLog = false
+        } catch {
+            errorMessage = "Failed to save fuel log: \(error.localizedDescription)"
         }
     }
 

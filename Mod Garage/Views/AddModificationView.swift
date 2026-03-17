@@ -182,8 +182,8 @@ struct AddModificationView:View {
                                 .fill(Color.boxbackground)
                         )
                     }
-                    
                 }
+                .padding(.horizontal,17)
                 
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
@@ -206,11 +206,11 @@ struct AddModificationView:View {
                             .cornerRadius(100)
                     }
                 }
+                .padding(.horizontal,17)
                 .padding(.top, 24)
             }
             .frame(maxHeight: .infinity)
         }
-        .padding(.horizontal,17)
         .frame(maxHeight: .infinity, alignment: .top)
         .navigationTitle("Add a Modification")
         .navigationBarTitleDisplayMode(.inline)

@@ -28,7 +28,7 @@ struct CustomTabBar: View {
                 if tab == .add {
                     Button {
                         withAnimation(.spring()) {
-                            viewModel.selectedTab = .add
+                            viewModel.isShowingQuickAddMenu = true
                         }
                     } label: {
                         ZStack {

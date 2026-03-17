@@ -29,9 +29,21 @@ enum ActivityItem: Identifiable {
         switch self {
         case .modification(let m):
             // Use createdAt if you want "added recently", or date if "installed date"
-            return m.createdAt
+            return m.date
         case .fuel(let f):
-            return f.createdAt
+            return f.date
+        }
+    }
+}
+
+enum QuickAddAction: Identifiable {
+    case modification
+    case fuelLog
+
+    var id: String {
+        switch self {
+        case .modification: return "modification"
+        case .fuelLog: return "fuelLog"
         }
     }
 }
@@ -44,9 +56,17 @@ class HomeViewModel: ObservableObject {
     @Published var modifications: [ModificationModel] = []
     @Published var fuelLogs: [FuelLogModel] = []
     @Published var recentActivity: [ActivityItem] = []
+    
+    @Published var selectedQuickAction: QuickAddAction? = nil
+    @Published var isShowingQuickAddMenu = false
+    
     @Published var isLoading = false
     @Published var showNotifications = false
     @Published var errorMessage: String? = nil
+    
+    var latestFuelLogMileage: Int? {
+        fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
+    }
 
     private let db = Firestore.firestore()
     
@@ -54,6 +74,9 @@ class HomeViewModel: ObservableObject {
 
     init() {
         fetchUserName()
+        Task { [weak self] in
+            await self?.refreshOncePerLaunch()
+        }
     }
     
     func refreshOncePerLaunch() async {
@@ -340,3 +363,4 @@ class HomeViewModel: ObservableObject {
         isLoading = false
     }
 }
+

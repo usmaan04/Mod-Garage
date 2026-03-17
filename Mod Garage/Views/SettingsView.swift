@@ -154,7 +154,9 @@ struct SettingsView: View {
                             title: "Contact & Support",
                             toggleValue: .constant(false)
                         ) {
-                            print("Go to Support view")
+                            if let url = URL(string: "https://www.modgarage.com") {
+                                openURL(url)
+                            }
                         }
                         
                     }

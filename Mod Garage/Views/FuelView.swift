@@ -37,215 +37,245 @@ struct FuelView: View {
                     .padding(.top, 30)
             } else if let _ = viewModel.primaryVehicle {
                 VStack{
-                    Text("Fuel and Efficiency")
-                        .foregroundStyle(Color.lightBlack)
-                        .font(.system(size: 18).weight(.semibold))
-                        .padding(.bottom, 12)
+                    HStack {
+                        Text("Fuel & Efficiency")
+                            .foregroundStyle(.lightBlack)
+                            .font(.system(size: 18).weight(.semibold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Button {
+                            viewModel.isShowingAddFuelLog = true
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.redTheme)
+                                    .frame(width: 36, height: 36)
+                                
+                                Image(systemName: "plus")
+                                    .font(.system(size: 16, weight: .regular))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
                 }
                 .zIndex(30)
                 .padding(.horizontal, 17)
-                .frame(maxWidth:.infinity, maxHeight: 48)
+                .padding(.bottom, 17)
+                .frame(maxWidth: .infinity, maxHeight: 64)
                 .background(Color.backgroundW)
                 .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: 20) {
-                        // Timeframe Filters
-                        timeframePills
-                        // Summary Cards
-                        HStack(spacing: 12) {
-                            summaryCard(
-                                title: "Total Spending",
-                                value: currencyString(from: viewModel.totalSpending)
-                            )
-
-                            summaryCard(
-                                title: "Avg MPG",
-                                value: mpgString(viewModel.averageMPG)
-                            )
-                        }
-
-                        // MPG Trends (placeholder container)
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("MPG Trends")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(Color.gray)
-                            
-                            if viewModel.mpgChartPoints.isEmpty {
-                                    emptyChartState("No MPG data for this timeframe.")
-                            } else {
-                                Chart(viewModel.mpgChartPoints) { point in
-                                    LineMark(
-                                        x: .value("Date", point.x),
-                                        y: .value("Avg MPG", point.avgMPG)
-                                    )
-                                    .foregroundStyle(Color.redTheme)
-                                    PointMark(
-                                        x: .value("Date", point.x),
-                                        y: .value("Avg MPG", point.avgMPG)
-                                    )
-                                    .foregroundStyle(Color.redTheme)
-                                }
-                                .frame(height: 180)
-                                .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
-                                .chartXScale(range: .plotDimension(padding: 10))
-                                .chartYScale(domain: 0...80)
-                                .chartXAxis {
-                                    switch viewModel.selectedTimeframe {
-                                    case .oneMonth:
-                                        AxisMarks(values: viewModel.dayTicksForAnchorMonth(step: 5)) {
-                                            value in
-                                            AxisValueLabel(centered: false) {
-                                                if let date = value.as(Date.self) {
-                                                    Text(date, format: .dateTime.day())
-                                                }
-                                            }
-                                        }
-
-
-                                    case .sixMonths, .oneYear:
-                                        AxisMarks(values: .stride(by: .month)) { value in
-                                            AxisValueLabel(centered: true) {
-                                                if let date = value.as(Date.self) {
-                                                    Text(date, format: .dateTime.month(.abbreviated))
-                                                        .frame(maxWidth: .infinity, alignment: .center)
-                                                }
-                                            }
-                                        }
-
-                                    case .all:
-                                        AxisMarks(values: .stride(by: .year)) { value in
-                                            AxisValueLabel(centered: true)
-                                        }
-                                    }
-                                }
-                                .chartYAxis {
-                                    AxisMarks(position: .leading)
-                                }
-                            }
-                        }
-                        .padding(12)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder, lineWidth: 4)
-                                .fill(Color.boxbackground)
-                        )
-
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Spending")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(Color.gray)
-
-                            if viewModel.spendChartPoints.isEmpty {
-                                emptyChartState("No spending data for this timeframe.")
-                            } else {
-                                let barWidth: MarkDimension = {
-                                    switch viewModel.selectedTimeframe {
-                                    case .oneMonth: return .fixed(6)
-                                    case .sixMonths: return .fixed(30)
-                                    case .oneYear: return .fixed(20)
-                                    case .all: return .fixed(16)
-                                    }
-                                }()
-
-                                Chart(viewModel.spendChartPoints) { point in
-                                    BarMark(
-                                        x: .value("Date", point.x),
-                                        y: .value("Total Spend", point.totalSpend),
-                                        width: barWidth
-                                    )
-                                    .foregroundStyle(Color.redTheme)
-                                }
-                                .frame(height: 180)
-                                
-                                .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
-                                .chartXScale(range: .plotDimension(padding: 10))
-                               
-                                .chartXAxis {
-                                    switch viewModel.selectedTimeframe {
-                                    case .oneMonth:
-                                        AxisMarks(values: viewModel.dayTicksForAnchorMonth(step: 5)) { value in
-                                            AxisValueLabel(centered: false) {
-                                                if let date = value.as(Date.self) {
-                                                    Text(date, format: .dateTime.day())
-                                                        
-                                                }
-                                            }
-                                        }
-
-                                    case .sixMonths, .oneYear:
-                                        AxisMarks(values: .stride(by: .month)) { value in
-                                            AxisValueLabel(centered: true) {
-                                                if let date = value.as(Date.self) {
-                                                    Text(date, format: .dateTime.month(.abbreviated))
-                                                }
-                                            }
-                                        }
-
-                                    case .all:
-                                        AxisMarks(values: .stride(by: .year)) { value in
-                                            AxisValueLabel(centered: true) {
-                                                if let date = value.as(Date.self) {
-                                                    Text(date, format: .dateTime.year())
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                .frame(maxWidth: .infinity)
-                                .chartYAxis {
-                                    AxisMarks(position: .leading) { value in
-                                        AxisGridLine()
-                                        AxisTick()
-                                        AxisValueLabel {
-                                            if let v = value.as(Double.self) {
-                                                Text(spendingCurrencyString(from: v))
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .padding(10)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder, lineWidth: 4)
-                                .fill(Color.boxbackground)
-                        )
-                        
-                        Text("Recent Fill-Ups")
-                            .foregroundColor(.lightBlack)
-                            .font(.system(size: 16).weight(.semibold))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        VStack{
-                            ForEach(viewModel.fuelLogs
-                                .sorted { $0.date > $1.date }
-                                .prefix(3)
-                            ) { fuelLog in
-                                FuelLogCard(
-                                    fuelLog: fuelLog,
+                GeometryReader{ proxy in
+                    ScrollView(.vertical, showsIndicators: false) {
+                        VStack(spacing: 20) {
+                            // Timeframe Filters
+                            timeframePills
+                            // Summary Cards
+                            HStack(spacing: 12) {
+                                summaryCard(
+                                    title: "Total Spending",
+                                    value: currencyString(from: viewModel.totalSpending)
                                 )
-                                .environmentObject(homeViewModel)
-                                
+
+                                summaryCard(
+                                    title: "Avg MPG",
+                                    value: mpgString(viewModel.averageMPG)
+                                )
                             }
-                        }
 
-                        // Empty state for logs (optional)
-                        if viewModel.filteredLogs.isEmpty {
-                            Text("No fuel logs found for this timeframe.")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.navText)
-                                .padding(.top, 4)
-                        }
+                            // MPG Trends (placeholder container)
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("MPG Trends")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(Color.gray)
+                                
+                                if viewModel.mpgChartPoints.isEmpty {
+                                        emptyChartState("No MPG data for this timeframe.")
+                                } else {
+                                    Chart(viewModel.mpgChartPoints) { point in
+                                        LineMark(
+                                            x: .value("Date", point.x),
+                                            y: .value("Avg MPG", point.avgMPG)
+                                        )
+                                        .foregroundStyle(Color.redTheme)
+                                        PointMark(
+                                            x: .value("Date", point.x),
+                                            y: .value("Avg MPG", point.avgMPG)
+                                        )
+                                        .foregroundStyle(Color.redTheme)
+                                    }
+                                    .frame(height: 180)
+                                    .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
+                                    .chartXScale(range: .plotDimension(padding: 10))
+                                    .chartYScale(domain: 0...80)
+                                    .chartXAxis {
+                                        switch viewModel.selectedTimeframe {
+                                        case .oneMonth:
+                                            AxisMarks(values: viewModel.dayTicksForAnchorMonth(step: 5)) {
+                                                value in
+                                                AxisValueLabel(centered: false) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.day())
+                                                    }
+                                                }
+                                            }
 
+
+                                        case .sixMonths, .oneYear:
+                                            AxisMarks(values: .stride(by: .month)) { value in
+                                                AxisValueLabel(centered: true) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.month(.abbreviated))
+                                                            .frame(maxWidth: .infinity, alignment: .center)
+                                                    }
+                                                }
+                                            }
+
+                                        case .all:
+                                            AxisMarks(values: .stride(by: .year)) { value in
+                                                AxisValueLabel(centered: true)
+                                            }
+                                        }
+                                    }
+                                    .chartYAxis {
+                                        AxisMarks(position: .leading)
+                                    }
+                                }
+                            }
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.rectBorder, lineWidth: 4)
+                                    .fill(Color.boxbackground)
+                            )
+
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Spending")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundStyle(Color.gray)
+
+                                if viewModel.spendChartPoints.isEmpty {
+                                    emptyChartState("No spending data for this timeframe.")
+                                } else {
+                                    let barWidth: MarkDimension = {
+                                        switch viewModel.selectedTimeframe {
+                                        case .oneMonth: return .fixed(6)
+                                        case .sixMonths: return .fixed(35)
+                                        case .oneYear: return .fixed(25)
+                                        case .all: return .fixed(16)
+                                        }
+                                    }()
+
+                                    Chart(viewModel.spendChartPoints) { point in
+                                        BarMark(
+                                            x: .value("Date", point.x),
+                                            y: .value("Total Spend", point.totalSpend),
+                                            width: barWidth
+                                        )
+                                        .foregroundStyle(Color.redTheme)
+                                    }
+                                    .frame(height: 180)
+                                    
+                                    .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
+                                    .chartXScale(range: .plotDimension(padding: 10))
+                                   
+                                    .chartXAxis {
+                                        switch viewModel.selectedTimeframe {
+                                        case .oneMonth:
+                                            AxisMarks(values: viewModel.dayTicksForAnchorMonth(step: 5)) { value in
+                                                AxisValueLabel(centered: false) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.day())
+                                                            
+                                                    }
+                                                }
+                                            }
+
+                                        case .sixMonths, .oneYear:
+                                            AxisMarks(values: .stride(by: .month)) { value in
+                                                AxisValueLabel(centered: true) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.month(.abbreviated))
+                                                    }
+                                                }
+                                            }
+
+                                        case .all:
+                                            AxisMarks(values: .stride(by: .year)) { value in
+                                                AxisValueLabel(centered: true) {
+                                                    if let date = value.as(Date.self) {
+                                                        Text(date, format: .dateTime.year())
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity)
+                                    .chartYAxis {
+                                        AxisMarks(position: .leading) { value in
+                                            AxisGridLine()
+                                            AxisTick()
+                                            AxisValueLabel {
+                                                if let v = value.as(Double.self) {
+                                                    Text(spendingCurrencyString(from: v))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(10)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.rectBorder, lineWidth: 4)
+                                    .fill(Color.boxbackground)
+                            )
+                            
+                            HStack{
+                                Text("Recent Fill-Ups")
+                                    .foregroundColor(.lightBlack)
+                                    .font(.system(size: 16).weight(.semibold))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                Button{
+                                    viewModel.isShowingAllLogs = true
+                                }label:{
+                                    Text("See All")
+                                        .padding(.trailing, 10)
+                                        .foregroundColor(.redTheme)
+                                        .font(.system(size: 14).weight(.semibold))
+                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                }
+                            }
+                            
+                            VStack{
+                                ForEach(viewModel.fuelLogs
+                                    .sorted { $0.date > $1.date }
+                                    .prefix(3)
+                                ) { fuelLog in
+                                    FuelLogCard(
+                                        fuelLog: fuelLog,
+                                    )
+                                    .environmentObject(homeViewModel)
+                                    
+                                }
+                            }
+
+                            // Empty state for logs (optional)
+                            if viewModel.filteredLogs.isEmpty {
+                                Text("No fuel logs found for this timeframe.")
+                                    .font(.system(size: 12))
+                                    .foregroundStyle(Color.navText)
+                                    .padding(.top, 4)
+                            }
+
+                        }
+                        .padding(.horizontal, 17)
+                        .padding(.vertical, 16)
                     }
-                    .padding(.horizontal, 17)
-                    .offset(y: 16)
-                    
+                    .frame(maxHeight: proxy.size.height - 84)
                 }
-                
                 
             } else {
                 Text("Hey there, please add a vehicle to see your fuel details")
@@ -256,10 +286,47 @@ struct FuelView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.background)
-        .navigationTitle("Fuel & Efficiency")
-        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $viewModel.isShowingAddFuelLog) {
+            addFuelLogSheet
+        }
+        .sheet(isPresented:$viewModel.isShowingAllLogs){
+            ScrollView{
+                ForEach(viewModel.fuelLogs
+                    .sorted { $0.date > $1.date }
+                ) { fuelLog in
+                    FuelLogCard(
+                        fuelLog: fuelLog,
+                    )
+                    .environmentObject(homeViewModel)
+                    
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 36)
+            }
+            
+            .background(Color.background)
+            .presentationDragIndicator(.visible)
+        }
         .task {
             await viewModel.loadFuelScreenData()
+        }
+    }
+    
+    private var addFuelLogSheet: some View {
+        Group {
+            if let vehicleId = viewModel.primaryVehicle?.id {
+                NavigationStack {
+                    AddFuelLogView(
+                        vehicleId: vehicleId,
+                        method: "fuel",
+                        previousMileage: viewModel.latestFuelLogMileage
+                    )
+                    .environmentObject(viewModel)
+                }
+                .presentationDragIndicator(.visible)
+            } else {
+                Text("No vehicle selected.")
+            }
         }
     }
 

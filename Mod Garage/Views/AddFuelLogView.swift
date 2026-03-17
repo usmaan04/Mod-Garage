@@ -14,8 +14,10 @@ struct AddFuelLogView:View {
     @StateObject private var viewModel = AddFuelLogViewModel()
     
     @EnvironmentObject var detailViewModel: VehicleDetailViewModel
+    @EnvironmentObject var fuelViewModel: FuelViewModel
     
     let vehicleId: String
+    let method: String
     let previousMileage: Int?
     
     var body: some View {
@@ -172,6 +174,7 @@ struct AddFuelLogView:View {
                     )
                     
                 }
+                .padding(.horizontal,17)
                 
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
@@ -194,11 +197,11 @@ struct AddFuelLogView:View {
                             .cornerRadius(100)
                     }
                 }
+                .padding(.horizontal,17)
                 .padding(.top, 24)
             }
             .frame(maxHeight: .infinity)
         }
-        .padding(.horizontal,17)
         .padding(.top,17)
         .frame(maxHeight: .infinity, alignment: .top)
         .navigationTitle("Add a Fuel Log")
@@ -215,11 +218,21 @@ struct AddFuelLogView:View {
         .onAppear {
             viewModel.previousMileage = previousMileage
                     
-            // Important: link AddModificationViewModel → VehicleDetailViewModel
-            viewModel.onFuelLogReady = { fuelLog in
-                Task {
-                    await detailViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
-                    dismiss()
+            if method == "fuel"{
+                // Important: link AddModificationViewModel → VehicleDetailViewModel
+                viewModel.onFuelLogReady = { fuelLog in
+                    Task {
+                        await fuelViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
+                        dismiss()
+                    }
+                }
+            }else{
+                // Important: link AddModificationViewModel → VehicleDetailViewModel
+                viewModel.onFuelLogReady = { fuelLog in
+                    Task {
+                        await detailViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
+                        dismiss()
+                    }
                 }
             }
         }
