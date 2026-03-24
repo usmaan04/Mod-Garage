@@ -36,10 +36,42 @@ struct SettingsView: View {
                 .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
                 VStack(alignment: .leading, spacing: 12) {
                     VStack(){
-                        Image("AdaptiveLaunch")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 100, height: 100)
+                        if let photoURL = viewModel.profilePhotoURL {
+                            AsyncImage(url: photoURL) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView()
+                                        .frame(width: 64, height: 64)
+
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(Circle())
+
+                                case .failure(_):
+                                    Image("AdaptiveLaunch")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 64, height: 64)
+                                        .clipShape(Circle())
+
+                                @unknown default:
+                                    Image("AdaptiveLaunch")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 64, height: 64)
+                                        .clipShape(Circle())
+                                }
+                            }
+                        } else {
+                            Image("AdaptiveLaunch")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 64, height: 64)
+                                .clipShape(Circle())
+                        }
                         VStack(spacing:4){
                             if viewModel.name.isEmpty {
                                 ProgressView("Loading...")
@@ -61,6 +93,22 @@ struct SettingsView: View {
                     Text("General")
                         .foregroundColor(.lightBlack)
                         .font(.system(size: 16).weight(.semibold))
+                    
+                    Button(action: {
+                        appViewModel.signOut()
+                    }) {
+                        Text("Log Out")
+                            .font(.system(size: 14).weight(.semibold))
+                            .foregroundColor(.redTheme)
+                    }
+                    .padding(.horizontal, 28)
+                    .padding(.vertical, 18)
+                    .frame(alignment: .center)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color(.redTheme).opacity(0.2), lineWidth: 1)
+                            .fill(Color.boxbackground)
+                    )
                     
                     VStack{
                         SettingComponent(
@@ -190,11 +238,15 @@ struct SettingsView: View {
                     
                 }
                 .padding(.horizontal, 17)
+                .padding(.vertical, 16)
                 .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)
                 .background(Color.background)
             }
             .navigationDestination(isPresented: $viewModel.showProfile) {
                 ProfileView()
+                    .environmentObject(homeViewModel)
+                    .environmentObject(viewModel)
+
             }
             .navigationDestination(isPresented: $viewModel.showNotification) {
                 NotificationView(

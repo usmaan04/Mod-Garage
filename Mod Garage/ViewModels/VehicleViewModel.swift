@@ -17,7 +17,9 @@ class VehicleViewModel: ObservableObject {
     @AppStorage(NotificationKeys.needsSync) private var needsSync: Bool = false
     
     @Published var isShowingAddVehicle = false
+    @Published var isShowingEditVehicle = false
     @Published var vehicles: [VehicleModel] = []
+    @Published var vehicleToEdit: VehicleModel?
     @Published var vehicleToPass: VehicleModel?
     @Published var showDetails: Bool = false
     @Published var isLoading = false

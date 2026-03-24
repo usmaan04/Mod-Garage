@@ -144,8 +144,35 @@ struct HomeView: View {
                         .padding(.horizontal, 25)
                 }
             }
+            if vehicleViewModel.isShowingEditVehicle{
+                ZStack{
+                    Color.black.opacity(0.6)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.snappy) {
+                                vehicleViewModel.isShowingEditVehicle = false
+                            }
+                        }
+
+                    if let vehicle = vehicleViewModel.vehicleToEdit {
+                        EditVehicleView(vehicle: vehicle, isPresented: $vehicleViewModel.isShowingEditVehicle)
+                            .environmentObject(vehicleViewModel)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.rectBorder, lineWidth: 2)
+                                    .fill(Color.boxbackground)
+                            )
+                            .shadow(radius: 8)
+                            .padding(.horizontal, 25)
+                    } 
+                }
+            }
         }
-        .sheet(item: $viewModel.selectedQuickAction) { action in
+        .sheet(item: $viewModel.selectedQuickAction, onDismiss: {
+            Task {
+                await viewModel.refreshRecentActivity()
+            }
+        }) { action in
             switch action {
             case .modification:
                 if let vehicleId = viewModel.primaryVehicle?.id {
@@ -181,56 +208,114 @@ struct HomeView: View {
 }
 
 struct DashboardView: View {
-    @StateObject private var viewModel = HomeViewModel()
+    @EnvironmentObject var viewModel: HomeViewModel
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
     var body: some View {
         VStack(spacing:0){
             VStack{
                 HStack() {
-                    Image("AdaptiveLaunch")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 64, height: 64)
-                    VStack(spacing: 4){
-                        Text("Welcome Back!")
-                            .font(.system(size: 12))
-                            .tracking(-0.2)
-                            .foregroundStyle(Color.bodyText)
-                            .frame(maxWidth: .infinity,alignment: .leading)
+                    if viewModel.isProfileLoading {
+                        Circle()
+                            .fill(Color.rectBorder)
+                            .frame(width: 50, height: 50)
+                            .redacted(reason: .placeholder)
+                            .shimmer(speed: 1.6)
 
-                        if viewModel.name.isEmpty {
-                            ProgressView("Loading...")
-                                .padding()
+                        VStack(spacing: 6) {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.rectBorder)
+                                .frame(width: 90, height: 10)
+                                .redacted(reason: .placeholder)
+                                .shimmer(speed: 1.6)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.rectBorder)
+                                .frame(width: 120, height: 14)
+                                .redacted(reason: .placeholder)
+                                .shimmer(speed: 1.6)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    } else {
+                        if let photoURL = viewModel.profilePhotoURL {
+                            AsyncImage(url: photoURL) { phase in
+                                switch phase {
+                                case .empty:
+                                    Circle()
+                                        .fill(Color.rectBorder)
+                                        .frame(width: 50, height: 50)
+                                        .redacted(reason: .placeholder)
+                                        .shimmer(speed: 1.6)
+
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+
+                                case .failure(_):
+                                    Image("AdaptiveLaunch")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+
+                                @unknown default:
+                                    Image("AdaptiveLaunch")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 50, height: 50)
+                                        .clipShape(Circle())
+                                }
+                            }
                         } else {
-                            Text("\(viewModel.name)")
+                            Image("AdaptiveLaunch")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 50, height: 50)
+                                .clipShape(Circle())
+                        }
+
+                        VStack(spacing: 4) {
+                            Text("Welcome Back!")
+                                .font(.system(size: 12))
+                                .tracking(-0.2)
+                                .foregroundStyle(Color.bodyText)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Text(viewModel.name)
                                 .font(.system(size: 16).weight(.semibold))
                                 .foregroundStyle(Color.black)
-                                .frame(maxWidth: .infinity,alignment: .leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                    }
-                    
-                    Button{
-                        print("notif")
-                    }label:{
-                        ZStack{
-                            Image(systemName: "bell")
-                                .font(.system(size: 24))
-                                .foregroundStyle(Color.navText.opacity(0.8))
-                            Circle()
-                                .fill(Color.white)
-                                .frame(width: 8)
-                                .offset(x: 6, y: -8)
-                                .overlay(Circle()
-                                    .fill(Color.redTheme)
-                                    .frame(width: 6)
+                        
+                        Button {
+                            print("notif")
+                        } label: {
+                            ZStack {
+                                Image(systemName: "bell")
+                                    .font(.system(size: 24))
+                                    .foregroundStyle(Color.navText.opacity(0.8))
+                                
+                                Circle()
+                                    .fill(Color.white)
+                                    .frame(width: 8)
                                     .offset(x: 6, y: -8)
-                                )
+                                    .overlay(
+                                        Circle()
+                                            .fill(Color.redTheme)
+                                            .frame(width: 6)
+                                            .offset(x: 6, y: -8)
+                                    )
+                            }
+                            .padding(10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.rectBorder, lineWidth: 1)
+                            )
                         }
-                        .padding(10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder, lineWidth: 1)
-                        )
+                        
                     }
                 }
             }
@@ -242,7 +327,7 @@ struct DashboardView: View {
             .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
             GeometryReader{ proxy in
                 VStack() {
-                    if viewModel.isLoading && viewModel.primaryVehicle != nil  {
+                    if !viewModel.didRefreshOnThisLaunch {
                         ScrollView{
                             VStack(spacing: 16) {
                                 // If loading skeletal load
@@ -302,56 +387,53 @@ struct DashboardView: View {
                         }
                     } else if viewModel.primaryVehicle == nil {
                         // Empty state when no vehicles
-                        ScrollView {
-                            VStack(spacing: 16) {
-                                // Illustration placeholder
-                                Image(systemName: "door.garage.closed.trianglebadge.exclamationmark")
-                                    .font(.system(size: 48))
-                                    .foregroundStyle(Color.redTheme)
-                                
-                                Text("No vehicles yet")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundStyle(Color.lightBlack)
-                                
-                                Text("Add your first vehicle to track MOT, tax, fuel, and mods in one place.")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.navText)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal, 16)
-
-                                Button {
-                                    withAnimation(.spring()) {
-                                        vehicleViewModel.isShowingAddVehicle = true
-                                    }
-                                } label: {
-                                    Text("Add a Vehicle")
-                                        .font(.system(size: 16, weight: .bold))
-                                        .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 12)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 12)
-                                                .fill(Color.redTheme)
-                                        )
-                                }
-                                .buttonStyle(.plain)
-                                .padding(.horizontal, 20)
-
-                                // Optional value bullets
-                                HStack(spacing: 12) {
-                                    Label("MOT & Tax reminders", systemImage: "bell.fill")
-                                    Label("Fuel insights", systemImage: "gauge.with.dots.needle.33percent")
-                                    Label("Mod log", systemImage: "wrench.and.screwdriver.fill")
-                                }
-                                .font(.system(size: 11, weight: .semibold))
+                        VStack(spacing: 16) {
+                            // Illustration placeholder
+                            Image(systemName: "door.garage.closed.trianglebadge.exclamationmark")
+                                .font(.system(size: 48))
+                                .foregroundStyle(Color.redTheme)
+                            
+                            Text("No vehicles yet")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(Color.lightBlack)
+                            
+                            Text("Add your first vehicle to track MOT, tax, fuel, and mods in one place.")
+                                .font(.system(size: 14))
                                 .foregroundStyle(Color.navText)
                                 .multilineTextAlignment(.center)
-                                .padding(.horizontal, 10)
+                                .padding(.horizontal, 16)
+
+                            Button {
+                                withAnimation(.spring()) {
+                                    vehicleViewModel.isShowingAddVehicle = true
+                                }
+                            } label: {
+                                Text("Add a Vehicle")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.redTheme)
+                                    )
                             }
-                            .padding(.horizontal, 17)
-                            .offset(y: 16)
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 20)
+
+                            // Optional value bullets
+                            HStack(spacing: 12) {
+                                Label("MOT & Tax reminders", systemImage: "bell.fill")
+                                Label("Fuel insights", systemImage: "gauge.with.dots.needle.33percent")
+                                Label("Mod log", systemImage: "wrench.and.screwdriver.fill")
+                            }
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Color.navText)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 10)
                         }
-                        .scrollIndicators(.hidden)
+                        .padding(.horizontal, 17)
+                        
                     } else if let vehicle = viewModel.primaryVehicle {
                         // Main content
                         ScrollView{
@@ -550,11 +632,12 @@ struct DashboardView: View {
                                     )
                                 }
                                 
+                                Text("Recent Activity")
+                                    .foregroundStyle(.lightBlack)
+                                    .font(.system(size: 16).weight(.semibold))
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                
                                 if !viewModel.recentActivity.isEmpty{
-                                    Text("Recent Activity")
-                                        .foregroundStyle(.lightBlack)
-                                        .font(.system(size: 16).weight(.semibold))
-                                        .frame(maxWidth: .infinity, alignment: .leading)
                                     
                                     VStack(spacing: 10){
                                         ForEach(viewModel.recentActivity.prefix(3)) { item in
@@ -571,7 +654,16 @@ struct DashboardView: View {
                                     }
                                 }
                                 else{
-                                    Text("Hey")
+                                    VStack{
+                                        
+                                    }
+                                    .padding(16)
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.rectBorder, lineWidth: 4)
+                                            .fill(Color.boxbackground)
+                                    )
                                 }
                             }
                             .padding(.horizontal, 17)
@@ -585,10 +677,8 @@ struct DashboardView: View {
             .onAppear {
                 Task {
                     await viewModel.loadVehicleData()
+                    await viewModel.refreshRecentActivity()
                 }
-            }
-            .task {
-                await viewModel.refreshOncePerLaunch()
             }
         }
     }
@@ -749,89 +839,6 @@ struct RecentCard: View{
                     .fill(Color.boxbackground)
             )
         }
-    }
-}
-
-struct ModificationCard: View {
-    @EnvironmentObject var viewModel: HomeViewModel
-
-    let modification: ModificationModel
-
-    var body: some View {
-        HStack(spacing: 18){
-            ZStack{
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.rectFill)
-                    .frame(width:70, height: 60)
-                
-                switch modification.type {
-                case "Exhaust":
-                    Image(systemName: "pipe.and.drop.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .foregroundStyle(Color.redTheme)
-                case "Windows":
-                    Image(systemName: "car.window.right")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .foregroundStyle(Color.redTheme)
-                case "Lights":
-                    Image(systemName: "lightbulb.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .foregroundStyle(Color.redTheme)
-                case "Engine":
-                    Image(systemName: "engine.combustion.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .foregroundStyle(Color.redTheme)
-                case "Bodykit":
-                    Image(systemName: "car.side.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 30, height: 30)
-                        .foregroundStyle(Color.redTheme)
-                default:
-                    Image(systemName: "car.side.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 24, height: 24)
-                        .foregroundStyle(Color.redTheme)
-                }
-            }
-            VStack(alignment: .leading, spacing: 4){
-                Text(modification.name)
-                    .font(.system(size: 16).weight(.bold))
-                    .foregroundStyle(Color.lightBlack)
-                    .multilineTextAlignment(.leading)
-                
-                Text("Installed " + "\(viewModel.modDateFormatter(modification.date))")
-                    .font(.system(size: 12).weight(.medium))
-                    .foregroundStyle(Color.navText)
-                   
-                
-                Text(modification.type)
-                    .font(.system(size: 10).weight(.semibold))
-                    .foregroundStyle(Color.navText)
-                    .padding(.horizontal,8)
-                    .padding(.vertical,6)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.rectBorder.opacity(0.4))
-                    )
-            }
-        }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 18)
-        .frame(maxWidth:. infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 26)
-                .fill(Color.boxbackground)
-        )
     }
 }
 

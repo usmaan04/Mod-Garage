@@ -13,6 +13,7 @@ import SwiftUI
 
 @MainActor
 class SettingsViewModel: ObservableObject {
+    @Published var profilePhotoURL: URL?
     @Published var name: String = ""
     @Published var email: String = ""
     @Published var memberDate: String = ""
@@ -56,10 +57,13 @@ class SettingsViewModel: ObservableObject {
             self.isEmailPasswordUser = false
             name = "User"
             email = "Email"
+            profilePhotoURL = nil
             return
         }
         
         updateAuthProviderState()
+        
+        profilePhotoURL = user.photoURL
         
         let uid = user.uid
         let userEmailAtCapture = user.email

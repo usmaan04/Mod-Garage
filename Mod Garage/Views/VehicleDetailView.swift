@@ -345,6 +345,89 @@ struct VehicleDetailView: View {
     }
 }
 
+struct ModificationCard: View {
+    @EnvironmentObject var viewModel: HomeViewModel
+
+    let modification: ModificationModel
+
+    var body: some View {
+        HStack(spacing: 18){
+            ZStack{
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.rectFill)
+                    .frame(width:70, height: 60)
+                
+                switch modification.type {
+                case "Exhaust":
+                    Image(systemName: "pipe.and.drop.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(Color.redTheme)
+                case "Windows":
+                    Image(systemName: "car.window.right")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(Color.redTheme)
+                case "Lights":
+                    Image(systemName: "lightbulb.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(Color.redTheme)
+                case "Engine":
+                    Image(systemName: "engine.combustion.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(Color.redTheme)
+                case "Bodykit":
+                    Image(systemName: "car.side.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 30, height: 30)
+                        .foregroundStyle(Color.redTheme)
+                default:
+                    Image(systemName: "car.side.fill")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 24, height: 24)
+                        .foregroundStyle(Color.redTheme)
+                }
+            }
+            VStack(alignment: .leading, spacing: 4){
+                Text(modification.name)
+                    .font(.system(size: 16).weight(.bold))
+                    .foregroundStyle(Color.lightBlack)
+                    .multilineTextAlignment(.leading)
+                
+                Text("Installed " + "\(viewModel.modDateFormatter(modification.date))")
+                    .font(.system(size: 12).weight(.medium))
+                    .foregroundStyle(Color.navText)
+                   
+                
+                Text(modification.type)
+                    .font(.system(size: 10).weight(.semibold))
+                    .foregroundStyle(Color.navText)
+                    .padding(.horizontal,8)
+                    .padding(.vertical,6)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.rectBorder.opacity(0.4))
+                    )
+            }
+        }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 18)
+        .frame(maxWidth:. infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 26)
+                .fill(Color.boxbackground)
+        )
+    }
+}
+
 #Preview {
     VehicleDetailView(
         vehicle: VehicleModel(

@@ -182,6 +182,20 @@ class FuelViewModel: ObservableObject {
         }
     }
     
+    func monthString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "MMM"
+        return formatter.string(from: date).uppercased()
+    }
+
+    func dayString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "d"
+        return formatter.string(from: date)
+    }
+    
     func dayTicksForAnchorMonth(startAtDay: Int = 5, step: Int = 5) -> [Date] {
         var cal = Calendar.current
         cal.timeZone = .current

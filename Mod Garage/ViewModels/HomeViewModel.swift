@@ -50,7 +50,9 @@ enum QuickAddAction: Identifiable {
 
 @MainActor
 class HomeViewModel: ObservableObject {
+    @Published var profilePhotoURL: URL?
     @Published var name: String = ""
+    @Published var isProfileLoading = true
     @Published var selectedTab: Tab = .home
     @Published var primaryVehicle : VehicleModel?
     @Published var modifications: [ModificationModel] = []
@@ -70,7 +72,7 @@ class HomeViewModel: ObservableObject {
 
     private let db = Firestore.firestore()
     
-    private var didRefreshOnThisLaunch = false
+    var didRefreshOnThisLaunch = false
 
     init() {
         fetchUserName()
@@ -81,7 +83,6 @@ class HomeViewModel: ObservableObject {
     
     func refreshOncePerLaunch() async {
         guard !didRefreshOnThisLaunch else { return }
-        didRefreshOnThisLaunch = true
 
         await loadVehicleData()
 
@@ -92,45 +93,72 @@ class HomeViewModel: ObservableObject {
             async let fuels: Void = loadFuelLogs(vehicle.id)
             _ = await (mods, fuels)
 
-            rebuildRecentActivity(limit: 5)
+            buildRecentActivity(limit: 5)
         }
+        didRefreshOnThisLaunch = true
     }
     
 
     func fetchUserName() {
         guard let user = Auth.auth().currentUser else {
             name = "User"
+            profilePhotoURL = nil
+            isProfileLoading = false
             return
         }
 
-        // Try to use Google display name first
-        if let displayName = user.displayName, !displayName.isEmpty {
-            name = displayName
-            return
-        }
+        isProfileLoading = true
 
-        // Otherwise, fetch the name from Firestore for email/password users
-        db.collection("users").document(user.uid).getDocument { [weak self] document, error in
-            guard let self = self else { return }
-
-            if let error = error {
-                print(" Firestore fetch error: \(error.localizedDescription)")
-                Task { @MainActor in
-                    self.name = "User"
-                }
-                return
+        Task {
+            do {
+                try await user.reload()
+            } catch {
+                print("Failed to reload user: \(error.localizedDescription)")
             }
 
-            if let document = document, document.exists,
-               let fetchedName = document.data()?["name"] as? String {
-                DispatchQueue.main.async {
-                    self.name = fetchedName
+            let refreshedUser = Auth.auth().currentUser
+
+            // FIRST: try Firebase Auth photoURL (Google accounts)
+            if let authPhotoURL = refreshedUser?.photoURL {
+                self.profilePhotoURL = authPhotoURL
+            }
+
+            // Display name
+            if let displayName = refreshedUser?.displayName, !displayName.isEmpty {
+                self.name = displayName
+            }
+
+            do {
+                let document = try await db.collection("users").document(user.uid).getDocument()
+
+                if document.exists {
+                    let data = document.data()
+
+                    // SECOND: Firestore photoURL (email/password users)
+                    if self.profilePhotoURL == nil,
+                       let photoURLString = data?["photoURL"] as? String,
+                       let url = URL(string: photoURLString) {
+                        self.profilePhotoURL = url
+                    }
+
+                    // Firestore name fallback
+                    if self.name.isEmpty,
+                       let fetchedName = data?["name"] as? String,
+                       !fetchedName.isEmpty {
+                        self.name = fetchedName
+                    }
                 }
-            } else {
-                Task { @MainActor in
+
+                if self.name.isEmpty {
                     self.name = "User"
                 }
+
+            } catch {
+                print("Firestore fetch error: \(error.localizedDescription)")
+                self.name = "User"
             }
+
+            self.isProfileLoading = false
         }
     }
     
@@ -256,6 +284,8 @@ class HomeViewModel: ObservableObject {
         }
         
         isLoading = true
+        // Artificial delay to mimic a brief loading pause
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
         errorMessage = nil
         
         do {
@@ -286,7 +316,7 @@ class HomeViewModel: ObservableObject {
         isLoading = false
     }
     
-    func rebuildRecentActivity(limit: Int = 5) {
+    func buildRecentActivity(limit: Int = 5) {
         let items: [ActivityItem] =
             modifications.map { .modification($0) } +
             fuelLogs.map { .fuel($0) }
@@ -295,6 +325,16 @@ class HomeViewModel: ObservableObject {
             .sorted { $0.sortDate > $1.sortDate }
             .prefix(limit)
             .map { $0 }
+    }
+    
+    func refreshRecentActivity() async {
+        guard let vehicleId = primaryVehicle?.id, !vehicleId.isEmpty else { return }
+
+        async let mods: Void = loadModifications(vehicleId)
+        async let fuels: Void = loadFuelLogs(vehicleId)
+        _ = await (mods, fuels)
+
+        buildRecentActivity(limit: 3)
     }
     
     // Load modification list
@@ -322,7 +362,6 @@ class HomeViewModel: ObservableObject {
             }
             
             modifications = decoded
-            rebuildRecentActivity(limit: 5)
         } catch {
             errorMessage = "Failed to load modifications: \(error.localizedDescription)"
         }
@@ -355,7 +394,6 @@ class HomeViewModel: ObservableObject {
             }
             
             fuelLogs = decoded
-            rebuildRecentActivity(limit: 5)
         } catch {
             errorMessage = "Failed to load fuel logs: \(error.localizedDescription)"
         }

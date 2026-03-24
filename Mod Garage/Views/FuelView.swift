@@ -83,10 +83,10 @@ struct FuelView: View {
                             }
 
                             // MPG Trends (placeholder container)
-                            VStack(alignment: .leading, spacing: 10) {
-                                Text("MPG Trends")
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("MPG TRENDS")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(Color.gray)
+                                    .foregroundStyle(Color.lightBlack)
                                 
                                 if viewModel.mpgChartPoints.isEmpty {
                                         emptyChartState("No MPG data for this timeframe.")
@@ -106,7 +106,6 @@ struct FuelView: View {
                                     .frame(height: 180)
                                     .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
                                     .chartXScale(range: .plotDimension(padding: 10))
-                                    .chartYScale(domain: 0...80)
                                     .chartXAxis {
                                         switch viewModel.selectedTimeframe {
                                         case .oneMonth:
@@ -149,10 +148,10 @@ struct FuelView: View {
                                     .fill(Color.boxbackground)
                             )
 
-                            VStack(alignment: .leading, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 16) {
                                 Text("Spending")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(Color.gray)
+                                    .foregroundStyle(Color.lightBlack)
 
                                 if viewModel.spendChartPoints.isEmpty {
                                     emptyChartState("No spending data for this timeframe.")
@@ -175,10 +174,8 @@ struct FuelView: View {
                                         .foregroundStyle(Color.redTheme)
                                     }
                                     .frame(height: 180)
-                                    
                                     .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
                                     .chartXScale(range: .plotDimension(padding: 10))
-                                   
                                     .chartXAxis {
                                         switch viewModel.selectedTimeframe {
                                         case .oneMonth:
@@ -233,7 +230,7 @@ struct FuelView: View {
                             )
                             
                             HStack{
-                                Text("Recent Fill-Ups")
+                                Text("Recent Logs")
                                     .foregroundColor(.lightBlack)
                                     .font(.system(size: 16).weight(.semibold))
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -258,8 +255,10 @@ struct FuelView: View {
                                         fuelLog: fuelLog,
                                     )
                                     .environmentObject(homeViewModel)
+                                    .environmentObject(viewModel)
                                     
                                 }
+                                .padding(.bottom, 4)
                             }
 
                             // Empty state for logs (optional)
@@ -298,12 +297,13 @@ struct FuelView: View {
                         fuelLog: fuelLog,
                     )
                     .environmentObject(homeViewModel)
+                    .environmentObject(viewModel)
                     
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 36)
             }
-            
+            .frame(maxWidth: .infinity)
             .background(Color.background)
             .presentationDragIndicator(.visible)
         }
@@ -414,41 +414,48 @@ struct FuelView: View {
 
 struct FuelLogCard: View {
     @EnvironmentObject var homeViewModel: HomeViewModel
+    @EnvironmentObject var viewModel: FuelViewModel
 
     let fuelLog: FuelLogModel
 
     var body: some View {
         HStack(spacing: 20){
             ZStack{
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.lightPink)
-                    .frame(width:50, height: 50)
+                Circle()
+                    .fill(Color.black)
+                    .frame(width: 50, height: 50)
                 
-                Image(systemName: "fuelpump")
-                    .font(.system(size: 20).weight(.bold))
-                    .foregroundStyle(Color.redTheme)
+                VStack(spacing: 1) {
+                    Text(viewModel.monthString(from: fuelLog.date))
+                        .font(.system(size: 8, weight: .semibold))
+                        .tracking(-0.2)
+                        .foregroundStyle(Color.bodyText)
+                    Text(viewModel.dayString(from: fuelLog.date))
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundStyle(Color.boxbackground)
+                }
             }
-            VStack(alignment: .leading, spacing: 6){
+            VStack(alignment: .leading, spacing: 4){
                 HStack() {
                     Text(fuelLog.location)
+                        .font(.system(size: 16).weight(.bold))
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(currencyString(from: fuelLog.cost))
+                        .font(.system(size: 18).weight(.bold))
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .font(.system(size: 17).weight(.bold))
                 .foregroundStyle(Color.lightBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(spacing: 4) {
-                    Text(homeViewModel.modDateFormatter(fuelLog.date))
+                    Text(String(format: "%.2f L", fuelLog.litres))
                     Text("●")
                         .font(.system(size: 4))
-                    Text(String(format: "%.2f L", fuelLog.litres))
+                    Text(String(format: "£%.2f/L", fuelLog.pricePerLitre))
                     
                     if fuelLog.mpg > 30 {
                         Text(String(format: "%.2f MPG", fuelLog.mpg))
                             .foregroundStyle(Color.green)
-                            .frame(alignment: .trailing)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                     } else {
                         Text(String(format: "%.2f MPG", fuelLog.mpg))
@@ -461,12 +468,13 @@ struct FuelLogCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding(14)
+        .padding(.horizontal, 22)
+        .padding(.vertical, 18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.rectBorder, lineWidth: 2)
+            RoundedRectangle(cornerRadius: 20)
                 .fill(Color.boxbackground)
+                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
         )
     }
 }

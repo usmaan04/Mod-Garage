@@ -136,7 +136,7 @@ struct VehicleView: View {
 
             HStack(spacing: 10) {
                 filterMenu(title: "Colour", selection: $filterColour, options: colours)
-                filterMenu(title: "Fuel", selection: $filterFuel, options: fuels)
+                filterMenu(title: "Fuel Type", selection: $filterFuel, options: fuels)
             }
             Button("Clear") {
                 clearFilters()
@@ -215,6 +215,7 @@ struct VehicleView: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 10)
+                    .fill(Color.boxbackground)
                     .stroke(Color.rectBorder, lineWidth: 1)
             )
         }
@@ -440,6 +441,39 @@ struct VehicleView: View {
                                                 .listRowInsets(.init())
                                                 .listRowSeparator(.hidden)
                                                 .listRowBackground(Color.clear)
+                                                
+                                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                                    Button(role: .destructive) {
+                                                        vehicleToDelete = vehicle
+                                                        showDeleteConfirmation = true
+                                                    } label: {
+                                                        Label("Delete", systemImage: "trash")
+                                                    }
+                                                    .tint(Color.redTheme)
+                                                    Button {
+                                                        viewModel.vehicleToEdit = vehicle
+                                                        viewModel.isShowingEditVehicle = true
+                                                    } label: {
+                                                        Label("Edit", systemImage: "pencil")
+                                                    }
+                                                    .tint(.blue)
+
+                                                }
+
+                                                // Leading swipe action
+                                                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                                                    if !vehicle.isPrimary {
+                                                        Button {
+                                                            Task {
+                                                                await viewModel.makePrimary(vehicle)
+                                                            }
+                                                        } label: {
+                                                            Label("Make Primary", systemImage: "star.fill")
+                                                        }
+                                                        .tint(.yellow)
+                                                    }
+                                                }
+
                                             }
                                             .padding(.horizontal, 17)
                                         }
@@ -575,34 +609,6 @@ struct VehicleCard: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
                 VStack(alignment: .trailing, spacing: 20){
-                    Menu {
-                        Button{
-                           //
-                        }label:{
-                            Image(systemName: "pencil")
-                            Text("Edit")
-                        }
-                        if !vehicle.isPrimary{
-                            Button{
-                                Task { await viewModel.makePrimary(vehicle) }
-                            }label:{
-                                Image(systemName: "star")
-                                Text("Set as Primary")
-                            }
-                        }
-                        Button(role: .destructive){
-                            vehicleToDelete = vehicle
-                            showDeleteConfirmation = true
-                        }label:{
-                            Image(systemName: "trash")
-                            Text("Delete")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                            .font(.system(size: 20))
-                            .foregroundStyle(Color.gray)
-                    }
-                    
                     Text("\(vehicle.registration)")
                         .font(.system(size: 10).weight(.heavy))
                         .padding(.vertical, 6)

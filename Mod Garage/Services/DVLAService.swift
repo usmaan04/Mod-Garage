@@ -25,7 +25,6 @@ struct DVLAService {
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
-        //  Check status code as safecheck
         if let httpResponse = response as? HTTPURLResponse,
            httpResponse.statusCode != 200 {
             throw URLError(.badServerResponse)

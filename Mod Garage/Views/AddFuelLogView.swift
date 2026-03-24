@@ -156,11 +156,11 @@ struct AddFuelLogView:View {
                         .foregroundStyle(Color.navText)
                         
                         HStack(spacing:0){
+                            Text("£")
+                                .font(.system(size: 30).weight(.medium))
+                                .frame(maxHeight:.infinity, alignment: .bottomLeading)
                             Text((String(describing: viewModel.pricePerLitre)))
                                 .font(.system(size: 30).weight(.medium))
-                            Text("p")
-                                .font(.system(size: 14).weight(.medium))
-                                .frame(maxHeight:.infinity, alignment: .bottomLeading)
                         }
                     }
                     .foregroundStyle(Color.redTheme)
@@ -219,7 +219,7 @@ struct AddFuelLogView:View {
             viewModel.previousMileage = previousMileage
                     
             if method == "fuel"{
-                // Important: link AddModificationViewModel → VehicleDetailViewModel
+                // Important: link AddModificationViewModel → FuelViewModel
                 viewModel.onFuelLogReady = { fuelLog in
                     Task {
                         await fuelViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
