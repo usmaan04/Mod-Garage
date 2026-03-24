@@ -39,6 +39,8 @@ final class AddFuelLogViewModel: ObservableObject {
     
     @Published var showDatePicker = false
     @Published var errorMessage: String? = nil
+    
+    private let storage = Storage.storage()
 
     init() {
         Publishers.CombineLatest($cost, $litres)

@@ -170,7 +170,10 @@ struct HomeView: View {
         }
         .sheet(item: $viewModel.selectedQuickAction, onDismiss: {
             Task {
-                await viewModel.refreshRecentActivity()
+                if let vehicleId = viewModel.primaryVehicle?.id {
+                    await viewModel.loadModifications(vehicleId)
+                    await viewModel.loadFuelLogs(vehicleId)
+                }
             }
         }) { action in
             switch action {
@@ -210,6 +213,7 @@ struct HomeView: View {
 struct DashboardView: View {
     @EnvironmentObject var viewModel: HomeViewModel
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
+    @StateObject private var fuelViewModel = FuelViewModel()
     var body: some View {
         VStack(spacing:0){
             VStack{
@@ -372,13 +376,26 @@ struct DashboardView: View {
                                     .padding(.horizontal, 17)
 
                                 // Recent cards skeleton list
-                                VStack(spacing: 10) {
+                                HStack(spacing: 10) {
                                     ForEach(0..<3, id: \ .self) { _ in
-                                        RoundedRectangle(cornerRadius: 26)
-                                            .fill(Color.rectBorder)
-                                            .frame(height: 84)
-                                            .redacted(reason: .placeholder)
-                                            .shimmer(speed: 1.6)
+                                        VStack(spacing: 8){
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(Color.rectBorder)
+                                                .frame(width: 120, height: 120)
+                                                .shimmer(speed: 1.6)
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(Color.rectBorder)
+                                                .frame(width: 100, height: 14)
+                                                .redacted(reason: .placeholder)
+                                                .shimmer(speed: 1.6)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .fill(Color.rectBorder)
+                                                .frame(width: 110, height: 14)
+                                                .redacted(reason: .placeholder)
+                                                .shimmer(speed: 1.6)
+                                                .frame(maxWidth: .infinity, alignment: .leading)
+                                        }
                                     }
                                 }
                                 .padding(.horizontal, 17)
@@ -437,7 +454,7 @@ struct DashboardView: View {
                     } else if let vehicle = viewModel.primaryVehicle {
                         // Main content
                         ScrollView{
-                            VStack(spacing: 16){
+                            VStack(spacing: 18){
                                 VStack(alignment: .leading, spacing: 4){
                                     Text("PRIMARY")
                                         .font(.system(size:10).weight(.bold))
@@ -477,13 +494,39 @@ struct DashboardView: View {
                                 .frame(maxWidth: .infinity, maxHeight: 220, alignment: .bottomLeading)
                                 .background(
                                     ZStack {
-                                        Image("carimg")
-                                            .resizable()
-                                            .frame(maxWidth: .infinity, maxHeight: 220)
-                                            .clipped()
-                                        Rectangle()
-                                            .fill(Color.black.opacity(0.3))
-                                            .frame(maxWidth: .infinity, maxHeight: 220)
+                                        if let urlString = vehicle.imageURL, let url = URL(string: urlString) {
+                                            AsyncImage(url: url) { phase in
+                                                switch phase {
+                                                case .empty:
+                                                    Rectangle()
+                                                        .fill(Color.rectBorder)
+                                                        .frame(maxWidth: .infinity, maxHeight: 220)
+                                                        .redacted(reason: .placeholder)
+                                                        .shimmer(speed: 1.6)
+                                                case .success(let image):
+                                                    image
+                                                        .resizable()
+                                                        .scaledToFill()
+                                                        .frame(maxWidth: .infinity, maxHeight: 220)
+                                                        .clipped()
+                                                case .failure(_):
+                                                    Image("carimg")
+                                                        .resizable()
+                                                        .frame(maxWidth: .infinity, maxHeight: 220)
+                                                        .clipped()
+                                                @unknown default:
+                                                    Image("carimg")
+                                                        .resizable()
+                                                        .frame(maxWidth: .infinity, maxHeight: 220)
+                                                        .clipped()
+                                                }
+                                            }
+                                        } else {
+                                            Image("carimg")
+                                                .resizable()
+                                                .frame(maxWidth: .infinity, maxHeight: 220)
+                                                .clipped()
+                                        }
                                     }
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -559,6 +602,7 @@ struct DashboardView: View {
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color.rectBorder, lineWidth: 4)
                                             .fill(Color.boxbackground)
+                                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
                                     VStack(alignment: .leading) {
                                         ZStack(alignment: .topTrailing) {
@@ -629,33 +673,101 @@ struct DashboardView: View {
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color.rectBorder, lineWidth: 4)
                                             .fill(Color.boxbackground)
+                                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
                                 }
                                 
-                                Text("Recent Activity")
+                                HStack{
+                                    Text("Installed Mods")
+                                        .foregroundColor(.lightBlack)
+                                        .font(.system(size: 16).weight(.semibold))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    
+                                    Button{
+                                        //
+                                    }label:{
+                                        Text("See All")
+                                            .padding(.trailing, 10)
+                                            .foregroundColor(.redTheme)
+                                            .font(.system(size: 14).weight(.semibold))
+                                            .frame(maxWidth: .infinity, alignment: .trailing)
+                                    }
+                                }
+                                
+                                if !viewModel.modifications.isEmpty{
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        HStack(spacing: 12) {
+                                            ForEach(viewModel.modifications.prefix(5)) { mod in
+                                                ModCard(modification: mod)
+                                            }
+                                        }
+                                        .padding(.horizontal, 2)
+                                        .padding(.vertical, 2)
+                                    }
+                                } else {
+                                    VStack(spacing: 8){
+                                        ZStack{
+                                            Circle()
+                                                .fill(Color.rectFill)
+                                                .frame(width: 50, height: 50)
+                                            
+                                            Image(systemName: "wrench.and.screwdriver")
+                                                .foregroundStyle(.redTheme)
+                                        }
+                                        Text("No modifications yet")
+                                            .foregroundColor(.lightBlack)
+                                            .font(.system(size: 16).weight(.bold))
+                                            .frame(maxWidth: .infinity)
+                                        
+                                        Text("Add your first modification to personalise your build")
+                                            .foregroundColor(.bodyText)
+                                            .font(.system(size: 12).weight(.medium))
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .padding(16)
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color.rectBorder, lineWidth: 4)
+                                            .fill(Color.boxbackground)
+                                    )
+                                }
+                                
+                                Text("Recent Fuel Logs")
                                     .foregroundStyle(.lightBlack)
                                     .font(.system(size: 16).weight(.semibold))
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 
-                                if !viewModel.recentActivity.isEmpty{
-                                    
-                                    VStack(spacing: 10){
-                                        ForEach(viewModel.recentActivity.prefix(3)) { item in
-                                            switch item {
-                                            case .modification(let mod):
-                                                RecentCard(modification: mod, fuelLog: nil)
-                                                    .environmentObject(viewModel)
-                                                
-                                            case .fuel(let log):
-                                                RecentCard(modification: nil, fuelLog: log)
-                                                    .environmentObject(viewModel)
-                                            }
-                                        }
+                                if !viewModel.fuelLogs.isEmpty{
+                                    ForEach(viewModel.fuelLogs
+                                        .sorted { $0.date > $1.date }
+                                        .prefix(3)
+                                    ) { fuelLog in
+                                        FuelLogCard(
+                                            fuelLog: fuelLog,
+                                        )
+                                        .environmentObject(fuelViewModel)
+                                        .environmentObject(viewModel)
+                                        
                                     }
                                 }
                                 else{
-                                    VStack{
+                                    VStack(spacing: 8){
+                                        ZStack{
+                                            Circle()
+                                                .fill(Color.rectFill)
+                                                .frame(width: 50, height: 50)
+                                            
+                                            Image(systemName: "fuelpump")
+                                                .foregroundStyle(.redTheme)
+                                        }
+                                        Text("No fuel logs yet")
+                                            .foregroundColor(.lightBlack)
+                                            .font(.system(size: 16).weight(.bold))
                                         
+                                        Text("Track your fuel purchases to see insights")
+                                            .foregroundStyle(.bodyText)
+                                            .font(.system(size: 12).weight(.medium))
                                     }
                                     .padding(16)
                                     .frame(maxWidth: .infinity)
@@ -677,7 +789,10 @@ struct DashboardView: View {
             .onAppear {
                 Task {
                     await viewModel.loadVehicleData()
-                    await viewModel.refreshRecentActivity()
+                    if let vehicleId = viewModel.primaryVehicle?.id {
+                        await viewModel.loadModifications(vehicleId)
+                        await viewModel.loadFuelLogs(vehicleId)
+                    }
                 }
             }
         }
@@ -747,98 +862,68 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
     .frame(maxWidth: 160, maxHeight: 50)
 }
 
-struct RecentCard: View{
-    let modification: ModificationModel?
-    let fuelLog: FuelLogModel?
-    
-    @EnvironmentObject var viewModel: HomeViewModel
-    
-    var body: some View{
-        if let mod = modification {
-            HStack(spacing: 20) {
-                ZStack{
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.lightPink)
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: "wrench.and.screwdriver.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Color.redTheme)
-                }
-                
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack() {
-                        Text(mod.name)
-                            .font(.system(size: 16).weight(.bold))
-                            .foregroundStyle(Color.lightBlack)
-                            .multilineTextAlignment(.leading)
-                        
-                        Text(viewModel.modDateFormatter(mod.date))
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
-                            .frame(maxWidth:. infinity, alignment: .trailing)
+struct ModCard: View {
+    let modification: ModificationModel
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 8) {
+            ZStack {
+                if let urlString = modification.afterImageURL, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(Color.rectBorder)
+                                .frame(width: 120, height: 120)
+                                .redacted(reason: .placeholder)
+                                .shimmer(speed: 1.6)
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 150, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                        case .failure(_):
+                            Image(systemName: "photo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 150, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .foregroundStyle(Color.navText)
+                        @unknown default:
+                            Image(systemName: "photo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 150, height: 150)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .foregroundStyle(Color.navText)
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    if let desc = mod.description, !desc.isEmpty {
-                        Text(desc)
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
-                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(Color.rectBorder)
+                        .frame(width: 150, height: 150)
+                        .redacted(reason: .placeholder)
                 }
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 18)
-            .frame(maxWidth:. infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 26)
-                    .stroke(Color.rectBorder, lineWidth: 2)
-                    .fill(Color.boxbackground)
-            )
-        } else if let log = fuelLog {
-            HStack(spacing: 20) {
-                ZStack{
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.lightPink)
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: "fuelpump.fill")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 16, height: 16)
-                        .foregroundStyle(Color.redTheme)
-                }
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack{
-                        Text("Fuel Fill-Up")
-                            .font(.system(size: 16).weight(.bold))
-                            .foregroundStyle(Color.lightBlack)
-                                                    
-                        Text(viewModel.modDateFormatter(log.date))
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
-                            .frame(maxWidth:. infinity, alignment: .trailing)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Text("\(String(format: "%.2f", log.litres))L @ \(log.location)")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
-                }
-                
+            VStack(alignment: .center, spacing: 4) {
+                Text(modification.name)
+                    .foregroundStyle(Color.lightBlack)
+                    .font(.system(size: 16, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                    .frame(width: 140, alignment: .center)
+
+                Text(modification.description ?? "")
+                    .foregroundStyle(Color.navText)
+                    .font(.system(size: 12))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(3)
+                    .frame(width: 150, alignment: .center)
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 18)
-            .frame(maxWidth:. infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 26)
-                    .stroke(Color.rectBorder, lineWidth: 2)
-                    .fill(Color.boxbackground)
-            )
         }
+        .frame(maxHeight: .infinity, alignment: .top)
+        
     }
 }
 

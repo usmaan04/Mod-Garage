@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import PhotosUI
 
 struct AddVehicleView: View {
     @Binding var isPresented: Bool
@@ -102,27 +103,52 @@ struct AddVehicleView: View {
                 }
             }else if viewModel.hasConfirmedDVLA{
                 VStack(spacing: 14) {
-                    Text("Enter your vehicle's Model")
+                    Text("Enter your vehicle's Model & image")
                         .font(.system(size: 17).weight(.bold))
                         .foregroundStyle(Color.lightBlack)
                     
-                    TextField(
-                        "",
-                        text: $viewModel.model,
-                        prompt: Text("Golf")
-                            .foregroundStyle(.black.opacity(0.3))
-                    )
-                    .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(Color.lightBlack)
-                    .multilineTextAlignment(.center)
-                    .autocorrectionDisabled(true)
-                    .keyboardType(.asciiCapable)
-                    .padding(14)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.rectBorder)
-                            
-                    )
+                    HStack{
+                        TextField(
+                            "",
+                            text: $viewModel.model,
+                            prompt: Text("Golf")
+                                .foregroundStyle(.black.opacity(0.3))
+                        )
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(Color.lightBlack)
+                        .multilineTextAlignment(.center)
+                        .keyboardType(.asciiCapable)
+                        .padding(14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.rectBorder)
+                                
+                        )
+                        HStack(spacing: 16){
+                            PhotosPicker("Upload image", selection: $viewModel.carImageItem, matching: .images)
+                                .font(.system(size: 10))
+                                .foregroundStyle(Color.bodyText)
+                                .onChange(of: viewModel.carImageItem) { _ in
+                                        Task {
+                                            await viewModel.loadImage()
+                                        }
+                                    }
+                            if let selectedImage = viewModel.carImage {
+                                Image(uiImage: selectedImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.rectBorder)
+                                
+                        )
+                    }
                     
                     if !vehicleViewModel.vehicles.isEmpty {
                         Toggle(isOn: $viewModel.makePrimary) {
@@ -157,7 +183,7 @@ struct AddVehicleView: View {
                         )
                         
                         Button(action: {
-                            viewModel.confirmVehicle()
+                            Task { await viewModel.confirmVehicle() }
                         }) {
                             Text("Add Vehicle")
                                 .font(.system(size: 10).weight(.bold))

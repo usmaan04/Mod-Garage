@@ -128,7 +128,7 @@ struct VehicleDetailView: View {
                                     .padding(.vertical, 14)
                                     .padding(.horizontal, 20)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 22)
+                                        RoundedRectangle(cornerRadius: 16)
                                             .stroke(Color.rectBorder, lineWidth: 1)
                                             .fill(Color.boxbackground)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
@@ -155,7 +155,7 @@ struct VehicleDetailView: View {
                                     .padding(.vertical, 14)
                                     .padding(.horizontal, 20)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 22)
+                                        RoundedRectangle(cornerRadius: 16)
                                             .stroke(Color.rectBorder, lineWidth: 1)
                                             .fill(Color.boxbackground)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
@@ -193,7 +193,7 @@ struct VehicleDetailView: View {
                                     .padding(.vertical, 14)
                                     .padding(.horizontal, 20)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 22)
+                                        RoundedRectangle(cornerRadius: 16)
                                             .stroke(Color.rectBorder, lineWidth: 1)
                                             .fill(Color.boxbackground)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
@@ -220,7 +220,7 @@ struct VehicleDetailView: View {
                                     .padding(.vertical, 14)
                                     .padding(.horizontal, 20)
                                     .background(
-                                        RoundedRectangle(cornerRadius: 22)
+                                        RoundedRectangle(cornerRadius: 16)
                                             .stroke(Color.rectBorder, lineWidth: 1)
                                             .fill(Color.boxbackground)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)

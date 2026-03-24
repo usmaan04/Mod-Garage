@@ -8,7 +8,9 @@
 import Foundation
 import SwiftUI
 import Combine
+import PhotosUI
 import FirebaseAuth
+import FirebaseStorage
 
 // Set string format (Sentence case)
 extension String {
@@ -37,10 +39,16 @@ class AddVehicleViewModel: ObservableObject {
     @Published var model = ""
     @Published var makePrimary = false
     
+    @Published var carImageItem: PhotosPickerItem?
+
+    @Published var carImage: UIImage?
+    
     // Is set when vehicle is ready
     var onVehicleReady: ((VehicleModel) -> Void)?
     
     var existingVehicleCount: Int = 0
+    
+    private let storage = Storage.storage()
     
     // DVLA Search
     func searchRegistration() {
@@ -63,8 +71,21 @@ class AddVehicleViewModel: ObservableObject {
         }
     }
     
+    func loadImage() async {
+        guard let item = carImageItem else { return }
+
+        do {
+            if let data = try await item.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                carImage = image
+            }
+        } catch {
+            errorMessage = "Failed to load before image."
+        }
+    }
+    
     // Validate model & create a VehicleModel
-    func confirmVehicle() {
+    func confirmVehicle() async {
         
         errorMessage = nil
         
@@ -99,31 +120,83 @@ class AddVehicleViewModel: ObservableObject {
         if existingVehicleCount == 0 {
             isPrimaryForThisVehicle = true
         }
+        
 
         // Build VehicleModel
-        let newVehicle = VehicleModel(
-            id: UUID().uuidString,
-            userId: uid,
-            registration: vehicle.registrationNumber.uppercased(),
-            make: vehicle.make.sentenceCased,
-            model: trimmedModel.sentenceCased,
-            year: vehicle.yearOfManufacture ?? 0,
-            colour: vehicle.colour.sentenceCased,
-            fuelType: vehicle.fuelType.sentenceCased,
-            motExpiryDate: formatDVLADate(vehicle.motExpiryDate),
-            motStatus: vehicle.motStatus?.sentenceCased,
-            taxExpiryDate: formatDVLADate(vehicle.taxDueDate),
-            taxStatus: vehicle.taxStatus?.sentenceCased,
-            imageURL: nil,
-            isPrimary: isPrimaryForThisVehicle,
-            createdAt: Date()
-        )
-        
-        // Send to vehicle view to save in Firestore
-        onVehicleReady?(newVehicle)
+        do {
+            let vehicleId = UUID().uuidString
+            var imageURLString = ""
+
+            // Use provided images, or fall back to asset "carimg"
+            if let carImage {
+                imageURLString = try await uploadImage(carImage, vehicleId)
+            } else if let placeholder = UIImage(named: "carimg") {
+                imageURLString = try await uploadImage(placeholder, vehicleId)
+            } else {
+                throw NSError(
+                    domain: "AddModificationViewModel",
+                    code: 404,
+                    userInfo: [NSLocalizedDescriptionKey: "Missing placeholder image asset 'carimg'."]
+                )
+            }
+            
+            // Build model using URL strings (or nil)
+            let newVehicle = VehicleModel(
+                id: vehicleId,
+                userId: uid,
+                registration: vehicle.registrationNumber.uppercased(),
+                make: vehicle.make.sentenceCased,
+                model: trimmedModel.sentenceCased,
+                year: vehicle.yearOfManufacture ?? 0,
+                colour: vehicle.colour.sentenceCased,
+                fuelType: vehicle.fuelType.sentenceCased,
+                motExpiryDate: formatDVLADate(vehicle.motExpiryDate),
+                motStatus: vehicle.motStatus?.sentenceCased,
+                taxExpiryDate: formatDVLADate(vehicle.taxDueDate),
+                taxStatus: vehicle.taxStatus?.sentenceCased,
+                imageURL: imageURLString,
+                isPrimary: isPrimaryForThisVehicle,
+                createdAt: Date()
+            )
+
+            // Send to vehicle view to save into Firestore
+            onVehicleReady?(newVehicle)
+
+            resetView()
+        } catch {
+            errorMessage = "Failed to upload modification: \(error.localizedDescription)"
+        }
         
         // Reset internal UI state
         resetView()
+    }
+    
+    private func uploadImage(_ image: UIImage, _ vehicleId: String) async throws -> String {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw NSError(
+                domain: "AddVehicleViewModel",
+                code: 401,
+                userInfo: [NSLocalizedDescriptionKey: "No authenticated user."]
+            )
+        }
+
+        guard let imageData = image.jpegData(compressionQuality: 0.75) else {
+            throw NSError(
+                domain: "AddVehicleViewModel",
+                code: 400,
+                userInfo: [NSLocalizedDescriptionKey: "Could not process selected image."]
+            )
+        }
+
+        let ref = storage.reference().child("vehicle_images/\(uid)/\(vehicleId)/image.jpg")
+
+        let metadata = StorageMetadata()
+        metadata.contentType = "image/jpeg"
+
+        _ = try await ref.putDataAsync(imageData, metadata: metadata)
+        let downloadURL = try await ref.downloadURL()
+
+        return downloadURL.absoluteString
     }
     
     func testVehicleModel() throws -> VehicleModel {
@@ -162,6 +235,7 @@ class AddVehicleViewModel: ObservableObject {
         makePrimary = false
         hasConfirmedDVLA = false
         errorMessage = nil
+        carImage = nil
     }
 }
 

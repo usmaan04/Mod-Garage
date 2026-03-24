@@ -93,7 +93,8 @@ class HomeViewModel: ObservableObject {
             async let fuels: Void = loadFuelLogs(vehicle.id)
             _ = await (mods, fuels)
 
-            buildRecentActivity(limit: 5)
+            await loadModifications(vehicle.id)
+            await loadFuelLogs(vehicle.id)
         }
         didRefreshOnThisLaunch = true
     }
@@ -314,27 +315,6 @@ class HomeViewModel: ObservableObject {
         }
         
         isLoading = false
-    }
-    
-    func buildRecentActivity(limit: Int = 5) {
-        let items: [ActivityItem] =
-            modifications.map { .modification($0) } +
-            fuelLogs.map { .fuel($0) }
-
-        recentActivity = items
-            .sorted { $0.sortDate > $1.sortDate }
-            .prefix(limit)
-            .map { $0 }
-    }
-    
-    func refreshRecentActivity() async {
-        guard let vehicleId = primaryVehicle?.id, !vehicleId.isEmpty else { return }
-
-        async let mods: Void = loadModifications(vehicleId)
-        async let fuels: Void = loadFuelLogs(vehicleId)
-        _ = await (mods, fuels)
-
-        buildRecentActivity(limit: 3)
     }
     
     // Load modification list

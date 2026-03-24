@@ -631,6 +631,7 @@ struct VehicleCard: View {
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.rectBorder, lineWidth: 1)
                 .fill(Color.boxbackground)
+                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
         )
     }
 }

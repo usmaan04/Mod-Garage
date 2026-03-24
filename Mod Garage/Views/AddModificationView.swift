@@ -33,7 +33,6 @@ struct AddModificationView:View {
                     )
                     .font(.system(size: 14))
                     .keyboardType(.asciiCapable)
-                    .textInputAutocapitalization(.never)
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
@@ -100,9 +99,8 @@ struct AddModificationView:View {
                         }
                     }
                     Text("DESCRIPTION")
+                        .foregroundStyle(Color.navText)
                         .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
-                        .foregroundStyle(Color.navText)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     ZStack(alignment: .top){
@@ -144,14 +142,27 @@ struct AddModificationView:View {
                     }
                     HStack{
                         VStack(spacing: 12){
-                            Image(systemName: "photo.badge.plus")
-                                .font(.system(size: 24))
+                            if let selectedImage = viewModel.beforeImage {
+                                Image(uiImage: selectedImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }else{
+                                Image(systemName: "photo.badge.plus")
+                                    .font(.system(size: 24))
+                            }
                             VStack(spacing: 4){
                                 Text("Add Image")
                                     .font(.system(size: 12).weight(.medium))
-                                PhotosPicker("Click to upload an image (PDF, JPG, PNG)", selection: $viewModel.beforeImage)
+                                PhotosPicker("Click to upload an image", selection: $viewModel.beforeImageItem, matching: .images)
                                     .font(.system(size: 10))
                                     .foregroundStyle(Color.bodyText)
+                                    .onChange(of: viewModel.beforeImageItem) { _ in
+                                        Task {
+                                            await viewModel.loadBeforeImage()
+                                        }
+                                    }
                             }
                         }
                         .padding(.vertical, 24)
@@ -163,14 +174,27 @@ struct AddModificationView:View {
                                 .fill(Color.boxbackground)
                         )
                         VStack(spacing: 12){
-                            Image(systemName: "photo.badge.plus")
-                                .font(.system(size: 24))
+                            if let selectedImage = viewModel.afterImage {
+                                Image(uiImage: selectedImage)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 50, height: 50)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }else{
+                                Image(systemName: "photo.badge.plus")
+                                    .font(.system(size: 24))
+                            }
                             VStack(spacing: 4){
                                 Text("Add Image")
                                     .font(.system(size: 12).weight(.medium))
-                                PhotosPicker("Click to upload an image (PDF, JPG, PNG)", selection: $viewModel.afterImage)
+                                PhotosPicker("Click to upload an image", selection: $viewModel.afterImageItem, matching: .images)
                                     .font(.system(size: 10))
                                     .foregroundStyle(Color.bodyText)
+                                    .onChange(of: viewModel.afterImageItem) { _ in
+                                        Task {
+                                            await viewModel.loadAfterImage()
+                                        }
+                                    }
                             }
                         }
                         .padding(.vertical, 24)
@@ -218,13 +242,13 @@ struct AddModificationView:View {
         .background(Color.background)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading){
-                Button(role: .close) {
+                Button(role: .cancel) {
                     dismiss()
                 }
             }
         }
         .onAppear {
-            
+            viewModel.vehicleId = vehicleId
             // link AddModificationViewModel → VehicleDetailViewModel
             viewModel.onModificationReady = { modification in
                 Task {
