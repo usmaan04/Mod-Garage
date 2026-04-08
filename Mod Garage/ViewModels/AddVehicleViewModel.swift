@@ -64,7 +64,7 @@ class AddVehicleViewModel: ObservableObject {
                 let result = try await DVLAService().fetchVehicle(for: registration)
                 dvlaVehicle = result
             } catch {
-                errorMessage = "Could not find vehicle. Please check the registration."
+                errorMessage = "Could not find vehicle. Please check the registration"
             }
 
             isLoading = false

@@ -33,6 +33,7 @@ final class AddModificationViewModel: ObservableObject {
     @Published var errorMessage: String? = nil
     
     @Published var vehicleId: String = ""
+    var savedMod: ModificationModel? = nil
 
     // Called when the modification is ready to be saved to Firestore by the parent view
     var onModificationReady: ((ModificationModel) -> Void)?
@@ -65,18 +66,34 @@ final class AddModificationViewModel: ObservableObject {
         }
     }
 
-    func confirmModification() async {
+    func isFormValid() -> Bool{
         errorMessage = nil
 
         // Validate
         if modType == "Select Type" || modName.isEmpty || modDesc.isEmpty {
-            errorMessage = "Please fill all fields"
-            return
+            errorMessage = "Please fill in all fields"
+            return false
         }
 
         // Ensure name is not more than 40 characters
         if modName.count > 40 {
-            errorMessage = "Invalid modification name"
+            errorMessage = "Please enter a shorter name"
+            return false
+        }
+        
+        // Ensure name is not more than 300 characters
+        if modDesc.count > 300 {
+            errorMessage = "Please enter a shorter description"
+            return false
+        }
+        
+        return true
+    }
+    
+    func confirmModification() async {
+        
+        // Validate Form
+        guard isFormValid() else {
             return
         }
 
@@ -115,7 +132,7 @@ final class AddModificationViewModel: ObservableObject {
             let newModification = ModificationModel(
                 id: modificationId,
                 type: modType,
-                name: modName.sentenceCased,
+                name: modName,
                 cost: modCost,
                 description: modDesc,
                 date: modDate,
@@ -126,6 +143,7 @@ final class AddModificationViewModel: ObservableObject {
 
             // Send to parent to save into Firestore
             onModificationReady?(newModification)
+            savedMod = newModification
 
             resetView()
         } catch {

@@ -25,16 +25,43 @@ class LoginViewModel: ObservableObject {
     @Published var isUserLoggedIn = false
     @Published var isLoading = false
     
+    // Centralized form validation: sets loginError and returns validity
+    @discardableResult
+    func isFormValid() -> Bool {
+        // Reset previous error
+        loginError = nil
+
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if trimmedEmail.isEmpty || trimmedPassword.isEmpty {
+            loginError = "Please fill in all fields"
+            return false
+        }
+
+        // Optional: basic email format check using simple contains to avoid duplicating regex
+        if !trimmedEmail.contains("@") || !trimmedEmail.contains(".") {
+            loginError = "Please enter a valid email address"
+            return false
+        }
+
+        return true
+    }
+    
     // Email/Password Login
     func login() {
         
-        if email.isEmpty || password.isEmpty{
-            self.loginError = "Please fill in all fields"
-            self.isLoading = false
+        // Validate form
+        guard isFormValid() else {
             return
         }
         
-        Auth.auth().signIn(withEmail: email, password: password) { [weak self] result, error in
+        isLoading = true
+        
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        Auth.auth().signIn(withEmail: trimmedEmail, password: trimmedPassword) { [weak self] result, error in
             guard let self = self else { return }
             self.isLoading = false
             
@@ -112,7 +139,7 @@ class LoginViewModel: ObservableObject {
         case .invalidEmail, .userNotFound, .wrongPassword, .invalidCredential:
             return "Invalid email or password. If you registered with Google, try the Google button below."
         case .userDisabled:
-            return "This account has been disabled."
+            return "This account has been disabled. Please contact support to resolve the issue."
         case .networkError:
             return "Network error. Please check your connection."
         default:
@@ -120,3 +147,4 @@ class LoginViewModel: ObservableObject {
         }
     }
 }
+

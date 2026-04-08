@@ -230,10 +230,10 @@ final class NotificationViewModel: ObservableObject {
             switch type {
             case .mot:
                 content.title = "MOT reminder"
-                content.body = "\(carName) (\(reg)) MOT expires in \(days) day\(days == 1 ? "" : "s")"
+                content.body = "MOT for \(carName) (\(reg)) expires in \(days) day\(days == 1 ? "" : "s")"
             case .tax:
                 content.title = "Tax reminder"
-                content.body = "\(carName) (\(reg)) tax expires in \(days) day\(days == 1 ? "" : "s")"
+                content.body = "Tax for \(carName) (\(reg)) expires in \(days) day\(days == 1 ? "" : "s")"
             }
 
             let id = "\(NotificationKeys.idPrefix)_\(type.rawValue)_\(vehicle.id)_\(days)"

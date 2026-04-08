@@ -122,7 +122,7 @@ struct VehicleView: View {
         .foregroundStyle(Color.white)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.rectBorder)
+                .fill(Color.redTheme)
         )
     }
 

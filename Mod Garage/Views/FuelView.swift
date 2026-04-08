@@ -32,43 +32,42 @@ struct FuelView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            VStack{
+                HStack {
+                    Text("Fuel & Efficiency")
+                        .foregroundStyle(.lightBlack)
+                        .font(.system(size: 18).weight(.semibold))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Button {
+                        viewModel.isShowingAddFuelLog = true
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(Color.redTheme)
+                                .frame(width: 36, height: 36)
+                            
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+                // Timeframe Filters
+                timeframePills
+            }
+            .zIndex(30)
+            .padding(.horizontal, 17)
+            .frame(maxWidth: .infinity, maxHeight: 84)
+            .background(Color.backgroundW)
+            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
             if viewModel.isLoading {
                 ProgressView()
                     .padding(.top, 30)
             } else if let _ = viewModel.primaryVehicle {
-                VStack{
-                    HStack {
-                        Text("Fuel & Efficiency")
-                            .foregroundStyle(.lightBlack)
-                            .font(.system(size: 18).weight(.semibold))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        Button {
-                            viewModel.isShowingAddFuelLog = true
-                        } label: {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.redTheme)
-                                    .frame(width: 36, height: 36)
-                                
-                                Image(systemName: "plus")
-                                    .font(.system(size: 16, weight: .regular))
-                                    .foregroundColor(.white)
-                            }
-                        }
-                    }
-                }
-                .zIndex(30)
-                .padding(.horizontal, 17)
-                .padding(.bottom, 17)
-                .frame(maxWidth: .infinity, maxHeight: 64)
-                .background(Color.backgroundW)
-                .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
                 GeometryReader{ proxy in
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(spacing: 20) {
-                            // Timeframe Filters
-                            timeframePills
                             // Summary Cards
                             HStack(spacing: 12) {
                                 summaryCard(
@@ -81,12 +80,14 @@ struct FuelView: View {
                                     value: mpgString(viewModel.averageMPG)
                                 )
                             }
-
+                            
+                            Text("Efficiency Trends")
+                                .foregroundColor(.lightBlack)
+                                .font(.system(size: 16).weight(.semibold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                             
                             // MPG Trends (placeholder container)
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("MPG TRENDS")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(Color.lightBlack)
                                 
                                 if viewModel.mpgChartPoints.isEmpty {
                                         emptyChartState("No MPG data for this timeframe.")
@@ -146,12 +147,15 @@ struct FuelView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.rectBorder, lineWidth: 4)
                                     .fill(Color.boxbackground)
+                                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                             )
 
+                            Text("Spending")
+                                .foregroundColor(.lightBlack)
+                                .font(.system(size: 16).weight(.semibold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
                             VStack(alignment: .leading, spacing: 16) {
-                                Text("Spending")
-                                    .font(.system(size: 14, weight: .semibold))
-                                    .foregroundStyle(Color.lightBlack)
 
                                 if viewModel.spendChartPoints.isEmpty {
                                     emptyChartState("No spending data for this timeframe.")
@@ -161,7 +165,7 @@ struct FuelView: View {
                                         case .oneMonth: return .fixed(6)
                                         case .sixMonths: return .fixed(35)
                                         case .oneYear: return .fixed(25)
-                                        case .all: return .fixed(16)
+                                        case .all: return .fixed(35)
                                         }
                                     }()
 
@@ -227,6 +231,7 @@ struct FuelView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.rectBorder, lineWidth: 4)
                                     .fill(Color.boxbackground)
+                                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                             )
                             
                             HStack{
@@ -277,10 +282,45 @@ struct FuelView: View {
                 }
                 
             } else {
-                Text("Hey there, please add a vehicle to see your fuel details")
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.navText)
-                    .padding()
+                VStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.boxbackground)
+                            .frame(width: 80, height: 80)
+                            .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
+                        Image(systemName: "car.fill")
+                            .font(.system(size: 32, weight: .semibold))
+                            .foregroundStyle(Color.redTheme)
+                    }
+
+                    Text("No vehicle yet")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(Color.lightBlack)
+
+                    Text("Add your first vehicle to start tracking fuel and efficiency stats.")
+                        .font(.system(size: 14))
+                        .foregroundStyle(Color.navText)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+
+                    Button {
+                       //
+                    } label: {
+                        Text("Add Vehicle")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(Color.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.redTheme)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 24)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.top, 40)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -340,31 +380,25 @@ struct FuelView: View {
                         viewModel.selectedTimeframe = timeframe
                     }
                 } label: {
-                    ZStack {
-                        if viewModel.selectedTimeframe == timeframe {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.backgroundW)
-                                .matchedGeometryEffect(id: "timeframeHighlight", in: timeframeNamespace)
-                        }
-                        RoundedRectangle(cornerRadius: 10)
-                            .fill(Color.clear)
+                    VStack {
                         Text(timeframe.label)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(
-                                viewModel.selectedTimeframe == timeframe ? Color.redTheme : Color.navText
+                                viewModel.selectedTimeframe == timeframe ? Color.lightBlack : Color.bodyText
                             )
-                            .padding(.vertical, 12)
-                            .frame(maxWidth: .infinity, maxHeight: 44)
+                            .padding(.bottom, 6)
+                        
+                        Divider()
+                            .frame(maxWidth: 40, maxHeight: 3)
+                            .background( viewModel.selectedTimeframe == timeframe ? Color.redTheme : Color.clear)
                     }
                 }
                 .buttonStyle(.plain)
+                .frame(maxWidth: .infinity)
             }
         }
-        .padding(6)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.rectBorder)
-        )
+        .offset(y:5.2)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // Reusable UI
@@ -372,12 +406,12 @@ struct FuelView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
                 .font(.system(size: 12).weight(.semibold))
-                .tracking(-0.6)
+                
                 .textCase(.uppercase)
-                .foregroundStyle(Color.gray)
+                .foregroundStyle(Color.navText)
 
             Text(value)
-                .font(.system(size: 22, weight: .bold))
+                .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(Color.lightBlack)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -385,9 +419,10 @@ struct FuelView: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: 12)
+            RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.rectBorder, lineWidth: 4)
                 .fill(Color.boxbackground)
+                .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
         )
     }
     
@@ -476,6 +511,13 @@ struct FuelLogCard: View {
                 .fill(Color.boxbackground)
                 .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
         )
+    }
+}
+
+extension HomeViewModel {
+    @MainActor
+    func presentAddVehicle() {
+        // TODO: Wire this to your actual add-vehicle flow (e.g., set a navigation path or toggle a sheet)
     }
 }
 

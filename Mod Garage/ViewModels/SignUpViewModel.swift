@@ -37,7 +37,7 @@ class SignUpViewModel: ObservableObject {
 
     
     // Determine if password is strong enough
-    private func isPasswordValid(_ pass: String) -> Bool {
+    func isPasswordValid(_ pass: String) -> Bool {
         // Check 8 char length
         if pass.count < 8 {
             return false
@@ -53,34 +53,51 @@ class SignUpViewModel: ObservableObject {
         // Return true only if all conditions are met
         return hasNumber && hasSpecialChar
     }
+    
+    // Centralized form validation: sets signUpError and returns validity
+    @discardableResult
+    func isFormValid() -> Bool {
+        // Reset previous error
+        signUpError = nil
+
+        // Empty fields
+        if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+            email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+            password.isEmpty {
+            signUpError = "Please fill in all fields"
+            return false
+        }
+
+        // Email format
+        if !isEmailValid(email) {
+            signUpError = "Please enter a valid email address"
+            return false
+        }
+
+        // Password strength
+        if !isPasswordValid(password) {
+            signUpError = "Password must include at least 8 characters, a number and a special character"
+            return false
+        }
+
+        return true
+    }
 
     //  Email & Password Registration
     func register() {
         signUpError = nil
         isLoading = true
         
-        // Empty Field Validation
-        if name.isEmpty || email.isEmpty || password.isEmpty{
-            self.signUpError = "Please fill in all fields"
-            self.isLoading = false
-            return
-        }
-        
-        // Email Validation
-        if !isEmailValid(email){
-            self.signUpError = "Please enter a valid email address"
-            self.isLoading = false
-            return
-        }
-        
-        // Weak Password Validation
-        if !isPasswordValid(password) {
-            self.signUpError = "Password must include at least 8 characters, a number and a special character"
+        // Validate all fields
+        if !isFormValid() {
             self.isLoading = false
             return
         }
 
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        Auth.auth().createUser(withEmail: trimmedEmail, password: trimmedPassword) { result, error in
             DispatchQueue.main.async {
                 self.isLoading = false
             }
@@ -111,6 +128,7 @@ class SignUpViewModel: ObservableObject {
             }
 
             DispatchQueue.main.async {
+                self.signUpError = "User created successfully"
                 self.isUserLoggedIn = true
             }
             self.saveUserDataToFirestore(userID: user.uid, name: self.name, email: self.email)
@@ -198,8 +216,6 @@ class SignUpViewModel: ObservableObject {
             DispatchQueue.main.async {
                 if let error = error {
                     self.signUpError = "Failed to save user data: \(error.localizedDescription)"
-                } else {
-                    print("User data saved successfully for \(userID)")
                 }
             }
         }

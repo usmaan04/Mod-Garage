@@ -270,6 +270,7 @@ struct VehicleDetailView: View {
                                         fuelLog: fuelLog,
                                     )
                                     .environmentObject(homeViewModel)
+                                    .environmentObject(FuelViewModel())
                                     
                                 }
                                 Button {

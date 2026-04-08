@@ -158,7 +158,7 @@ struct SignUpView: View {
                     Image("google")
                         .resizable()
                         .frame(width: 20, height: 20)
-                    Text("Sign in with Google")
+                    Text("Sign Up with Google")
                         .font(.system(size: 16).weight(.medium))
                         .foregroundColor(.lightBlack)
                 }

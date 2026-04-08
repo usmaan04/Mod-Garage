@@ -60,7 +60,7 @@ struct HomeView: View {
 
                         ZStack {
                             // Optional guide circle (commented out)
-                            Circle().stroke(Color.white.opacity(0.6), lineWidth: 1).frame(width: radius * 2, height: radius * 2).position(center)
+                            Circle().stroke(Color.white.opacity(0.8), lineWidth: 3).frame(width: radius * 2, height: radius * 2).position(center)
 
                             // Button at -60 degrees (upper-right on the arc)
                             Button {
@@ -333,23 +333,13 @@ struct DashboardView: View {
                 VStack() {
                     if !viewModel.didRefreshOnThisLaunch {
                         ScrollView{
-                            VStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 16) {
                                 // If loading skeletal load
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color.rectBorder)
-                                    .frame(height: 220)
+                                    .frame(height: 180)
                                     .redacted(reason: .placeholder)
                                     .shimmer(speed: 1.6)
-                                    .padding(.horizontal, 17)
-
-                                // MOT and Tax title skeleton
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.rectBorder)
-                                    .frame(width: 140, height: 14)
-                                    .redacted(reason: .placeholder)
-                                    .shimmer(speed: 1.6)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 17)
 
                                 // Two stat cards skeleton
                                 HStack(spacing: 17) {
@@ -364,7 +354,6 @@ struct DashboardView: View {
                                         .redacted(reason: .placeholder)
                                         .shimmer(speed: 1.6)
                                 }
-                                .padding(.horizontal, 17)
 
                                 // Recent activity title
                                 RoundedRectangle(cornerRadius: 6)
@@ -373,7 +362,6 @@ struct DashboardView: View {
                                     .redacted(reason: .placeholder)
                                     .shimmer(speed: 1.6)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal, 17)
 
                                 // Recent cards skeleton list
                                 HStack(spacing: 10) {
@@ -381,25 +369,25 @@ struct DashboardView: View {
                                         VStack(spacing: 8){
                                             RoundedRectangle(cornerRadius: 6)
                                                 .fill(Color.rectBorder)
-                                                .frame(width: 120, height: 120)
+                                                .frame(width: 150, height: 150)
                                                 .shimmer(speed: 1.6)
                                             RoundedRectangle(cornerRadius: 6)
                                                 .fill(Color.rectBorder)
-                                                .frame(width: 100, height: 14)
+                                                .frame(width: 140, height: 14)
                                                 .redacted(reason: .placeholder)
                                                 .shimmer(speed: 1.6)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                             RoundedRectangle(cornerRadius: 6)
                                                 .fill(Color.rectBorder)
-                                                .frame(width: 110, height: 14)
+                                                .frame(width: 150, height: 14)
                                                 .redacted(reason: .placeholder)
                                                 .shimmer(speed: 1.6)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                         }
                                     }
                                 }
-                                .padding(.horizontal, 17)
                             }
+                            .padding(.horizontal, 17)
                             .offset(y: 16)
                         }
                     } else if viewModel.primaryVehicle == nil {
@@ -683,14 +671,16 @@ struct DashboardView: View {
                                         .font(.system(size: 16).weight(.semibold))
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     
-                                    Button{
-                                        //
-                                    }label:{
-                                        Text("See All")
-                                            .padding(.trailing, 10)
-                                            .foregroundColor(.redTheme)
-                                            .font(.system(size: 14).weight(.semibold))
-                                            .frame(maxWidth: .infinity, alignment: .trailing)
+                                    if viewModel.modifications.count > 5 {
+                                        Button{
+                                            viewModel.isShowingAllMods = true
+                                        }label:{
+                                            Text("See All")
+                                                .padding(.trailing, 10)
+                                                .foregroundColor(.redTheme)
+                                                .font(.system(size: 14).weight(.semibold))
+                                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                        }
                                     }
                                 }
                                 
@@ -723,6 +713,21 @@ struct DashboardView: View {
                                             .foregroundColor(.bodyText)
                                             .font(.system(size: 12).weight(.medium))
                                             .frame(maxWidth: .infinity)
+                                        
+                                        Button{
+                                            viewModel.selectedQuickAction = .modification
+                                        }label:{
+                                            Text("Add Modification")
+                                            
+                                        }
+                                        .font(.system(size: 14).weight(.semibold))
+                                        .foregroundStyle(Color.backgroundW)
+                                        .padding(.horizontal,16)
+                                        .padding(.vertical,10)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color.redTheme)
+                                        )
                                     }
                                     .padding(16)
                                     .frame(maxWidth: .infinity)
@@ -733,10 +738,24 @@ struct DashboardView: View {
                                     )
                                 }
                                 
-                                Text("Recent Fuel Logs")
-                                    .foregroundStyle(.lightBlack)
-                                    .font(.system(size: 16).weight(.semibold))
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                HStack{
+                                    Text("Recent Fuel Logs")
+                                        .foregroundColor(.lightBlack)
+                                        .font(.system(size: 16).weight(.semibold))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    
+                                    if viewModel.fuelLogs.count > 3 {
+                                        Button{
+                                            viewModel.isShowingAllLogs = true
+                                        }label:{
+                                            Text("See All")
+                                                .padding(.trailing, 10)
+                                                .foregroundColor(.redTheme)
+                                                .font(.system(size: 14).weight(.semibold))
+                                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                        }
+                                    }
+                                }
                                 
                                 if !viewModel.fuelLogs.isEmpty{
                                     ForEach(viewModel.fuelLogs
@@ -768,6 +787,20 @@ struct DashboardView: View {
                                         Text("Track your fuel purchases to see insights")
                                             .foregroundStyle(.bodyText)
                                             .font(.system(size: 12).weight(.medium))
+                                        
+                                        Button{
+                                            viewModel.selectedQuickAction = .fuelLog
+                                        }label:{
+                                            Text("Add Fuel Log")
+                                        }
+                                        .font(.system(size: 14).weight(.semibold))
+                                        .foregroundStyle(Color.backgroundW)
+                                        .padding(.horizontal,16)
+                                        .padding(.vertical,10)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(Color.redTheme)
+                                        )
                                     }
                                     .padding(16)
                                     .frame(maxWidth: .infinity)
@@ -785,6 +818,43 @@ struct DashboardView: View {
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: proxy.size.height - 84 )
+            }
+            .sheet(isPresented:$viewModel.isShowingAllMods){
+                ScrollView{
+                    ForEach(viewModel.modifications
+                        .sorted { $0.date > $1.date }
+                    ) { modification in
+                        ModificationCard(
+                            modification: modification,
+                        )
+                        .environmentObject(viewModel)
+                        
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 36)
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.background)
+                .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented:$viewModel.isShowingAllLogs){
+                ScrollView{
+                    ForEach(viewModel.fuelLogs
+                        .sorted { $0.date > $1.date }
+                    ) { fuelLog in
+                        FuelLogCard(
+                            fuelLog: fuelLog,
+                        )
+                        .environmentObject(viewModel)
+                        .environmentObject(fuelViewModel)
+                        
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 36)
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.background)
+                .presentationDragIndicator(.visible)
             }
             .onAppear {
                 Task {
@@ -874,7 +944,7 @@ struct ModCard: View {
                         case .empty:
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color.rectBorder)
-                                .frame(width: 120, height: 120)
+                                .frame(width: 150, height: 150)
                                 .redacted(reason: .placeholder)
                                 .shimmer(speed: 1.6)
                         case .success(let image):

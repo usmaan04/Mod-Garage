@@ -25,7 +25,7 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
         case .oneMonth: return "1M"
         case .sixMonths: return "6M"
         case .oneYear: return "1Y"
-        case .all: return "All"
+        case .all: return "6Y"
         }
     }
 
@@ -45,7 +45,7 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
             return calendar.date(byAdding: .year, value: -1, to: now)
 
         case .all:
-            return nil
+            return calendar.date(byAdding: .year, value: -6, to: now)
         }
     }
 }
@@ -232,7 +232,6 @@ class FuelViewModel: ObservableObject {
 
         case .sixMonths:
             let start = cal.date(byAdding: .month, value: -5, to: cal.startOfMonth(for: anchor))!
-            // Extend to the start of the NEXT month to ensure the current month label shows
             let end = cal.date(byAdding: .month, value: 1, to: cal.startOfMonth(for: anchor))!
             return start...end
 
@@ -242,9 +241,8 @@ class FuelViewModel: ObservableObject {
             return start...end
             
         case .all:
-            guard let minDate = fuelLogs.map(\.date).min() else { return nil }
-            let start = cal.startOfMonth(for: minDate)
-            let end = cal.endOfMonth(for: anchor)
+            let start = cal.date(byAdding: .year, value: -5, to: cal.startOfMonth(for: anchor))!
+            let end = cal.date(byAdding: .year, value: 1, to: cal.startOfMonth(for: anchor))!
             return start...end
         }
     }

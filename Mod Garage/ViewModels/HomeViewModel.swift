@@ -61,6 +61,8 @@ class HomeViewModel: ObservableObject {
     
     @Published var selectedQuickAction: QuickAddAction? = nil
     @Published var isShowingQuickAddMenu = false
+    @Published var isShowingAllMods = false
+    @Published var isShowingAllLogs = false
     
     @Published var isLoading = false
     @Published var showNotifications = false

@@ -33,21 +33,42 @@ class ForgotPasswordViewModel: ObservableObject {
         return emailPredicate.evaluate(with: email)
     }
     
-    func forgotPassword() {
+    // Centralized form validation: sets errorMessage and returns validity
+    func isFormValid() -> Bool {
+        // Reset previous error
+        errorMessage = nil
+
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Basic validation
-        guard !trimmedEmail.isEmpty else {
-            self.errorMessage = "Please enter your email address"
-            self.alertMessage = ""
+        // Empty email
+        if trimmedEmail.isEmpty {
+            errorMessage = "Please enter your email address"
+            return false
+        }
+
+        // Email format
+        if !isEmailValid(trimmedEmail) {
+            errorMessage = "Please enter a valid email address"
+            return false
+        }
+
+        return true
+    }
+    
+    func forgotPassword() {
+        // Validate form
+        guard isFormValid() else {
             self.isLoading = false
+            self.alertMessage = nil
             return
         }
+
+        let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Start loading
         self.isLoading = true
         self.errorMessage = nil
-        self.alertMessage = ""
+        self.alertMessage = nil
 
         Auth.auth().sendPasswordReset(withEmail: trimmedEmail) { [weak self] error in
             guard let self = self else { return }
@@ -56,10 +77,10 @@ class ForgotPasswordViewModel: ObservableObject {
                 self.isLoading = false
                 if let error = error {
                     self.errorMessage = error.localizedDescription
-                    self.alertMessage = ""
+                    self.alertMessage = nil
                 } else {
                     self.errorMessage = nil
-                    self.alertMessage = "We sent a password reset link to \(trimmedEmail). Please check your inbox."
+                    self.alertMessage = "If an account exists an email has been sent to \(trimmedEmail)"
                 }
             }
         }

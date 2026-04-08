@@ -58,8 +58,29 @@ struct LoginView: View {
                     
                     // Password Label and Field
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Password")
-                            .font(.system(size: 14).weight(.medium))
+                        HStack{
+                            Text("Password")
+                                .font(.system(size: 14).weight(.medium))
+                            
+                            // Forgot Password
+                            Button {
+                                authViewModel.showForgot()
+                            } label: {
+                                HStack(spacing: 6) {
+                                    Text("Forgot password?")
+                                        .foregroundStyle(Color.redTheme)
+                                        .font(.system(size: 14).weight(.semibold))
+                                    if viewModel.isLoading {
+                                        ProgressView()
+                                            .progressViewStyle(.circular)
+                                            .scaleEffect(0.8)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
+                            .buttonStyle(.plain)
+                            
+                        }
                         HStack {
                             if viewModel.isPasswordVisible {
                                 TextField(
@@ -112,24 +133,6 @@ struct LoginView: View {
                         .padding(4)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                
-                // Forgot Password
-                Button {
-                    authViewModel.showForgot()
-                } label: {
-                    HStack(spacing: 6) {
-                        Text("Forgot password?")
-                            .font(.system(size: 14).weight(.semibold))
-                        if viewModel.isLoading {
-                            ProgressView()
-                                .progressViewStyle(.circular)
-                                .scaleEffect(0.8)
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 4)
                 
                 // Login Button
                 Button(action: {
