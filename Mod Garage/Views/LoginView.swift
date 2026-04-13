@@ -21,7 +21,8 @@ struct LoginView: View {
                 VStack(spacing: 6){
                     // Title
                     Text("Welcome Back!")
-                        .font(.system(size: 22, weight: .semibold))
+                        .font(.system(size: 24, weight: .semibold))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity,alignment: .leading)
                         .foregroundColor(.lightBlack)
                     // Title
@@ -36,7 +37,8 @@ struct LoginView: View {
                     // Email Label and Field
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Email")
-                            .font(.system(size: 14).weight(.medium))
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                         TextField(
                                 "",
                                 text: $viewModel.email,
@@ -60,8 +62,8 @@ struct LoginView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack{
                             Text("Password")
-                                .font(.system(size: 14).weight(.medium))
-                            
+                                .font(.system(size: 16).weight(.medium))
+                                .fontWidth(.condensed)
                             // Forgot Password
                             Button {
                                 authViewModel.showForgot()
@@ -69,7 +71,8 @@ struct LoginView: View {
                                 HStack(spacing: 6) {
                                     Text("Forgot password?")
                                         .foregroundStyle(Color.redTheme)
-                                        .font(.system(size: 14).weight(.semibold))
+                                        .font(.system(size: 15).weight(.semibold))
+                                        .fontWidth(.condensed)
                                     if viewModel.isLoading {
                                         ProgressView()
                                             .progressViewStyle(.circular)
@@ -128,8 +131,9 @@ struct LoginView: View {
                 // Error Message
                 if let loginError = viewModel.loginError {
                     Text(loginError)
-                        .font(.system(size: 13))
-                        .foregroundColor(.red)
+                        .font(.system(size: 14))
+                        .tracking(-0.4)
+                        .foregroundColor(.redTheme)
                         .padding(4)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -147,7 +151,8 @@ struct LoginView: View {
                             .cornerRadius(100)
                     } else {
                         Text("Log In")
-                            .font(.system(size: 14).weight(.bold))
+                            .font(.system(size: 16).weight(.bold))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.redTheme)
@@ -183,7 +188,8 @@ struct LoginView: View {
                             .resizable()
                             .frame(width: 20, height: 20)
                         Text("Continue with Google")
-                            .font(.system(size: 16).weight(.medium))
+                            .font(.system(size: 18).weight(.medium))
+                            .fontWidth(.condensed)
                             .foregroundColor(.lightBlack)
                     }
                     .frame(maxWidth: .infinity)
@@ -201,7 +207,7 @@ struct LoginView: View {
                 
                 Spacer()
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 17)
             .alert(isPresented: $viewModel.showAlert) {
                 Alert(
                     title: Text("Notice"),

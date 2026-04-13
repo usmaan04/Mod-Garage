@@ -138,7 +138,7 @@ class VehicleViewModel: ObservableObject {
         do {
             // If the vehicle being deleted is primary → assign a new one
             if vehicle.isPrimary {
-                try await PrimaryVehicleService.setOtherPrimary(
+                try await PrimaryVehicleService.deleteAndSetNewPrimary(
                     deletingVehicleId: vehicle.id,
                     for: uid
                 )

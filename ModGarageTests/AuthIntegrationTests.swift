@@ -37,7 +37,7 @@ final class InvalidIntegrationTests: XCTestCase {
     // Tests for invalid existing email
     func test_SignUp_ExistingEmail() async throws {
         // 1. Arrange
-        let expectation = expectation(description: "Firebase should return an existinga coount error.")
+        let expectation = expectation(description: "Firebase should return an existing account error.")
         
         signUpVM.name = "Test User"
         signUpVM.email = "test@email.com"
@@ -58,7 +58,7 @@ final class InvalidIntegrationTests: XCTestCase {
             .store(in: &cancellables)
 
         // 2. Act
-        signUpVM.register()
+        await signUpVM.register()
 
         // Wait for the expectation
         await fulfillment(of: [expectation], timeout: 10.0)

@@ -7,6 +7,8 @@
 
 import Foundation
 
+// A data model representing a fuel purchase
+// Maps directly to fuelLogs subcollection in Firestore
 struct FuelLogModel: Identifiable, Codable {
     var id: String
     var location: String

@@ -12,6 +12,8 @@ import GoogleSignIn
 import GoogleSignInSwift
 
 struct SignUpView: View {
+    var isOnboarding: Bool = false
+    @EnvironmentObject var authVM: AuthViewModel
     @StateObject private var viewModel = SignUpViewModel()
     
     var body: some View {
@@ -21,7 +23,8 @@ struct SignUpView: View {
             // - Header
             VStack(spacing: 6) {
                 Text("Welcome!")
-                    .font(.system(size: 22, weight: .semibold))
+                    .font(.system(size: 24, weight: .semibold))
+                    .fontWidth(.condensed)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .foregroundColor(.lightBlack)
                 
@@ -38,7 +41,8 @@ struct SignUpView: View {
                 // Name Label and Field
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Name")
-                        .font(.system(size: 14).weight(.medium))
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                     TextField(
                         "",
                         text: $viewModel.name,
@@ -60,7 +64,8 @@ struct SignUpView: View {
                 // Email Label and Field
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Email")
-                        .font(.system(size: 14).weight(.medium))
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                     TextField(
                         "",
                         text: $viewModel.email,
@@ -83,7 +88,8 @@ struct SignUpView: View {
                 // Password Field
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Password")
-                        .font(.system(size: 14).weight(.medium))
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                     SecureField(
                         "",
                         text: $viewModel.password,
@@ -105,31 +111,32 @@ struct SignUpView: View {
             // Validation Errors
             if let signUpError = viewModel.signUpError {
                 Text(signUpError)
-                    .font(.callout)
-                    .foregroundColor(.red)
+                    .font(.system(size: 14))
+                    .tracking(-0.4)
+                    .foregroundColor(.redTheme)
+                    .padding(4)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
             //  Create Account Button
             Button(action: {
-                viewModel.register()
-            }) {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.redTheme)
-                        .cornerRadius(100)
-                } else {
-                    Text("Sign Up")
-                        .font(.system(size: 14).weight(.bold))
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.redTheme)
-                        .foregroundColor(.white)
-                        .cornerRadius(100)
+                Task {
+                    await viewModel.register()
+                    if viewModel.isUserLoggedIn {
+                        if isOnboarding {
+                            authVM.nextStep()
+                        }
+                    }
                 }
+            }) {
+                Text("Sign Up")
+                    .font(.system(size: 16).weight(.bold))
+                    .fontWidth(.condensed)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.redTheme)
+                    .foregroundColor(.white)
+                    .cornerRadius(100)
             }
             .padding(.top, 12)
             
@@ -152,14 +159,22 @@ struct SignUpView: View {
             
             // MARK: - Google Sign-In Button
             Button(action: {
-                viewModel.signUpWithGoogle()
+                Task{
+                    await viewModel.signUpWithGoogle()
+                    if viewModel.isUserLoggedIn {
+                        if isOnboarding {
+                            authVM.nextStep()
+                        }
+                    }
+                }
             }) {
                 HStack(spacing: 12) {
                     Image("google")
                         .resizable()
                         .frame(width: 20, height: 20)
                     Text("Sign Up with Google")
-                        .font(.system(size: 16).weight(.medium))
+                        .font(.system(size: 18).weight(.medium))
+                        .fontWidth(.condensed)
                         .foregroundColor(.lightBlack)
                 }
                 .frame(maxWidth: .infinity)
@@ -177,7 +192,7 @@ struct SignUpView: View {
             
             Spacer()
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 17)
         .background(Color.background)
         .alert(isPresented: $viewModel.showAlert) {
             Alert(
@@ -185,6 +200,11 @@ struct SignUpView: View {
                 message: Text(viewModel.alertMessage),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .onChange(of: viewModel.isUserLoggedIn) { oldValue, newValue in
+            if newValue && isOnboarding {
+                authVM.nextStep()
+            }
         }
     }
 }

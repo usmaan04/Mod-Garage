@@ -12,7 +12,7 @@ import PhotosUI
 import FirebaseAuth
 import FirebaseStorage
 
-// Set string format (Sentence case)
+// Set strings into sentence case
 extension String {
     var sentenceCased: String {
         let lower = self.lowercased()
@@ -31,12 +31,15 @@ func formatDVLADate(_ dateString: String?) -> Date? {
 
 @MainActor
 class AddVehicleViewModel: ObservableObject {
+    // Fields that the user fills out
     @Published var registration: String = ""
+    @Published var model = ""
+    
+    // States
     @Published var isLoading: Bool = false
     @Published var dvlaVehicle: DVLAResponseModel? = nil
     @Published var errorMessage: String? = nil
     @Published var hasConfirmedDVLA = false
-    @Published var model = ""
     @Published var makePrimary = false
     
     @Published var carImageItem: PhotosPickerItem?
@@ -48,9 +51,10 @@ class AddVehicleViewModel: ObservableObject {
     
     var existingVehicleCount: Int = 0
     
+    // Access to Firebase Cloud Storage
     private let storage = Storage.storage()
     
-    // DVLA Search
+    // Search the DVLA database using the registration
     func searchRegistration() {
         // Prevent spaces or empty inputs
         guard !registration.trimmingCharacters(in: .whitespaces).isEmpty else { return }
@@ -61,6 +65,7 @@ class AddVehicleViewModel: ObservableObject {
 
         Task {
             do {
+                // Calls the DVLA Service
                 let result = try await DVLAService().fetchVehicle(for: registration)
                 dvlaVehicle = result
             } catch {
@@ -71,6 +76,7 @@ class AddVehicleViewModel: ObservableObject {
         }
     }
     
+    // Convert selected photo into a display compatible format
     func loadImage() async {
         guard let item = carImageItem else { return }
 
@@ -84,7 +90,7 @@ class AddVehicleViewModel: ObservableObject {
         }
     }
     
-    // Validate model & create a VehicleModel
+    // Validates data, calls function to upload images & creates a VehicleModel
     func confirmVehicle() async {
         
         errorMessage = nil
@@ -96,7 +102,7 @@ class AddVehicleViewModel: ObservableObject {
             return
         }
         
-        // Ensure model length is less than 11 characters
+        // Ensure model length is not more than 10 characters
         if trimmedModel.count > 10 {
             errorMessage = "Invalid model name"
             return
@@ -114,15 +120,14 @@ class AddVehicleViewModel: ObservableObject {
             return
         }
                 
+        // Make isPrimary true if user doesn't have a vehicle
         var isPrimaryForThisVehicle = makePrimary
-                
-        // Make isPrimary false if user doesn't have a car
         if existingVehicleCount == 0 {
             isPrimaryForThisVehicle = true
         }
         
 
-        // Build VehicleModel
+        // Create vehicle model using the inputted and calculated values
         do {
             let vehicleId = UUID().uuidString
             var imageURLString = ""
@@ -130,7 +135,7 @@ class AddVehicleViewModel: ObservableObject {
             // Use provided images, or fall back to asset "carimg"
             if let carImage {
                 imageURLString = try await uploadImage(carImage, vehicleId)
-            } else if let placeholder = UIImage(named: "carimg") {
+            } else if let placeholder = UIImage(named: "carPlaceholder") {
                 imageURLString = try await uploadImage(placeholder, vehicleId)
             } else {
                 throw NSError(
@@ -159,18 +164,16 @@ class AddVehicleViewModel: ObservableObject {
                 createdAt: Date()
             )
 
-            // Send to vehicle view to save into Firestore
+            // Set onVehicleLogReady for saving
             onVehicleReady?(newVehicle)
 
             resetView()
         } catch {
             errorMessage = "Failed to upload modification: \(error.localizedDescription)"
         }
-        
-        // Reset internal UI state
-        resetView()
     }
     
+    // Helper function that sends a single image to Firebase Cloud Storage and returns the URL String
     private func uploadImage(_ image: UIImage, _ vehicleId: String) async throws -> String {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(
@@ -180,6 +183,7 @@ class AddVehicleViewModel: ObservableObject {
             )
         }
 
+        // Compress image
         guard let imageData = image.jpegData(compressionQuality: 0.75) else {
             throw NSError(
                 domain: "AddVehicleViewModel",
@@ -188,11 +192,13 @@ class AddVehicleViewModel: ObservableObject {
             )
         }
 
+        // Set the folder structure where the file will be saved in Firestore
         let ref = storage.reference().child("vehicle_images/\(uid)/\(vehicleId)/image.jpg")
 
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
 
+        // Upload image and get the url for the image
         _ = try await ref.putDataAsync(imageData, metadata: metadata)
         let downloadURL = try await ref.downloadURL()
 

@@ -159,5 +159,181 @@ final class ValidIntegrationTests: XCTestCase {
         await fulfillment(of: [expectation], timeout: 20.0)
     }
     
+    // Test the full flow of adding a vehicle
+    func test_AddVehicle() async throws {
+        let user = Auth.auth().currentUser
+        XCTAssertNotNil(user)
+        guard user != nil else { return }
+
+        let addVM = addVehicleVM!
+        let vehiclesVM = VehicleViewModel()
+
+        // 1. Arrange
+        addVM.registration = "AB12CDE"
+        addVM.model = "Test"
+        addVM.existingVehicleCount = 0
+
+        let savedExpectation = expectation(description: "Vehicle saved")
+
+        addVM.onVehicleReady = { vehicle in
+            Task {
+                await vehiclesVM.addVehicle(vehicle)
+                savedExpectation.fulfill()
+            }
+        }
+
+        addVM.searchRegistration()
+
+        // wait until dvlaVehicle is loaded
+        let dvlaLoaded = expectation(description: "DVLA loaded")
+        var cancellables = Set<AnyCancellable>()
+        addVM.$dvlaVehicle
+            .dropFirst()
+            .sink { vehicle in
+                if vehicle != nil {
+                    dvlaLoaded.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        // 2. Act
+        await fulfillment(of: [dvlaLoaded], timeout: 10)
+
+        await addVM.confirmVehicle()
+
+        await fulfillment(of: [savedExpectation], timeout: 10)
+
+        await vehiclesVM.loadVehicles()
+
+        // 3. Assert
+        XCTAssertTrue(vehiclesVM.vehicles.contains {
+            $0.registration.uppercased() == "AB12CDE"
+        })
+    }
+    
+    func test_AddModification() async throws {
+        let user = Auth.auth().currentUser
+        XCTAssertNotNil(user, "A user must be signed in before running integration tests")
+        guard let user else { return }
+
+        let detailVM = VehicleDetailViewModel()
+        let addModVM = AddModificationViewModel()
+    
+        let db = Firestore.firestore()
+
+        addModVM.vehicleId = "C22C0029-AE0D-4985-9594-408543CD7A26"
+        addModVM.modType = "Exhaust"
+        addModVM.modName = "Catback"
+        addModVM.modCost = 200.00
+        addModVM.modDesc = "Stainless steel catback exhaust"
+
+        let savedExpectation = expectation(description: "Modification should be added and loaded")
+
+        detailVM.$modifications
+            .dropFirst()
+            .sink { modifications in
+                if modifications.contains(where: {
+                    $0.name == "Catback" &&
+                    $0.type == "Exhaust" &&
+                    $0.description == "Stainless steel catback exhaust"
+                }) {
+                    savedExpectation.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        addModVM.onModificationReady = { modification in
+            Task {
+                await detailVM.addModification(modification, vehicleId: "C22C0029-AE0D-4985-9594-408543CD7A26")
+            }
+        }
+
+        await addModVM.confirmModification()
+
+        await fulfillment(of: [savedExpectation], timeout: 20.0)
+
+        let snapshot = try await db
+            .collection("users")
+            .document(user.uid)
+            .collection("vehicles")
+            .document("C22C0029-AE0D-4985-9594-408543CD7A26")
+            .collection("modifications")
+            .getDocuments()
+
+        XCTAssertTrue(
+            snapshot.documents.contains(where: { doc in
+                let data = doc.data()
+                return (data["name"] as? String) == "Catback" &&
+                       (data["type"] as? String) == "Exhaust" &&
+                       (data["description"] as? String) == "Stainless steel catback exhaust"
+            }),
+            "The modification document should exist in Firestore"
+        )
+    }
+    
+    func test_AddFuelLog() async throws {
+        let user = Auth.auth().currentUser
+        XCTAssertNotNil(user, "A user must be signed in before running integration tests")
+        guard let user else { return }
+
+        let vehicleId = "C22C0029-AE0D-4985-9594-408543CD7A26"
+
+        let detailVM = VehicleDetailViewModel()
+        let addFuelVM = AddFuelLogViewModel()
+        
+        let db = Firestore.firestore()
+
+        addFuelVM.previousMileage = 10000
+        addFuelVM.location = "Shell"
+        addFuelVM.litres = 40
+        addFuelVM.cost = 58.40
+        addFuelVM.mileage = 10200
+
+        let savedExpectation = expectation(description: "Fuel log should be added and loaded")
+
+        detailVM.$fuelLogs
+            .dropFirst()
+            .sink { logs in
+                if logs.contains(where: {
+                    $0.location == "Shell" &&
+                    $0.litres == 40 &&
+                    $0.cost == 58.40 &&
+                    $0.mileage == 10200
+                }) {
+                    savedExpectation.fulfill()
+                }
+            }
+            .store(in: &cancellables)
+
+        addFuelVM.onFuelLogReady = { fuelLog in
+            Task {
+                await detailVM.addFuelLog(fuelLog, vehicleId: vehicleId)
+            }
+        }
+
+        await addFuelVM.confirmFuelLog()
+
+        await fulfillment(of: [savedExpectation], timeout: 20.0)
+
+        let snapshot = try await db
+            .collection("users")
+            .document(user.uid)
+            .collection("vehicles")
+            .document(vehicleId)
+            .collection("fuelLogs")
+            .getDocuments()
+
+        XCTAssertTrue(
+            snapshot.documents.contains(where: { doc in
+                let data = doc.data()
+                return (data["location"] as? String) == "Shell" &&
+                       (data["litres"] as? Double) == 40 &&
+                       (data["cost"] as? Double) == 58.40 &&
+                       (data["mileage"] as? Int) == 10200
+            }),
+            "The fuel log document should exist in Firestore"
+        )
+    }
+    
 }
 

@@ -48,6 +48,23 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
             return calendar.date(byAdding: .year, value: -6, to: now)
         }
     }
+    
+    var next: FuelTimeframe? {
+        let all = Self.allCases
+        guard let index = all.firstIndex(of: self), index < all.count - 1 else {
+            return nil
+        }
+        return all[index + 1]
+    }
+
+    var previous: FuelTimeframe? {
+        let all = Self.allCases
+        guard let index = all.firstIndex(of: self), index > 0 else {
+            return nil
+        }
+        return all[index - 1]
+    }
+    
 }
 
 struct MPGChartPoint: Identifiable {

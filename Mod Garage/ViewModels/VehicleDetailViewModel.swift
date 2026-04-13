@@ -39,6 +39,9 @@ final class VehicleDetailViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     
+    @Published var reportURL: URL?
+    @Published var isGeneratingReport = false
+    
     var latestFuelLogMileage: Int? {
         fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
     }
@@ -156,4 +159,23 @@ final class VehicleDetailViewModel: ObservableObject {
         isLoading = false
     }
     
+    func generateVehicleReportPDF(vehicle: VehicleModel) async {
+        isGeneratingReport = true
+        reportURL = nil
+
+        defer { isGeneratingReport = false }
+
+        do {
+            let url = try PDFGenerator.createVehicleReportPDF(
+                vehicle: vehicle,
+                modifications: modifications,
+                fuelLogs: fuelLogs,
+                latestMileage: latestFuelLogMileage
+            )
+
+            reportURL = url
+        } catch {
+            errorMessage = "Failed to generate report: \(error.localizedDescription)"
+        }
+    }
 }

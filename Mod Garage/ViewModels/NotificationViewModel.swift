@@ -98,7 +98,7 @@ final class NotificationViewModel: ObservableObject {
         switch s.authorizationStatus {
         case .notDetermined:
             do {
-                _ = try await manager.requestAuthorization()
+                _ = try await manager.requestAuthorisation()
                 try? await Task.sleep(nanoseconds: 300_000_000)
                 await refreshPermission()
             } catch {

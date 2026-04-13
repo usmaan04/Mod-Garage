@@ -20,14 +20,14 @@ struct SettingsView: View {
     @Environment(\.colorScheme) private var systemColorScheme
     @AppStorage("preferredColorScheme") private var preferredColorSchemeRaw: String = "system"
 
-    
     var body: some View {
         NavigationStack {
             VStack(spacing: 0){
                 VStack{
                     Text("Settings")
                         .foregroundStyle(Color.lightBlack)
-                        .font(.system(size: 18).weight(.semibold))
+                        .font(.system(size: 20).weight(.semibold))
+                        .fontWidth(.condensed)
                         .padding(.bottom, 12)
                 }
                 .zIndex(30)
@@ -54,25 +54,25 @@ struct SettingsView: View {
                                                 .clipShape(Circle())
 
                                         case .failure(_):
-                                            Image("AdaptiveLaunch")
+                                            Image("profilePic")
                                                 .resizable()
                                                 .scaledToFill()
-                                                .frame(width: 64, height: 64)
+                                                .frame(width: 100, height: 100)
                                                 .clipShape(Circle())
 
                                         @unknown default:
-                                            Image("AdaptiveLaunch")
+                                            Image("profilePic")
                                                 .resizable()
                                                 .scaledToFill()
-                                                .frame(width: 64, height: 64)
+                                                .frame(width: 100, height: 10)
                                                 .clipShape(Circle())
                                         }
                                     }
                                 } else {
-                                    Image("AdaptiveLaunch")
+                                    Image("profilePic")
                                         .resizable()
                                         .scaledToFill()
-                                        .frame(width: 64, height: 64)
+                                        .frame(width: 100, height: 100)
                                         .clipShape(Circle())
                                 }
                                 VStack(spacing:4){
@@ -81,7 +81,8 @@ struct SettingsView: View {
                                             .padding()
                                     } else {
                                         Text("\(viewModel.name)")
-                                            .font(.system(size: 18).weight(.semibold))
+                                            .font(.system(size: 20).weight(.semibold))
+                                            .fontWidth(.condensed)
                                             .foregroundColor(Color.lightBlack)
                                             .frame(maxWidth: .infinity,alignment: .center)
                                     }
@@ -95,7 +96,8 @@ struct SettingsView: View {
                                 
                             Text("General")
                                 .foregroundColor(.lightBlack)
-                                .font(.system(size: 16).weight(.semibold))
+                                .font(.system(size: 18).weight(.semibold))
+                                .fontWidth(.condensed)
                             
                             VStack{
                                 SettingComponent(
@@ -121,7 +123,8 @@ struct SettingsView: View {
                             
                             Text("Preferences")
                                 .foregroundColor(.lightBlack)
-                                .font(.system(size: 16).weight(.semibold))
+                                .font(.system(size: 18).weight(.semibold))
+                                .fontWidth(.condensed)
                             
                             VStack{
                                 SettingComponent(
@@ -150,7 +153,8 @@ struct SettingsView: View {
 
                                             VStack(alignment: .leading, spacing: 2) {
                                                 Text("Theme")
-                                                    .font(.system(size: 14).weight(.semibold))
+                                                    .font(.system(size: 14).weight(.medium))
+                                                    .fontWidth(.condensed)
                                                     .foregroundColor(.lightBlack)
                                                 // Show current selection label
                                                 Text({ () -> String in
@@ -160,7 +164,7 @@ struct SettingsView: View {
                                                         return "System"
                                                     }
                                                 }())
-                                                .font(.system(size: 12))
+                                                .font(.system(size: 10))
                                                 .foregroundColor(.navText)
                                             }
 
@@ -205,7 +209,8 @@ struct SettingsView: View {
                             
                             Text("Support")
                                 .foregroundColor(.lightBlack)
-                                .font(.system(size: 16).weight(.semibold))
+                                .font(.system(size: 18).weight(.semibold))
+                                .fontWidth(.condensed)
                             
                             VStack{
                                 SettingComponent(
@@ -250,6 +255,7 @@ struct SettingsView: View {
                                     .padding(.vertical, 18)
                                     .foregroundStyle(.redTheme)
                                     .font(.system(size: 14).weight(.semibold))
+                                    .fontWidth(.condensed)
                                     .frame(alignment: .center)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
@@ -258,7 +264,14 @@ struct SettingsView: View {
                                     )
                                     
                                     Button(action: {
-                                        appViewModel.deleteAccountSafely()
+                                        Task {
+                                            do {
+                                                try await appViewModel.deleteAccount()
+                                            } catch {
+                                                viewModel.alertMessage = " Failed to delete account, please try again."
+                                                viewModel.showAlert = true
+                                            }
+                                        }
                                     }) {
                                         Text("Delete Account")
                                     }
@@ -266,6 +279,7 @@ struct SettingsView: View {
                                     .padding(.vertical, 18)
                                     .foregroundStyle(.white)
                                     .font(.system(size: 14).weight(.semibold))
+                                    .fontWidth(.condensed)
                                     .frame(alignment: .center)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
@@ -343,10 +357,10 @@ struct SettingComponent: View {
                     }
                 }
                 
-                
                 Text(title)
-                    .font(.system(size: 14).weight(.semibold))
-                    .foregroundColor(.lightBlack)
+                    .font(.system(size: 14).weight(.medium))
+                    .fontWidth(.condensed)
+                    .foregroundStyle(.lightBlack)
                 
                 Spacer()
                 

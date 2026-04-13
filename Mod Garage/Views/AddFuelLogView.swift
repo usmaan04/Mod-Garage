@@ -24,9 +24,9 @@ struct AddFuelLogView:View {
         VStack(spacing: 24){
             ScrollView{
                 VStack(spacing: 12){
-                    Text("LOCATION")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
+                    Text("Location")
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     TextField(
@@ -44,13 +44,13 @@ struct AddFuelLogView:View {
                             .fill(Color.boxbackground)
                     )
                     HStack{
-                        Text("TOTAL COST")
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
+                        Text("Total Cost")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Text("LITRES")
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
+                        Text("Litres Filled")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     HStack{
@@ -79,6 +79,7 @@ struct AddFuelLogView:View {
                             )
                             .keyboardType(.decimalPad)
                             Text("L")
+                                .fontWidth(.condensed)
                         }
                         .padding(16)
                         .keyboardType(.decimalPad)
@@ -90,15 +91,16 @@ struct AddFuelLogView:View {
                     }
                     .font(.system(size: 14))
                     .foregroundStyle(Color("lightBlack"))
+                    
                     HStack{
-                        Text("ODOMETER MILEAGE")
+                        Text("Odometer Mileage")
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        Text("RE-FUEL DATE")
+                        Text("Re-Fuel Date")
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .font(.system(size: 12).weight(.medium))
-                    .foregroundStyle(Color.navText)
+                    .font(.system(size: 16).weight(.medium))
+                    .fontWidth(.condensed)
                     
                     HStack{
                         HStack{
@@ -110,7 +112,9 @@ struct AddFuelLogView:View {
                                     .foregroundStyle(Color("bodyText"))
                             )
                             .keyboardType(.decimalPad)
-                            Text("MILES")
+                            Text("Miles")
+                                .font(.system(size: 14).weight(.medium))
+                                .fontWidth(.condensed)
                         }
                         .font(.system(size: 14))
                         .foregroundStyle(Color("lightBlack"))
@@ -151,13 +155,15 @@ struct AddFuelLogView:View {
                     }
 
                     VStack{
-                        Text("PRICE PER LITRE")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
+                        Text("Price Per Litre")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
+                            .foregroundStyle(Color.navText)
                         
                         HStack(spacing:0){
                             Text("£")
                                 .font(.system(size: 30).weight(.medium))
+                                .fontWidth(.condensed)
                                 .frame(maxHeight:.infinity, alignment: .bottomLeading)
                             Text((String(describing: viewModel.pricePerLitre)))
                                 .font(.system(size: 30).weight(.medium))

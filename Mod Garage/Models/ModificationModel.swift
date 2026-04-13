@@ -6,8 +6,9 @@
 //
 
 import Foundation
-import PhotosUI
 
+// A data model representing a modifcation
+// Maps directly to modifcations collections in Firestore
 struct ModificationModel: Identifiable, Codable {
     var id: String
     var type: String

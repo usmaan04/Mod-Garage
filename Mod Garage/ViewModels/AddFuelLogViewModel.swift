@@ -12,6 +12,7 @@ import FirebaseAuth
 import FirebaseStorage
 import PhotosUI
 
+// Helper to round decimals
 extension Double {
     func rounded(to places: Int) -> Double {
         let factor = pow(10, Double(places))
@@ -22,28 +23,24 @@ extension Double {
 @MainActor
 final class AddFuelLogViewModel: ObservableObject {
 
-    let modTypes = ["Exhaust", "Windows", "Lights", "Engine", "Bodykit"]
-
+    // Fields that the user fills out
     @Published var location: String = ""
     @Published var litres: Double = 0
     @Published var cost: Double = 0
     @Published private(set) var pricePerLitre: Double = 0
     @Published var mileage: Int = 0
     @Published var date: Date = Date()
-    var savedLog: FuelLogModel? = nil
 
-    // Calculated as (miles driven since last fill) / litres / 4.456 filled
+    // Efficiency data calculated by the system
     @Published var mpg: Double = 0
-
-    // Set this from the parent view (latest/previous fuel log mileage)
     @Published var previousMileage: Int? = nil
     
     @Published var showDatePicker = false
     @Published var errorMessage: String? = nil
-    
-    private let storage = Storage.storage()
+    var savedLog: FuelLogModel? = nil
 
     init() {
+        // Listens to cost and litres and updates pricePerLitre whenever they change
         Publishers.CombineLatest($cost, $litres)
             .map { cost, litres -> Double in
                 guard litres != 0 else { return 0 }
@@ -52,20 +49,21 @@ final class AddFuelLogViewModel: ObservableObject {
             .assign(to: &$pricePerLitre)
     }
 
-    // Called when the modification is ready to be saved to Firestore by the parent view
+    // Callback to tell parent view that log is ready to be saved
     var onFuelLogReady: ((FuelLogModel) -> Void)?
     
+    // Validates user entered/enterable fields
     func isFormValid() -> Bool{
         
         errorMessage = nil
         
-        // Validate basic fields
+        // Prevent empty fields
         if location.isEmpty || litres == 0 || cost == 0 || mileage == 0 {
             errorMessage = "Please fill in all fields"
             return false
         }
         
-        // Validate basic fields
+        // Ensure location is not more than 25 characters
         if location.count > 25 {
             errorMessage = "Please entar a shorter name for the location"
             return false
@@ -74,14 +72,13 @@ final class AddFuelLogViewModel: ObservableObject {
         return true
     }
 
+    // Called when user presses save, creates fuel log model
     func confirmFuelLog() async {
 
-        // Validate form
-        guard isFormValid() else {
-            return
-        }
+        // Check form validation
+        guard isFormValid() else { return }
 
-        // Compute mpg (distance / litres) using previous mileage
+        // Calculate mpg (distance / litres converted to gallons) using previous mileage
         if let prev = previousMileage {
             let distance = mileage - prev
             guard distance > 0 else {
@@ -90,10 +87,11 @@ final class AddFuelLogViewModel: ObservableObject {
             }
             mpg = (Double(distance) / (litres / 4.546) ).rounded(to: 2)
         } else {
-            // No previous log so can't calculate mpg yet
+            // Can't calculate MPG on the first log
             mpg = 0
         }
 
+        // Create the fuel log model using the inputted and calculated values
         do {
             let newFuelLog = FuelLogModel(
                 id: UUID().uuidString,
@@ -107,14 +105,20 @@ final class AddFuelLogViewModel: ObservableObject {
                 createdAt: Date()
             )
 
+            // Set onFuelLogReady for saving
             onFuelLogReady?(newFuelLog)
+            
+            // Set saved log for testing
             savedLog = newFuelLog
+            
             resetView()
+            
         } catch {
-            errorMessage = "Failed to save fuel log: \(error.localizedDescription)"
+            errorMessage = "Failed to save fuel log"
         }
     }
-
+    
+    // Reset all fields back to default
     func resetView() {
         location = ""
         litres = 0

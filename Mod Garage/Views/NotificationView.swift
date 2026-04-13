@@ -37,10 +37,11 @@ struct NotificationView: View {
                                 
                                 VStack(alignment: .leading, spacing: 8){
                                     Text("Notifications are off")
-                                        .font(.system(size: 14).weight(.semibold))
-                                        .foregroundColor(.lightBlack)
+                                        .font(.system(size: 16).weight(.semibold))
+                                        .fontWidth(.condensed)
                                     Text("Enable notifications to receive MOT and Tax reminders")
                                         .font(.system(size: 12))
+                                        .fontWidth(.condensed)
                                         .foregroundColor(.navText)
                                         .multilineTextAlignment(.leading)
 
@@ -73,10 +74,11 @@ struct NotificationView: View {
                                 
                                 VStack(alignment: .leading, spacing: 8){
                                     Text("Notifications are off")
-                                        .font(.system(size: 14).weight(.semibold))
-                                        .foregroundColor(.lightBlack)
+                                        .font(.system(size: 16).weight(.semibold))
+                                        .fontWidth(.condensed)
                                     Text("Enable notifications to receive MOT and Tax reminders")
                                         .font(.system(size: 12))
+                                        .fontWidth(.condensed)
                                         .foregroundColor(.navText)
                                         .multilineTextAlignment(.leading)
 
@@ -109,8 +111,9 @@ struct NotificationView: View {
                                         .foregroundStyle(Color.backgroundW)
                                 }
                                 
-                                Text("Notifications are enabled")
-                                    .font(.system(size: 14).weight(.semibold))
+                                Text("Notifications are Enabled")
+                                    .font(.system(size: 16).weight(.semibold))
+                                    .fontWidth(.condensed)
                                     .foregroundColor(.lightBlack)
                             }
                             .padding(16)
@@ -130,6 +133,7 @@ struct NotificationView: View {
                                     .frame(width: 32, height: 32)
                                 Text("MOT Reminders")
                                     .font(.system(size: 18).weight(.semibold))
+                                    .fontWidth(.condensed)
                                 
                                 Toggle("", isOn: $viewModel.motEnabled)
                                     .onChange(of: viewModel.motEnabled) { _ in viewModel.needsSync = true }
@@ -139,8 +143,9 @@ struct NotificationView: View {
                             
                             if viewModel.motEnabled{
                                 Text("Select how many days in advance you would like to be notified of your vehicle's MOT expiry date.")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.navText)
+                                    .font(.system(size: 15))
+                                    .fontWidth(.condensed)
+                                    .foregroundStyle(Color.bodyText)
                                     .transition(.scale(scale: 0.95).combined(with: .opacity))
                                 
                                 chips(selected: Set(viewModel.motLeadDays)) { day in
@@ -175,6 +180,7 @@ struct NotificationView: View {
                                     .frame(width: 32, height: 32)
                                 Text("Tax Reminders")
                                     .font(.system(size: 18).weight(.semibold))
+                                    .fontWidth(.condensed)
                                 
                                 Toggle("", isOn: $viewModel.taxEnabled)
                                     .onChange(of: viewModel.taxEnabled) { _ in viewModel.needsSync = true }
@@ -184,8 +190,9 @@ struct NotificationView: View {
                             
                             if viewModel.taxEnabled{
                                 Text("Select how many days in advance you would like to be notified of your vehicle's Tax expiry date.")
-                                    .font(.system(size: 14))
-                                    .foregroundStyle(Color.navText)
+                                    .font(.system(size: 15))
+                                    .fontWidth(.condensed)
+                                    .foregroundStyle(Color.bodyText)
                                     .transition(.scale(scale: 0.95).combined(with: .opacity))
                                   
                                 
@@ -221,6 +228,7 @@ struct NotificationView: View {
                                     .frame(width: 28, height: 28)
                                 Text("Notification Time")
                                     .font(.system(size: 18).weight(.semibold))
+                                    .fontWidth(.condensed)
 
                                 Spacer()
 
@@ -282,6 +290,7 @@ struct NotificationView: View {
                             Text("Changes apply when you sync")
                                 .padding(.vertical, 4)
                                 .font(.system(size: 14))
+                                .fontWidth(.condensed)
                                 .foregroundStyle(Color.bodyText)
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
@@ -292,9 +301,10 @@ struct NotificationView: View {
                             } label: {
                                 HStack {
                                     Image(systemName: "trash")
-                                    Text("Clear reminders")
+                                    Text("Clear")
                                 }
-                                .font(.system(size: 14).weight(.semibold))
+                                .font(.system(size: 16).weight(.semibold))
+                                .fontWidth(.condensed)
                                 .foregroundStyle(Color.redTheme)
                                 .padding(.horizontal,10)
                                 .padding(.vertical,16)
@@ -311,9 +321,10 @@ struct NotificationView: View {
                             } label: {
                                 HStack {
                                     Image(systemName: "arrow.triangle.2.circlepath")
-                                    Text(viewModel.isSyncing ? "Syncing..." : "Sync reminders")
+                                    Text(viewModel.isSyncing ? "Syncing..." : "Sync")
                                 }
-                                .font(.system(size: 14).weight(.semibold))
+                                .font(.system(size: 16).weight(.semibold))
+                                .fontWidth(.condensed)
                                 .foregroundStyle(Color.backgroundW)
                                 .padding(.horizontal,10)
                                 .padding(.vertical,16)

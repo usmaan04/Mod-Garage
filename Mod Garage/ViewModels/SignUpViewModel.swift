@@ -84,7 +84,7 @@ class SignUpViewModel: ObservableObject {
     }
 
     //  Email & Password Registration
-    func register() {
+    func register() async {
         signUpError = nil
         isLoading = true
         
@@ -96,47 +96,47 @@ class SignUpViewModel: ObservableObject {
 
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        Auth.auth().createUser(withEmail: trimmedEmail, password: trimmedPassword) { result, error in
-            DispatchQueue.main.async {
-                self.isLoading = false
-            }
-
-            if let error = error as NSError? {
-                DispatchQueue.main.async {
-                    if let code = AuthErrorCode(rawValue: error.code) {
-                        switch code {
-                        case .emailAlreadyInUse:
-                            self.signUpError = "This email is already registered"
-                        case .networkError:
-                            self.signUpError = "Network error. Check your internet connection."
-                        default:
-                            self.signUpError = error.localizedDescription
-                        }
-                    } else {
-                        self.signUpError = "An unknown error occurred. Please try again."
+        
+        do{
+            let result = try await Auth.auth().createUser(withEmail: trimmedEmail, password: trimmedPassword)
+            
+            try await saveUserDataToFirestore(userID: result.user.uid, name: name, email: trimmedEmail)
+            
+            self.isUserLoggedIn = true
+            self.isLoading = false
+        }catch let error as NSError {
+            self.isLoading = false
+            
+            let nsError = error as NSError
+            
+            if nsError.domain == AuthErrorDomain {
+              
+                if let errorCode = AuthErrorCode(rawValue: nsError.code) {
+                    switch errorCode {
+                    case .emailAlreadyInUse:
+                        self.signUpError = "This email is already registered"
+                    case .networkError:
+                        self.signUpError = "Network error, please check your connection"
+                    case .weakPassword:
+                        self.signUpError = "Password is too weak."
+                    case .invalidEmail:
+                        self.signUpError = "Invalid email address format"
+                    default:
+                        self.signUpError = nsError.localizedDescription
                     }
+                } else {
+                    self.signUpError = nsError.localizedDescription
                 }
-                return
+            } else {
+               
+                self.signUpError = error.localizedDescription
             }
-
-            guard let user = result?.user else {
-                DispatchQueue.main.async {
-                    self.signUpError = "User creation failed. Please try again."
-                }
-                return
-            }
-
-            DispatchQueue.main.async {
-                self.signUpError = "User created successfully"
-                self.isUserLoggedIn = true
-            }
-            self.saveUserDataToFirestore(userID: user.uid, name: self.name, email: self.email)
         }
+
     }
 
     // MARK: - Sign Up with Google
-    func signUpWithGoogle() {
+    func signUpWithGoogle() async {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             alertMessage = "Missing Google Client ID."
             showAlert = true
@@ -146,7 +146,6 @@ class SignUpViewModel: ObservableObject {
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
 
-        // Get the topmost ViewController to present Google sign-in UI
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootVC = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController else {
             alertMessage = "Unable to find a valid window for Google Sign-In."
@@ -155,70 +154,64 @@ class SignUpViewModel: ObservableObject {
         }
 
         isLoading = true
+        signUpError = nil
 
-        GIDSignIn.sharedInstance.signIn(withPresenting: rootVC) { result, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.signUpError = error.localizedDescription
+        do {
+            let result = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<GIDSignInResult, Error>) in
+                GIDSignIn.sharedInstance.signIn(withPresenting: rootVC) { result, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else if let result = result {
+                        continuation.resume(returning: result)
+                    } else {
+                        continuation.resume(throwing: NSError(
+                            domain: "GoogleSignIn",
+                            code: -1,
+                            userInfo: [NSLocalizedDescriptionKey: "Google authentication failed."]
+                        ))
+                    }
                 }
-                return
             }
 
-            guard let user = result?.user,
-                  let idToken = user.idToken?.tokenString else {
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                    self.signUpError = "Google authentication failed. Please try again."
-                }
-                return
+            let user = result.user
+
+            guard let idToken = user.idToken?.tokenString else {
+                throw NSError(
+                    domain: "GoogleSignIn",
+                    code: -2,
+                    userInfo: [NSLocalizedDescriptionKey: "Missing Google ID token."]
+                )
             }
 
             let accessToken = user.accessToken.tokenString
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
 
-            Auth.auth().signIn(with: credential) { authResult, error in
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                }
+            let authResult = try await Auth.auth().signIn(with: credential)
 
-                if let error = error {
-                    DispatchQueue.main.async {
-                        self.signUpError = error.localizedDescription
-                    }
-                    return
-                }
+            try await saveUserDataToFirestore(
+                userID: authResult.user.uid,
+                name: user.profile?.name ?? "User",
+                email: user.profile?.email ?? ""
+            )
 
-                guard let firebaseUser = authResult?.user else { return }
-
-                // Save user details to Firestore on the main actor to satisfy isolation
-                Task { @MainActor in
-                    self.saveUserDataToFirestore(
-                        userID: firebaseUser.uid,
-                        name: user.profile?.name ?? "User",
-                        email: user.profile?.email ?? ""
-                    )
-                }
-            }
+            isUserLoggedIn = true
+        } catch {
+            signUpError = error.localizedDescription
         }
-    }
 
+        isLoading = false
+    }
+    
     //  Firestore Helper
-    private func saveUserDataToFirestore(userID: String, name: String, email: String) {
+    private func saveUserDataToFirestore(userID: String, name: String, email: String) async throws {
         let db = Firestore.firestore()
         let userData: [String: Any] = [
             "name": name,
             "email": email,
             "createdAt": Timestamp(date: Date())
         ]
-
-        db.collection("users").document(userID).setData(userData) { error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    self.signUpError = "Failed to save user data: \(error.localizedDescription)"
-                }
-            }
-        }
+        
+        try await db.collection("users").document(userID).setData(userData)
     }
 }
 

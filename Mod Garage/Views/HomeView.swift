@@ -23,13 +23,13 @@ struct HomeView: View {
             Group {
                 switch viewModel.selectedTab {
                 case .home:
-                    DashboardView()
+                    DashboardView(detailViewModel: detailViewModel)
                         .environmentObject(vehicleViewModel)
                 case .vehicle:
                     VehicleView()
                         .environmentObject(vehicleViewModel)
                 case .add:
-                    DashboardView()
+                    DashboardView(detailViewModel: detailViewModel)
                         .environmentObject(vehicleViewModel)
                 case .fuel:
                     FuelView()
@@ -214,6 +214,11 @@ struct DashboardView: View {
     @EnvironmentObject var viewModel: HomeViewModel
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
     @StateObject private var fuelViewModel = FuelViewModel()
+    
+    @Environment(\.openURL) private var openURL
+    
+    let detailViewModel: VehicleDetailViewModel
+    
     var body: some View {
         VStack(spacing:0){
             VStack{
@@ -259,14 +264,14 @@ struct DashboardView: View {
                                         .clipShape(Circle())
 
                                 case .failure(_):
-                                    Image("AdaptiveLaunch")
+                                    Image("profilePic")
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 50, height: 50)
                                         .clipShape(Circle())
 
                                 @unknown default:
-                                    Image("AdaptiveLaunch")
+                                    Image("profilePic")
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 50, height: 50)
@@ -274,7 +279,7 @@ struct DashboardView: View {
                                 }
                             }
                         } else {
-                            Image("AdaptiveLaunch")
+                            Image("profilePic")
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 50, height: 50)
@@ -289,29 +294,20 @@ struct DashboardView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             Text(viewModel.name)
-                                .font(.system(size: 16).weight(.semibold))
+                                .padding(.leading, 1)
+                                .font(.system(size: 18).weight(.semibold))
+                                .fontWidth(.condensed)
                                 .foregroundStyle(Color.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         
                         Button {
-                            print("notif")
+                            viewModel.isShowingNotifications = true
                         } label: {
                             ZStack {
                                 Image(systemName: "bell")
                                     .font(.system(size: 24))
                                     .foregroundStyle(Color.navText.opacity(0.8))
-                                
-                                Circle()
-                                    .fill(Color.white)
-                                    .frame(width: 8)
-                                    .offset(x: 6, y: -8)
-                                    .overlay(
-                                        Circle()
-                                            .fill(Color.redTheme)
-                                            .frame(width: 6)
-                                            .offset(x: 6, y: -8)
-                                    )
                             }
                             .padding(10)
                             .background(
@@ -454,7 +450,8 @@ struct DashboardView: View {
                                         )
                                     VStack(alignment: .leading, spacing: 8){
                                         Text("\(vehicle.year) " + "\(vehicle.make) " + "\(vehicle.model) ")
-                                            .font(.system(size: 26).weight(.bold))
+                                            .font(.system(size: 33).weight(.bold))
+                                            .fontWidth(.condensed)
                                             .foregroundStyle(Color.white)
                                         
                                         GlassEffectContainer{
@@ -498,19 +495,19 @@ struct DashboardView: View {
                                                         .frame(maxWidth: .infinity, maxHeight: 220)
                                                         .clipped()
                                                 case .failure(_):
-                                                    Image("carimg")
+                                                    Image("carPlaceholder")
                                                         .resizable()
                                                         .frame(maxWidth: .infinity, maxHeight: 220)
                                                         .clipped()
                                                 @unknown default:
-                                                    Image("carimg")
+                                                    Image("carPlaceholder")
                                                         .resizable()
                                                         .frame(maxWidth: .infinity, maxHeight: 220)
                                                         .clipped()
                                                 }
                                             }
                                         } else {
-                                            Image("carimg")
+                                            Image("carPlaceholder")
                                                 .resizable()
                                                 .frame(maxWidth: .infinity, maxHeight: 220)
                                                 .clipped()
@@ -540,8 +537,8 @@ struct DashboardView: View {
                                                 )
 
                                                 Text(vehicle.motStatus ?? "-")
-                                                    .font(.system(size: 10).weight(.medium))
-                                                    .foregroundStyle(Color.lightBlack)
+                                                    .font(.system(size: 12).weight(.medium))
+                                                    .fontWidth(.condensed)
                                             }
                                         }
                                         .padding(.bottom, 10)
@@ -611,8 +608,8 @@ struct DashboardView: View {
                                                 )
 
                                                 Text(vehicle.taxStatus ?? "-")
-                                                    .font(.system(size: 10).weight(.medium))
-                                                    .foregroundStyle(Color.lightBlack)
+                                                    .font(.system(size: 12).weight(.medium))
+                                                    .fontWidth(.condensed)
                                             }
                                         }
                                         .padding(.bottom, 10)
@@ -621,37 +618,60 @@ struct DashboardView: View {
                                             Text("Road Tax")
                                                 .font(.system(size: 14).weight(.bold))
                                             
-                                            let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
-                                            if date < 0{
-                                                Text(" \(date * -1) Days Overdue")
+                                            if vehicle.taxStatus == "SORN"{
+                                                Text("SORN")
                                                     .font(.system(size: 15).weight(.heavy))
-                                                    .foregroundStyle(Color.redTheme)
-                                                    .padding(-4)
-                                            }
-                                            else if date < 40{
-                                                Text(" \(date) Days ")
-                                                    .font(.system(size: 16).weight(.heavy))
                                                     .foregroundStyle(Color.orange)
                                                     .padding(-4)
+                                                    .padding(.leading, 4)
+                                                
+                                                Button{
+                                                    if let url = URL(string: "https://www.gov.uk/contact-the-dvla") {
+                                                        openURL(url)
+                                                    }
+                                                }label:{
+                                                    Text("Incorrect? Contact DVLA")
+                                                }
+                                                .foregroundStyle(Color.bodyText)
+                                                .font(.system(size: 11))
+                                                .tracking(-0.4)
+                                                
                                             }
                                             else{
-                                                Text(" \(date) Days ")
-                                                    .font(.system(size: 16).weight(.heavy))
-                                                    .foregroundStyle(Color.green)
-                                                    .padding(-4)
-                                            }
+                                                let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
+                                                if date < 0{
+                                                    Text(" \(date * -1) Days Overdue")
+                                                        .font(.system(size: 15).weight(.heavy))
+                                                        .foregroundStyle(Color.redTheme)
+                                                        .padding(-4)
+                                                }
+                                                else if date < 40{
+                                                    Text(" \(date) Days ")
+                                                        .font(.system(size: 16).weight(.heavy))
+                                                        .foregroundStyle(Color.orange)
+                                                        .padding(-4)
+                                                }
+                                                else{
+                                                    Text(" \(date) Days ")
+                                                        .font(.system(size: 16).weight(.heavy))
+                                                        .foregroundStyle(Color.green)
+                                                        .padding(-4)
+                                                }
 
-                                            if vehicle.taxStatus == "Taxed" {
-                                                Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
-                                                    .font(.system(size: 11))
-                                                    .foregroundStyle(Color.bodyText)
-                                                    .tracking(-0.4)
-                                            } else {
-                                                Text("Expired \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
-                                                    .font(.system(size: 11))
-                                                    .foregroundStyle(Color.bodyText)
-                                                    .tracking(-0.4)
+                                                if vehicle.taxStatus == "Taxed" {
+                                                    Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
+                                                        .font(.system(size: 11))
+                                                        .foregroundStyle(Color.bodyText)
+                                                        .tracking(-0.4)
+                                                } else {
+                                                    Text("Expired \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
+                                                        .font(.system(size: 11))
+                                                        .foregroundStyle(Color.bodyText)
+                                                        .tracking(-0.4)
+                                                }
                                             }
+                                            
+                                            
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -668,7 +688,8 @@ struct DashboardView: View {
                                 HStack{
                                     Text("Installed Mods")
                                         .foregroundColor(.lightBlack)
-                                        .font(.system(size: 16).weight(.semibold))
+                                        .font(.system(size: 18).weight(.semibold))
+                                        .fontWidth(.condensed)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     
                                     if viewModel.modifications.count > 5 {
@@ -679,6 +700,7 @@ struct DashboardView: View {
                                                 .padding(.trailing, 10)
                                                 .foregroundColor(.redTheme)
                                                 .font(.system(size: 14).weight(.semibold))
+                                                .fontWidth(.condensed)
                                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                         }
                                     }
@@ -704,9 +726,10 @@ struct DashboardView: View {
                                             Image(systemName: "wrench.and.screwdriver")
                                                 .foregroundStyle(.redTheme)
                                         }
-                                        Text("No modifications yet")
+                                        Text("No Modifications Yet")
                                             .foregroundColor(.lightBlack)
-                                            .font(.system(size: 16).weight(.bold))
+                                            .font(.system(size: 18).weight(.semibold))
+                                            .fontWidth(.condensed)
                                             .frame(maxWidth: .infinity)
                                         
                                         Text("Add your first modification to personalise your build")
@@ -721,6 +744,7 @@ struct DashboardView: View {
                                             
                                         }
                                         .font(.system(size: 14).weight(.semibold))
+                                        .fontWidth(.condensed)
                                         .foregroundStyle(Color.backgroundW)
                                         .padding(.horizontal,16)
                                         .padding(.vertical,10)
@@ -741,7 +765,8 @@ struct DashboardView: View {
                                 HStack{
                                     Text("Recent Fuel Logs")
                                         .foregroundColor(.lightBlack)
-                                        .font(.system(size: 16).weight(.semibold))
+                                        .font(.system(size: 18).weight(.semibold))
+                                        .fontWidth(.condensed)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     
                                     if viewModel.fuelLogs.count > 3 {
@@ -752,6 +777,7 @@ struct DashboardView: View {
                                                 .padding(.trailing, 10)
                                                 .foregroundColor(.redTheme)
                                                 .font(.system(size: 14).weight(.semibold))
+                                                .fontWidth(.condensed)
                                                 .frame(maxWidth: .infinity, alignment: .trailing)
                                         }
                                     }
@@ -780,9 +806,10 @@ struct DashboardView: View {
                                             Image(systemName: "fuelpump")
                                                 .foregroundStyle(.redTheme)
                                         }
-                                        Text("No fuel logs yet")
+                                        Text("No Fuel logs Yet")
                                             .foregroundColor(.lightBlack)
-                                            .font(.system(size: 16).weight(.bold))
+                                            .font(.system(size: 18).weight(.semibold))
+                                            .fontWidth(.condensed)
                                         
                                         Text("Track your fuel purchases to see insights")
                                             .foregroundStyle(.bodyText)
@@ -794,6 +821,8 @@ struct DashboardView: View {
                                             Text("Add Fuel Log")
                                         }
                                         .font(.system(size: 14).weight(.semibold))
+                                        .fontWidth(.condensed)
+                                        .fontWidth(.condensed)
                                         .foregroundStyle(Color.backgroundW)
                                         .padding(.horizontal,16)
                                         .padding(.vertical,10)
@@ -825,6 +854,7 @@ struct DashboardView: View {
                         .sorted { $0.date > $1.date }
                     ) { modification in
                         ModificationCard(
+                            detailVM: detailViewModel,
                             modification: modification,
                         )
                         .environmentObject(viewModel)
@@ -854,6 +884,14 @@ struct DashboardView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.background)
+                .presentationDragIndicator(.visible)
+            }
+            .sheet(isPresented: $viewModel.isShowingNotifications) {
+                NavigationStack {
+                    NotificationView(viewModel: NotificationViewModel(vehicleProvider: {
+                        vehicleViewModel.vehicles
+                    }))
+                }
                 .presentationDragIndicator(.visible)
             }
             .onAppear {
@@ -952,41 +990,54 @@ struct ModCard: View {
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 150, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         case .failure(_):
-                            Image(systemName: "photo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 150, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .foregroundStyle(Color.navText)
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.rectBorder)
+                                    .frame(width: 150, height: 150)
+                                
+                                Image(systemName: "wrench.and.screwdriver.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(.redTheme)
+                            }
                         @unknown default:
-                            Image(systemName: "photo")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 150, height: 150)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .foregroundStyle(Color.navText)
+                            ZStack{
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(Color.rectBorder)
+                                    .frame(width: 150, height: 150)
+                                
+                                Image(systemName: "wrench.and.screwdriver.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(.redTheme)
+                            }
                         }
                     }
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                 } else {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.rectBorder)
-                        .frame(width: 150, height: 150)
-                        .redacted(reason: .placeholder)
+                    ZStack{
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(Color.rectBorder)
+                            .frame(width: 150, height: 150)
+                            .redacted(reason: .placeholder)
+                        
+                        Image(systemName: "wrench.and.screwdriver.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.redTheme)
+                    }
                 }
             }
             VStack(alignment: .center, spacing: 4) {
                 Text(modification.name)
                     .foregroundStyle(Color.lightBlack)
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: 18, weight: .semibold))
+                    .fontWidth(.condensed)
                     .multilineTextAlignment(.center)
                     .frame(width: 140, alignment: .center)
 
                 Text(modification.description ?? "")
                     .foregroundStyle(Color.navText)
-                    .font(.system(size: 12))
+                    .font(.system(size: 14))
+                    .fontWidth(.condensed)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .frame(width: 150, alignment: .center)

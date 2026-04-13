@@ -13,11 +13,11 @@ struct AppView: View {
 
     var body: some View {
         Group {
-            if viewModel.isUserLoggedIn {
+            if viewModel.isUserLoggedIn && viewModel.hasCompletedOnboarding {
                 HomeView()
                     .transition(.opacity)
             } else {
-                AuthView(isUserLoggedIn: $viewModel.isUserLoggedIn)
+                AuthView(isUserLoggedIn: $viewModel.isUserLoggedIn, hasCompletedOnboarding: $viewModel.hasCompletedOnboarding)
                     .transition(.opacity)
             }
         }

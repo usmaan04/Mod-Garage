@@ -263,7 +263,8 @@ struct VehicleView: View {
                         HStack {
                             Text("My Vehicles")
                                 .foregroundStyle(.lightBlack)
-                                .font(.system(size: 18).weight(.semibold))
+                                .font(.system(size: 22).weight(.semibold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
                             Button {
@@ -540,7 +541,8 @@ struct VehicleCard: View {
                             
                         }
                         Text("\(vehicle.make) \(vehicle.model)")
-                            .font(.system(size: 18).weight(.bold))
+                            .font(.system(size: 20).weight(.bold))
+                            .fontWidth(.condensed)
                             .foregroundStyle(Color.lightBlack)
                                             
                     }
@@ -548,13 +550,13 @@ struct VehicleCard: View {
                     HStack(spacing: 14) {
                         Image(systemName: "drop.halffull")
                         Text("\(vehicle.fuelType)")
-                            .textCase(.uppercase)
+                            .fontWidth(.condensed)
                                             
                         Image(systemName: "paintbrush")
                         Text("\(vehicle.colour)")
-                            .textCase(.uppercase)
+                            .fontWidth(.condensed)
                     }
-                    .font(.system(size: 12))
+                    .font(.system(size: 14))
                     .foregroundStyle(Color.gray)
                     
                     HStack{
@@ -563,11 +565,12 @@ struct VehicleCard: View {
                                 .fill(vehicle.motStatus == "Valid" ? Color.green : Color.redTheme)
                                     .frame(width: 8, height: 8)
                                 
-                                Text("Mot: \((vehicle.motStatus ?? "-"))")
-                                    .font(.system(size: 10).weight(.medium))
+                                Text("MOT: \((vehicle.motStatus ?? "-"))")
+                                    .font(.system(size: 12).weight(.medium))
                                     .foregroundStyle(Color.navText)
-                                    .textCase(.uppercase)
-                                    .tracking(-0.4)
+                                
+                                    .fontWidth(.condensed)
+                                  
                                 
                         }
                         .padding(.horizontal, 10)
@@ -587,10 +590,9 @@ struct VehicleCard: View {
                                     .frame(width: 8, height: 8)
                                 
                                 Text("Tax: \((vehicle.taxStatus ?? "-"))")
-                                    .font(.system(size: 10).weight(.medium))
+                                    .font(.system(size: 12).weight(.medium))
                                     .foregroundStyle(Color.navText)
-                                    .textCase(.uppercase)
-                                    .tracking(-0.4)
+                                    .fontWidth(.condensed)
                                 
                         }
                         .padding(.horizontal, 10)

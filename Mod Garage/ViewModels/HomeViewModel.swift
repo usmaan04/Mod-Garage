@@ -63,6 +63,7 @@ class HomeViewModel: ObservableObject {
     @Published var isShowingQuickAddMenu = false
     @Published var isShowingAllMods = false
     @Published var isShowingAllLogs = false
+    @Published var isShowingNotifications = false
     
     @Published var isLoading = false
     @Published var showNotifications = false

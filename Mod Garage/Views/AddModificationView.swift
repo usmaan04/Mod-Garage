@@ -21,9 +21,9 @@ struct AddModificationView:View {
         VStack(spacing: 24){
             ScrollView{
                 VStack(spacing: 14){
-                    Text("MOD NAME")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
+                    Text("Name")
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     TextField(
                         "",
@@ -39,19 +39,19 @@ struct AddModificationView:View {
                             .stroke(Color.rectBorder, lineWidth: 3)
                             .fill(Color.boxbackground)
                     )
-                    Text("MOD TYPE")
-                        .font(.system(size: 12).weight(.medium))
-                        .foregroundStyle(Color.navText)
+                    Text("Type")
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     ModTypeDropdown(selection: $viewModel.modType, options: viewModel.modTypes)
                     HStack{
-                        Text("COST")
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
+                        Text("Cost")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Text("INSTALL DATE")
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
+                        Text("Install Date")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     HStack{
@@ -98,9 +98,9 @@ struct AddModificationView:View {
                             .presentationDetents([.medium])
                         }
                     }
-                    Text("DESCRIPTION")
-                        .foregroundStyle(Color.navText)
-                        .font(.system(size: 12).weight(.medium))
+                    Text("Description")
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     ZStack(alignment: .top){
@@ -131,13 +131,13 @@ struct AddModificationView:View {
                             .fill(Color.boxbackground)
                     )
                     HStack{
-                        Text("BEFORE IMAGE")
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
+                        Text("Before Image")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Text("AFTER IMAGE")
-                            .font(.system(size: 12).weight(.medium))
-                            .foregroundStyle(Color.navText)
+                        Text("After Image")
+                            .font(.system(size: 16).weight(.medium))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     HStack{

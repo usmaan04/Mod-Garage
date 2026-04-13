@@ -41,27 +41,34 @@ struct PrimaryVehicleService {
         try await batch.commit()
     }
     
-    // Set the latest vehicle as primary
-    static func setOtherPrimary(deletingVehicleId: String, for userId: String) async throws {
+    // If selected vehicle to delete is primary delete it and set a replacement as primary
+    static func deleteAndSetNewPrimary(deletingVehicleId: String, for userId: String) async throws {
         
-        let vehiclesRef = db.collection("users")
-            .document(userId)
-            .collection("vehicles")
-        
-        // Get all vehicles EXCEPT the one we are deleting
-        let snapshot = try await vehiclesRef
-            .whereField("id", isNotEqualTo: deletingVehicleId)
-            .order(by: "createdAt", descending: true) // latest added first
-            .getDocuments()
-        
-        // If no vehicles left → nothing to set primary
-        guard let firstDoc = snapshot.documents.first else { return }
-        
+        let vehiclesRef = db.collection("users").document(userId).collection("vehicles")
         let batch = db.batch()
         
-        // Set this remaining vehicle to primary
-        batch.updateData(["isPrimary": true], forDocument: firstDoc.reference)
+        // Add the delete operation to the batch
+        let docToDelete = vehiclesRef.document(deletingVehicleId)
+        batch.deleteDocument(docToDelete)
         
+        // Find a replacement vehicle
+        let snapshot = try await vehiclesRef.getDocuments()
+        
+        // Filter to find the next best vehicle
+        let remainingVehicles = snapshot.documents
+            .filter { $0.documentID != deletingVehicleId }
+            .sorted {
+                let date1 = $0.data()["createdAt"] as? Date ?? Date.distantPast
+                let date2 = $1.data()["createdAt"] as? Date ?? Date.distantPast
+                return date1 > date2
+            }
+
+        // Add the setting a new primary to the batch
+        if let newPrimary = remainingVehicles.first {
+            batch.updateData(["isPrimary": true], forDocument: newPrimary.reference)
+        }
+        
+        // 4. Commit everything at once
         try await batch.commit()
     }
 }

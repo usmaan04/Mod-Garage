@@ -36,7 +36,8 @@ struct FuelView: View {
                 HStack {
                     Text("Fuel & Efficiency")
                         .foregroundStyle(.lightBlack)
-                        .font(.system(size: 18).weight(.semibold))
+                        .font(.system(size: 22).weight(.semibold))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Button {
@@ -83,7 +84,8 @@ struct FuelView: View {
                             
                             Text("Efficiency Trends")
                                 .foregroundColor(.lightBlack)
-                                .font(.system(size: 16).weight(.semibold))
+                                .font(.system(size: 18).weight(.semibold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                              
                             // MPG Trends (placeholder container)
@@ -152,7 +154,8 @@ struct FuelView: View {
 
                             Text("Spending")
                                 .foregroundColor(.lightBlack)
-                                .font(.system(size: 16).weight(.semibold))
+                                .font(.system(size: 18).weight(.semibold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
                             VStack(alignment: .leading, spacing: 16) {
@@ -279,6 +282,12 @@ struct FuelView: View {
                         .padding(.vertical, 16)
                     }
                     .frame(maxHeight: proxy.size.height - 84)
+                    .gesture(
+                        DragGesture(minimumDistance: 20)
+                            .onEnded { value in
+                                handleTimeframeSwipe(value)
+                            }
+                    )
                 }
                 
             } else {
@@ -400,14 +409,35 @@ struct FuelView: View {
         .offset(y:5.2)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+    
+    private func handleTimeframeSwipe(_ value: DragGesture.Value) {
+        let horizontalAmount = value.translation.width
+        let verticalAmount = value.translation.height
+
+        guard abs(horizontalAmount) > abs(verticalAmount),
+              abs(horizontalAmount) > 40 else { return }
+
+        withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
+            if horizontalAmount > 0 {
+                // swipe left -> move backward
+                if let next = viewModel.selectedTimeframe.next {
+                    viewModel.selectedTimeframe = next
+                }
+            } else {
+                // swipe right -> move forward
+                if let previous = viewModel.selectedTimeframe.previous {
+                    viewModel.selectedTimeframe = previous
+                }
+            }
+        }
+    }
 
     // Reusable UI
     private func summaryCard(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
-                .font(.system(size: 12).weight(.semibold))
-                
-                .textCase(.uppercase)
+                .font(.system(size: 16).weight(.medium))
+                .fontWidth(.condensed)
                 .foregroundStyle(Color.navText)
 
             Text(value)
@@ -473,7 +503,8 @@ struct FuelLogCard: View {
             VStack(alignment: .leading, spacing: 4){
                 HStack() {
                     Text(fuelLog.location)
-                        .font(.system(size: 16).weight(.bold))
+                        .font(.system(size: 18).weight(.bold))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Text(currencyString(from: fuelLog.cost))
                         .font(.system(size: 18).weight(.bold))
@@ -511,13 +542,6 @@ struct FuelLogCard: View {
                 .fill(Color.boxbackground)
                 .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
         )
-    }
-}
-
-extension HomeViewModel {
-    @MainActor
-    func presentAddVehicle() {
-        // TODO: Wire this to your actual add-vehicle flow (e.g., set a navigation path or toggle a sheet)
     }
 }
 

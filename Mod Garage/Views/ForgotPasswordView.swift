@@ -76,7 +76,7 @@ struct ForgotPasswordView: View {
             .disabled(viewModel.email.isEmpty)
             
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 17)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }
