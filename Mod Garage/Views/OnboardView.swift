@@ -12,6 +12,7 @@ import PhotosUI
 struct OnboardView: View {
     @ObservedObject var authVM: AuthViewModel
     
+    // View models
     @StateObject private var signUpVM = SignUpViewModel()
     @StateObject private var loginVM = LoginViewModel()
     @StateObject private var addVehicleVM = AddVehicleViewModel()
@@ -21,7 +22,8 @@ struct OnboardView: View {
     var body: some View {
         GeometryReader { proxy in
             ZStack(alignment: .top) {
-                            
+                
+                // Background image
                 Image("audi")
                     .resizable()
                     .scaledToFill()
@@ -29,6 +31,7 @@ struct OnboardView: View {
                     .clipped()
                     .ignoresSafeArea(edges: .top)
                 
+                // Gradient
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color.clear, location: 0.0),
@@ -43,11 +46,15 @@ struct OnboardView: View {
                 
                 VStack(alignment: .leading) {
                     
+                    // progress bar
                     if authVM.currentStep > 0 {
                         ProgressBar(progress: onboardVM.progress)
                             .transition(.opacity)
                     }
+                    
+                    // Main onboard content display
                     Group{
+                        // Displays relevant content based on teh current step value
                         switch authVM.currentStep {
                         case 0:
                             welcomeContent
@@ -101,18 +108,22 @@ struct OnboardView: View {
         }
     }
 
-    // MARK: - Extracted Views
+    // MARK: - Onboard Views
     
+    // First welcome screen content
     private var welcomeContent: some View {
         VStack(alignment: .leading, spacing: 60){
             VStack(spacing: 30){
                 VStack(spacing: -16) {
+                    
+                    // Title 1
                     Text("WELCOME TO")
                         .font(.system(size: 54).weight(.medium))
                         .tracking(-1)
                         .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
+                    // Title 2
                     Text("MOD GARAGE")
                         .font(.system(size: 48).weight(.medium))
                         .fontWidth(.condensed)
@@ -121,6 +132,7 @@ struct OnboardView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
+                // Prompt
                 Text("Track your builds, log your fuel, and manage your collection all in one high performance garage designed for the driven.")
                     .font(.system(size: 17, weight: .regular))
                     .foregroundStyle(.containerText)
@@ -130,6 +142,7 @@ struct OnboardView: View {
                     .multilineTextAlignment(.leading)
             }
             
+            // Next step button
             Button {
                 authVM.nextStep()
             } label: {
@@ -150,15 +163,18 @@ struct OnboardView: View {
         }
     }
     
+    // Log in content
     private var logInContent: some View{
         VStack(spacing: 20) {
+            
+            // Title
             Text("Log In")
                 .font(.system(size: 34).weight(.medium))
                 .tracking(-1)
                 .fontWidth(.condensed)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Email Label and Field
+            // Email label and field
             VStack(alignment: .leading, spacing: 8) {
                 Text("Email")
                     .font(.system(size: 16).weight(.medium))
@@ -182,7 +198,7 @@ struct OnboardView: View {
                     )
             }
             
-            // Password Label and Field
+            // Password label and field
             VStack(alignment: .leading, spacing: 8) {
                 HStack{
                     Text("Password")
@@ -256,9 +272,7 @@ struct OnboardView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            // Divider with “Or”
             HStack {
-                
                 // Login Button
                 Button(action: {
                     authVM.finishOnboarding()
@@ -283,12 +297,13 @@ struct OnboardView: View {
                     }
                 }
                 
+                // Or divider
                 Text("Or")
                     .font(.system(size: 14).weight(.medium))
                     .foregroundColor(.gray)
                     .padding(.horizontal, 6)
                 
-                // Google Sign-In Button
+                // Google Sign Up button
                 Button(action: {
                     authVM.finishOnboarding()
                     loginVM.signInWithGoogle()
@@ -297,7 +312,7 @@ struct OnboardView: View {
                         Image("google")
                             .resizable()
                             .frame(width: 20, height: 20)
-                        Text("Sign Up with Google")
+                        Text("Log In with Google")
                             .font(.system(size: 10).weight(.medium))
                             .fontWidth(.condensed)
                     }
@@ -323,6 +338,7 @@ struct OnboardView: View {
             
             Spacer()
                             
+            // Footer button to switch to sign up
             Button(action: { authVM.currentStep = 1 }) {
                 HStack(spacing: 4) {
                     Text("Dont have an account? ")
@@ -339,15 +355,18 @@ struct OnboardView: View {
         }
     }
 
+    // Sign up content
     private var signUpContent: some View {
         VStack(spacing: 20) {
+            
+            // Title
             Text("Create Account")
                 .font(.system(size: 34).weight(.medium))
                 .tracking(-1)
                 .fontWidth(.condensed)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            // Name Label and Field
+            // Name label and field
             VStack(alignment: .leading, spacing: 8) {
                 Text("Name")
                     .font(.system(size: 16).weight(.medium))
@@ -370,7 +389,7 @@ struct OnboardView: View {
                 )
             }
             
-            // Email Label and Field
+            // Email label and field
             VStack(alignment: .leading, spacing: 8) {
                 Text("Email")
                     .font(.system(size: 16).weight(.medium))
@@ -394,7 +413,7 @@ struct OnboardView: View {
                 )
             }
             
-            // Password Field
+            // Password label and field
             VStack(alignment: .leading, spacing: 8) {
                 Text("Password")
                     .font(.system(size: 16).weight(.medium))
@@ -415,7 +434,7 @@ struct OnboardView: View {
                 )
             }
             
-            // Validation Errors
+            // Error message
             if let signUpError = signUpVM.signUpError {
                 Text(signUpError)
                     .font(.system(size: 14))
@@ -425,10 +444,9 @@ struct OnboardView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            // Divider with “Or”
             HStack {
                 
-                //  Create Account Button
+                // Sign up button
                 Button(action: {
                     Task {
                         await signUpVM.register()
@@ -447,12 +465,13 @@ struct OnboardView: View {
                         .cornerRadius(100)
                 }
                 
+                // Or divider
                 Text("Or")
                     .font(.system(size: 14).weight(.medium))
                     .foregroundColor(.gray)
                     .padding(.horizontal, 6)
                 
-                // Google Sign-Up Button
+                // Google Sign Up Button
                 Button(action: {
                     Task {
                         await signUpVM.signUpWithGoogle()
@@ -492,6 +511,7 @@ struct OnboardView: View {
             
             Spacer()
                             
+            // Footer button to switch to log in
             Button(action: { authVM.currentStep = 3 }) {
                 HStack(spacing: 4) {
                     Text("Already a member?")
@@ -510,10 +530,15 @@ struct OnboardView: View {
         
     }
 
+    // Add vehicle content
     private var vehicleOnboardingContent: some View {
         VStack(spacing: 16){
+            
+            // MARK: - If is loading
             if addVehicleVM.isLoading {
                 ProgressView("Searching DVLA...")
+            
+            // MARK: - Show the returned DVLA details if there is a vehicle model
             } else if let dvla = addVehicleVM.dvlaVehicle, !addVehicleVM.hasConfirmedDVLA {
                 VStack(spacing: 16) {
                     Text("Is this your vehicle?")
@@ -595,6 +620,8 @@ struct OnboardView: View {
                         
                     }
                 }
+                
+            // MARK: - Show  the returned DVLA details
             }else if addVehicleVM.hasConfirmedDVLA{
                 VStack(spacing: 16) {
                     Text("Almost There")
@@ -677,6 +704,8 @@ struct OnboardView: View {
                         )
                     }
                 }
+                
+            // MARK: - Show  the returnedregular first add vehicle form
             }else{
                 VStack(alignment: .center, spacing: 20) {
                     
@@ -689,7 +718,6 @@ struct OnboardView: View {
                     Text("Enter Vehicle Registration")
                         .font(.system(size: 22))
                     
-                    // Registration Plate logic...
                     TextField(
                         "",
                         text: $addVehicleVM.registration,
@@ -709,6 +737,7 @@ struct OnboardView: View {
                             .fill(Color.yellow)
                     )
                     
+                    // Error message
                     if let errorMessage = addVehicleVM.errorMessage {
                         Text(errorMessage)
                             .foregroundColor(.red)
@@ -756,11 +785,11 @@ struct OnboardView: View {
             }
         }
         .onAppear {
-            // Link the "Save" action to your global VehicleViewModel
+            // Link the save action to VehicleViewModel
             addVehicleVM.onVehicleReady = { vehicle in
                 Task {
                     await vehicleViewModel.addVehicle(vehicle)
-                    // Move to the actual app only AFTER the vehicle is saved
+                    // Finish onboaridng and move to home
                     authVM.finishOnboarding()
                 }
             }
@@ -768,21 +797,21 @@ struct OnboardView: View {
     }
 }
 
+// Progress bar component
 struct ProgressBar: View {
-    var progress: Double // Expects 0.0 to 1.0
+    var progress: Double
 
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
-                // Track
+                // Greay bar
                 Capsule()
                     .fill(Color.gray.opacity(0.2))
                     .frame(height: 6)
                 
-                // Active Bar
+                // Active  red bar
                 Capsule()
                     .fill(Color.redTheme)
-                    // Multiply total width by the progress decimal
                     .frame(width: geo.size.width * CGFloat(progress), height: 6)
                     .shadow(color: Color.redTheme.opacity(0.6), radius: 6, x: 0, y: 2)
             }

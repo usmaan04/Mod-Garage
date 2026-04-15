@@ -24,7 +24,7 @@ struct LoginView: View {
                         .font(.system(size: 24, weight: .semibold))
                         .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    // Title
+                    // Prompt description
                     Text("Manage your rides, modifications, and MOT all in one place.")
                         .font(.system(size: 14))
                         .tracking(-0.4)
@@ -83,6 +83,8 @@ struct LoginView: View {
                             .buttonStyle(.plain)
                             
                         }
+                        
+                        // Password fields
                         HStack {
                             if viewModel.isPasswordVisible {
                                 TextField(
@@ -161,7 +163,7 @@ struct LoginView: View {
                 }
                 .padding(.top, 2)
                 
-                // Divider with “Or”
+                // Divider with Or
                 HStack {
                     Divider()
                         .frame(maxWidth: .infinity, maxHeight: 1)
@@ -178,7 +180,7 @@ struct LoginView: View {
                 }
                 .padding(.vertical, 8)
                 
-                // Google Sign-In Button
+                // Google Log In Button
                 Button(action: {
                     viewModel.signInWithGoogle()
                 }) {

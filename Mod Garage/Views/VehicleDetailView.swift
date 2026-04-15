@@ -8,6 +8,7 @@
 import SwiftUI
 import PhotosUI
 
+// Converts number as currency into string
 private func currencyString(from value: Double) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .currency
@@ -17,6 +18,7 @@ private func currencyString(from value: Double) -> String {
 
 struct VehicleDetailView: View {
     
+    // View models
     @StateObject private var viewModel = VehicleDetailViewModel()
     @EnvironmentObject var homeViewModel: HomeViewModel
     @Namespace private var timeframeNamespace
@@ -77,6 +79,7 @@ struct VehicleDetailView: View {
     var body: some View {
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
+                // Background vehicle image
                 Image("carimg")
                     .resizable()
                     .scaledToFit()
@@ -89,6 +92,7 @@ struct VehicleDetailView: View {
                     ScrollView(.vertical) {
                         VStack(alignment: .leading, spacing: 20) {
                             VStack(alignment: .leading, spacing: 6) {
+                                
                                 if vehicle.isPrimary{
                                     Text("PRIMARY")
                                         .font(.system(size: 12).weight(.medium))
@@ -100,6 +104,7 @@ struct VehicleDetailView: View {
                                                 .fill(Color.redTheme)
                                         )
                                 }
+                                
                                 Text("\(vehicle.make) " + "\(vehicle.model) ")
                                     .font(.system(size: 38).weight(.bold))
                                     .fontWidth(.condensed)
@@ -107,12 +112,18 @@ struct VehicleDetailView: View {
                             
                             VStack{
                                 HStack{
+                                    // Fuel type container
                                     VStack(spacing: 10) {
-                                
                                         HStack(spacing: 10){
-                                            Image(systemName: "drop.fill")
-                                                .font(.system(size: 14))
-                                                .foregroundStyle(Color.redTheme)
+                                            if vehicle.fuelType == "Electricity"{
+                                                Image(systemName: "bolt.fill")
+                                                    .font(.system(size: 14))
+                                                    .foregroundStyle(Color.redTheme)
+                                            }else{
+                                                Image(systemName: "drop.halffull")
+                                                    .font(.system(size: 14))
+                                                    .foregroundStyle(Color.redTheme)
+                                            }
                                             Text("Fuel Type")
                                                 .font(.system(size: 14).weight(.medium))
                                                 .fontWidth(.condensed)
@@ -136,8 +147,8 @@ struct VehicleDetailView: View {
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
                                     )
                                     
+                                    // Colour container
                                     VStack(spacing: 10) {
-                                
                                         HStack(spacing: 10){
                                             Image(systemName: "paintbrush.fill")
                                                 .font(.system(size: 14))
@@ -168,8 +179,8 @@ struct VehicleDetailView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 
                                 HStack{
+                                    // Mileage container
                                     VStack(spacing: 10) {
-                                
                                         HStack(spacing: 10){
                                             Image(systemName: "gauge.with.needle.fill")
                                                 .font(.system(size: 14))
@@ -202,8 +213,8 @@ struct VehicleDetailView: View {
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
                                     )
                                     
+                                    // Year container
                                     VStack(spacing: 10) {
-                                
                                         HStack(spacing: 10){
                                             Image(systemName: "calendar.circle.fill")
                                                 .font(.system(size: 16))
@@ -235,11 +246,14 @@ struct VehicleDetailView: View {
                             }
                             timeframePills
                             
+                            // Modifications section
                             if viewModel.listOption == .mods{
+                                
                                 Text("Installed Mods")
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
                                     .frame(maxWidth: .infinity, alignment: .leading)
+                                
                                 ForEach(viewModel.modifications.sorted { $0.createdAt > $1.createdAt
                                 }
                                 ) { modification in
@@ -264,16 +278,20 @@ struct VehicleDetailView: View {
                                         .cornerRadius(100)
                                 }
                             }
+                            
+                            // Fuel logs section
                             else{
+                                
                                 Text("Fill Ups")
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
                                     .frame(maxWidth: .infinity, alignment: .leading)
+                                
                                 ForEach(viewModel.fuelLogs.sorted { $0.createdAt > $1.createdAt
                                 }
                                 ) { fuelLog in
                                     FuelLogCard(
-                                        fuelLog: fuelLog,
+                                        fuelLog: fuelLog
                                     )
                                     .environmentObject(homeViewModel)
                                     .environmentObject(FuelViewModel())
@@ -288,7 +306,7 @@ struct VehicleDetailView: View {
                                         .frame(maxWidth: .infinity)
                                         .padding()
                                         .background(Color.redTheme)
-                                        .foregroundColor(.white)
+                                        .foregroundStyle(.white)
                                         .cornerRadius(100)
                                 }
                             }
@@ -376,6 +394,7 @@ struct VehicleDetailView: View {
     }
 }
 
+// Resuable card to diplay modification information
 struct ModificationCard: View {
     @EnvironmentObject var viewModel: HomeViewModel
 
@@ -384,7 +403,8 @@ struct ModificationCard: View {
 
     var body: some View {
         HStack(spacing: 18){
-        
+            
+            // Modification image
             if let urlString = modification.afterImageURL, let url = URL(string: urlString) {
                 AsyncImage(url: url) { phase in
                     switch phase {
@@ -434,6 +454,7 @@ struct ModificationCard: View {
                 }
             }
             
+            // Name, date and type
             VStack(alignment: .leading, spacing: 4){
                 Text(modification.name)
                     .font(.system(size: 18).weight(.bold))
@@ -467,6 +488,7 @@ struct ModificationCard: View {
     }
 }
 
+// Preview
 #Preview {
     VehicleDetailView(
         vehicle: VehicleModel(

@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct SplashScreenView: View {
+    
+    // Active state
     @State private var isActive = false
     
     var body: some View {
+        // Show App view if active
         if isActive {
             AppView()
+        
+        // Otherwise show splash screen
         } else {
             ZStack {
                 VStack(spacing: 20) {
@@ -35,6 +40,7 @@ struct SplashScreenView: View {
     }
 }
 
+// Preview
 #Preview {
     SplashScreenView()
 }

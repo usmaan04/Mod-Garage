@@ -8,15 +8,14 @@ struct ProfileView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var settingsViewModel: SettingsViewModel
 
-    @State private var selectedPhotoItem: PhotosPickerItem?
-
     var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 16) {
                 ZStack {
+                    
                     avatarView
 
-                    PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                    PhotosPicker(selection: $viewModel.selectedPhotoItem, matching: .images) {
                         Image(systemName: "pencil")
                             .resizable()
                             .scaledToFit()
@@ -31,12 +30,17 @@ struct ProfileView: View {
                     .offset(x: 32, y: 36)
                 }
 
+                // Name label and field
                 VStack(alignment: .leading, spacing: 8) {
+                    
                     Text("Name")
-                        .font(.system(size: 14).weight(.medium))
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
+                    
                     TextField("Enter your name", text: $viewModel.name)
                         .autocorrectionDisabled()
                         .font(.system(size: 12))
+                        .foregroundStyle(Color.containerText)
                         .textInputAutocapitalization(.words)
                         .padding(.vertical, 16)
                         .padding(.horizontal, 12)
@@ -47,15 +51,20 @@ struct ProfileView: View {
                         )
                 }
 
+                // Email label and field
                 VStack(alignment: .leading, spacing: 8) {
+                    
                     Text("Email")
-                        .font(.system(size: 14).weight(.medium))
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
 
-                    TextField("Enter your email", text: $viewModel.email)
+                    TextField("Enter your email",
+                              text: $viewModel.email)
                         .keyboardType(.emailAddress)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .font(.system(size: 12))
+                        .foregroundStyle(Color.containerText)
                         .padding(.vertical, 16)
                         .padding(.horizontal, 12)
                         .background(
@@ -65,12 +74,16 @@ struct ProfileView: View {
                         )
                 }
 
+                // Password label and field
                 VStack(alignment: .leading, spacing: 8) {
+                    
                     Text("Password")
-                        .font(.system(size: 14).weight(.medium))
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
 
                     SecureField("Enter a new password", text: $viewModel.password)
                         .font(.system(size: 12))
+                        .foregroundStyle(Color.containerText)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                         .padding(.vertical, 16)
@@ -81,14 +94,18 @@ struct ProfileView: View {
                                 .stroke(Color.containerBorder, lineWidth: 1)
                         )
                 }
-
+                
+                // Refresh and save button
                 HStack(spacing: 12) {
+                    
+                    // Refresh button
                     Button {
                         Task { await viewModel.loadProfile() }
                     } label: {
                         Text("Refresh")
                     }
                     .font(.system(size: 14).weight(.semibold))
+                    .fontWidth(.condensed)
                     .foregroundStyle(Color.redTheme)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 16)
@@ -99,21 +116,17 @@ struct ProfileView: View {
                     )
                     .disabled(viewModel.isLoading)
 
+                    // Save button
                     Button {
                         Task { await viewModel.updateProfile()
                             homeViewModel.fetchUserName()
                             settingsViewModel.fetchUserDetails()
-
-                            
                         }
                     } label: {
-                        if viewModel.isLoading {
-                            ProgressView()
-                        } else {
-                            Text("Save Changes")
-                        }
+                        Text("Save Changes")
                     }
                     .font(.system(size: 14).weight(.semibold))
+                    .fontWidth(.condensed)
                     .foregroundStyle(Color.container)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 16)
@@ -143,19 +156,19 @@ struct ProfileView: View {
         .background(Color.background)
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarColorScheme(.dark, for: .navigationBar)
-        .task(id: selectedPhotoItem) {
-            await loadSelectedPhoto()
+        .task(id: viewModel.selectedPhotoItem) {
+            await viewModel.loadSelectedPhoto()
         }
     }
 
+    // Displays the profile picture
     @ViewBuilder
     private var avatarView: some View {
         if let selectedImage = viewModel.selectedImage {
             Image(uiImage: selectedImage)
                 .resizable()
                 .scaledToFill()
-                .frame(width: 150, height: 150)
+                .frame(width: 100, height: 100, alignment: .center)
                 .clipShape(Circle())
                 .frame(maxWidth: .infinity)
         } else if let url = URL(string: viewModel.profilePhotoURL), !viewModel.profilePhotoURL.isEmpty {
@@ -165,51 +178,38 @@ struct ProfileView: View {
                     Image("profilePic")
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 150, height: 150)
+                        .frame(width: 100, height: 100, alignment: .center)
                         .clipShape(Circle())
 
                 case .success(let image):
                     image
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 150, height: 150)
+                        .frame(width: 100, height: 100, alignment: .center)
                         .clipShape(Circle())
 
                 case .failure(_):
-                    Image("AdaptiveLaunch")
+                    Image("profilePic")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 150, height: 150)
+                        .frame(width: 100, height: 100, alignment: .center)
                         .frame(maxWidth: .infinity)
                         .clipShape(Circle())
 
                 @unknown default:
-                    Image("AdaptiveLaunch")
+                    Image("profilePic")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 150, height: 150)
+                        .frame(width: 100, height: 100, alignment: .center)
                         .clipShape(Circle())
                 }
             }
         } else {
-            Image("AdaptiveLaunch")
+            Image("profilePic")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 150, height: 150)
+                .frame(width: 100, height: 100, alignment: .center)
                 .clipShape(Circle())
-        }
-    }
-
-    private func loadSelectedPhoto() async {
-        guard let selectedPhotoItem else { return }
-
-        do {
-            if let data = try await selectedPhotoItem.loadTransferable(type: Data.self),
-               let image = UIImage(data: data) {
-                viewModel.selectedImage = image
-            }
-        } catch {
-            viewModel.errorMessage = "Failed to load selected image."
         }
     }
 }

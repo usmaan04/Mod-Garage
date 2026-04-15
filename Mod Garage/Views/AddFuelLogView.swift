@@ -24,6 +24,7 @@ struct AddFuelLogView:View {
         VStack(spacing: 24){
             ScrollView{
                 VStack(spacing: 12){
+                    // Location label and field
                     Text("Location")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
@@ -43,6 +44,8 @@ struct AddFuelLogView:View {
                             .stroke(Color.containerBorder, lineWidth: 3)
                             .fill(Color.container)
                     )
+                    
+                    // Cost, lites label and field
                     HStack{
                         Text("Total Cost")
                             .font(.system(size: 16).weight(.medium))
@@ -60,7 +63,7 @@ struct AddFuelLogView:View {
                             format: .currency(code: "GBP")
                                 .precision(.fractionLength(2)),
                             prompt: Text("140.58")
-                                .foregroundStyle(Color("bodyText"))
+                                .foregroundStyle(Color.containerText)
                         )
                         .padding(16)
                         .keyboardType(.decimalPad)
@@ -75,7 +78,7 @@ struct AddFuelLogView:View {
                                 value: $viewModel.litres,
                                 format: .number
                                     .precision(.fractionLength(2)),
-                                prompt: Text("140.58").foregroundStyle(Color("bodyText"))
+                                prompt: Text("140.58").foregroundStyle(Color.containerText)
                             )
                             .keyboardType(.decimalPad)
                             Text("L")
@@ -92,6 +95,7 @@ struct AddFuelLogView:View {
                     .font(.system(size: 14))
                     .foregroundStyle(Color.containerText)
                     
+                    // Mileage, date label and field
                     HStack{
                         Text("Odometer Mileage")
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,7 +113,7 @@ struct AddFuelLogView:View {
                                 value: $viewModel.mileage,
                                 format: .number,
                                 prompt: Text("53,427")
-                                    .foregroundStyle(Color("bodyText"))
+                                    .foregroundStyle(Color.containerText)
                             )
                             .keyboardType(.decimalPad)
                             Text("Miles")
@@ -154,6 +158,7 @@ struct AddFuelLogView:View {
                         }
                     }
 
+                    // Price per lites label and display
                     VStack{
                         Text("Price Per Litre")
                             .font(.system(size: 16).weight(.medium))
@@ -182,12 +187,14 @@ struct AddFuelLogView:View {
                 }
                 .padding(.horizontal,17)
                 
+                // Error message
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
-                        .foregroundColor(.red)
+                        .foregroundColor(.redTheme)
                         .multilineTextAlignment(.center)
                 }
                 
+                // Save button
                 VStack{
                     Button(action: {
                         Task{
@@ -212,7 +219,6 @@ struct AddFuelLogView:View {
         .frame(maxHeight: .infinity, alignment: .top)
         .navigationTitle("Add a Fuel Log")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarColorScheme(.light, for: .navigationBar)
         .background(Color.background)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading){
@@ -221,11 +227,12 @@ struct AddFuelLogView:View {
                 }
             }
         }
+        // Get max mileage and add logs passe
         .onAppear {
             viewModel.previousMileage = previousMileage
                     
             if method == "fuel"{
-                // Important: link AddModificationViewModel → FuelViewModel
+                // Link AddModificationViewModel  with FuelViewModel to add log
                 viewModel.onFuelLogReady = { fuelLog in
                     Task {
                         await fuelViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
@@ -233,7 +240,7 @@ struct AddFuelLogView:View {
                     }
                 }
             }else{
-                // Important: link AddModificationViewModel → VehicleDetailViewModel
+                // Link AddModificationViewModel  with VehicleDetailViewModel to add log
                 viewModel.onFuelLogReady = { fuelLog in
                     Task {
                         await detailViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)

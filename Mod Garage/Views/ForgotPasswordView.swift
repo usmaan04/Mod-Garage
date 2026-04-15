@@ -14,10 +14,13 @@ struct ForgotPasswordView: View {
     
     var body: some View{
         VStack(alignment: .center, spacing: 16){
+            
+            // Title
             Text("Forgot Password")
                 .font(.system(size: 24, weight: .semibold))
                 .fontWidth(.condensed)
             
+            // Prompt description
             Text("Enter the email associated with your account and we'll send you a link to reset it")
                 .font(.system(size: 14))
                 .tracking(-0.4)
@@ -25,6 +28,7 @@ struct ForgotPasswordView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
 
+            // Email Field
             TextField(
                 "",
                 text: $viewModel.email,
@@ -42,10 +46,7 @@ struct ForgotPasswordView: View {
                     .fill(Color.container)
             )
             
-            if viewModel.isLoading{
-                ProgressView()
-            }
-            
+            // Error message
             if let error = viewModel.errorMessage {
                 Text(error)
                     .font(.system(size: 13))
@@ -54,6 +55,7 @@ struct ForgotPasswordView: View {
                     .multilineTextAlignment(.center)
             }
             
+            // Alert message
             if let alert = viewModel.alertMessage {
                 Text(alert)
                     .font(.system(size: 13))
@@ -62,6 +64,7 @@ struct ForgotPasswordView: View {
                     .multilineTextAlignment(.center)
             }
             
+            // Send reset link button
             Button(action: {
                 viewModel.forgotPassword()
             }) {

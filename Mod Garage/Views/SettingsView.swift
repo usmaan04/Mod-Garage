@@ -10,11 +10,14 @@ import SwiftUI
 import Combine
 
 struct SettingsView: View {
+    
+    // View models
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var vehicleViewModel: VehicleViewModel
     @EnvironmentObject private var viewModel: SettingsViewModel
     
+    // Properties and states
     @State private var isDarkToggleOn: Bool = false
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var systemColorScheme
@@ -24,6 +27,7 @@ struct SettingsView: View {
         NavigationStack {
             VStack(spacing: 0){
                 VStack{
+                    // Header
                     Text("Settings")
                         .font(.system(size: 20).weight(.semibold))
                         .fontWidth(.condensed)
@@ -38,6 +42,7 @@ struct SettingsView: View {
                     ScrollView{
                         VStack(alignment: .leading, spacing: 12) {
                             VStack(){
+                                // Profile picture
                                 if let photoURL = viewModel.profilePhotoURL {
                                     AsyncImage(url: photoURL) { phase in
                                         switch phase {
@@ -82,11 +87,14 @@ struct SettingsView: View {
                                         ProgressView("Loading...")
                                             .padding()
                                     } else {
+                                        // Name
                                         Text("\(viewModel.name)")
                                             .font(.system(size: 20).weight(.semibold))
                                             .fontWidth(.condensed)
                                             .frame(maxWidth: .infinity,alignment: .center)
                                     }
+                                    
+                                    // Member date
                                     Text("Member since \(viewModel.memberDate)")
                                         .font(.system(size: 10))
                                         .foregroundColor(Color.containerText)
@@ -94,11 +102,13 @@ struct SettingsView: View {
                                 }
                                 
                             }
-                                
+                            
+                            // General title
                             Text("General")
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                             
+                            // Profile button
                             VStack{
                                 SettingComponent(
                                     iconName: "person.fill",
@@ -121,11 +131,13 @@ struct SettingsView: View {
                                     .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                             )
                             
+                            // Preferences title
                             Text("Preferences")
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                             
                             VStack{
+                                // Notifications button
                                 SettingComponent(
                                     iconName: "bell.fill",
                                     title: "Notifications",
@@ -205,11 +217,13 @@ struct SettingsView: View {
                                     .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                             )
                             
+                            // Support title
                             Text("Support")
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                             
                             VStack{
+                                // Privacy policy button
                                 SettingComponent(
                                     iconName: "shield.fill",
                                     title: "Privacy Policy",
@@ -222,6 +236,8 @@ struct SettingsView: View {
                                 Divider()
                                     .foregroundStyle(Color.containerBorder)
                                     .frame(height: 2)
+                                
+                                // Contact button
                                 SettingComponent(
                                     iconName: "questionmark.circle.fill",
                                     title: "Contact & Support",
@@ -242,7 +258,11 @@ struct SettingsView: View {
                             )
                             
                             VStack{
+                                
+                                // Log out and delete buttons
                                 HStack{
+                    
+                                    // Log out button
                                     Button(action: {
                                         appViewModel.signOut()
                                     }) {
@@ -260,6 +280,7 @@ struct SettingsView: View {
                                             .fill(Color.container)
                                     )
                                     
+                                    // Delete account button
                                     Button(action: {
                                         viewModel.showDeleteConfirmation = true
                                     }) {
@@ -279,8 +300,6 @@ struct SettingsView: View {
                             }
                             .padding(.top, 16)
                             .frame(maxWidth: .infinity, alignment: .center)
-                            
-                            
                         }
                         .padding(.horizontal, 17)
                         .padding(.vertical, 16)

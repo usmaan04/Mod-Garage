@@ -25,43 +25,22 @@ class EditVehicleViewModel: ObservableObject {
         _colour = Published(initialValue: vehicle.colour)
     }
     
-    // Validates user entered/enterable fields
-    func isFormValid() -> Bool {
+    // Determines if inputs are valid
+    var isFormValid:  Bool {
         let trimmedModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedColour = colour.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        // Prevent empty model
-        if trimmedModel.isEmpty {
-            errorMessage = "Please confirm model name"
-            return false
-        }
-        
-        // Ensure name is not more than 20 characters
-        if trimmedModel.count > 20 {
-            errorMessage = "Model name must be 20 characters or fewer"
-            return false
-        }
-        
-        // Prevent empty colour
-        if trimmedColour.isEmpty {
-            errorMessage = "Please confirm colour"
-            return false
-        }
-        
-        // Ensure coloour is not more than 10 characters
-        if trimmedColour.count > 10 {
-            errorMessage = "Colour must be 10 characters or fewer"
-        }
-
-        errorMessage = nil
-        return true
+        return !trimmedModel.isEmpty &&
+                trimmedModel.count <= 20 &&
+                !trimmedColour.isEmpty &&
+                trimmedColour.count <= 10
     }
 
     // Validates data and updates users details
     func saveChanges() {
         
         // Run validation
-        guard isFormValid() else { return }
+        guard validateAndSetError() else { return }
         
         guard let userId = Auth.auth().currentUser?.uid else {
             self.errorMessage = "User not logged in"
@@ -93,5 +72,38 @@ class EditVehicleViewModel: ObservableObject {
                 }
             }
         }
+    }
+    
+    // Validates user entered/enterable fields
+    func validateAndSetError() -> Bool{
+        
+        let trimmedModel = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedColour = colour.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Prevent empty model
+        if trimmedModel.isEmpty {
+            errorMessage = "Please confirm model name"
+            return false
+        }
+        
+        // Ensure name is not more than 20 characters
+        if trimmedModel.count > 20 {
+            errorMessage = "Model name must be 20 characters or fewer"
+            return false
+        }
+        
+        // Prevent empty colour
+        if trimmedColour.isEmpty {
+            errorMessage = "Please confirm colour"
+            return false
+        }
+        
+        // Ensure coloour is not more than 10 characters
+        if trimmedColour.count > 10 {
+            errorMessage = "Colour must be 10 characters or fewer"
+        }
+        
+        errorMessage = nil
+        return true
     }
 }

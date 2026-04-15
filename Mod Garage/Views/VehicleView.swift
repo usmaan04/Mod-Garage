@@ -9,8 +9,11 @@ import Foundation
 import SwiftUI
 
 struct VehicleView: View {
+    
+    // View models
     @EnvironmentObject private var viewModel: VehicleViewModel
 
+    // Delete states and properties
     @State private var vehicleToDelete: VehicleModel? = nil
     @State private var showDeleteConfirmation = false
 
@@ -31,7 +34,7 @@ struct VehicleView: View {
     @State private var filterColour: String? = nil
     @State private var filterFuel: String? = nil
     
-    // Search / Sort / Filters UI
+    // MARK: - Search / Sort / Filters UI
 
     // Search Field
     private var searchBar: some View {
@@ -149,7 +152,7 @@ struct VehicleView: View {
         .padding(.top, 6)
     }
 
-    // Filter helpers
+    // MARK: - Filter helpers
 
     private var activeFilterCount: Int {
         [filterMake, filterModel, filterColour, filterFuel].compactMap { $0 }.count
@@ -261,6 +264,7 @@ struct VehicleView: View {
                 VStack(spacing: 0){
                     VStack{
                         HStack {
+                            // Header
                             Text("My Vehicles")
                                 .font(.system(size: 22).weight(.semibold))
                                 .fontWidth(.condensed)
@@ -291,7 +295,7 @@ struct VehicleView: View {
                     // Main content
                     GeometryReader{proxy in
                         VStack {
-                            // If loading vehicles list
+                            // MARK: - If loading vehicles list
                             if viewModel.isLoading {
                                 VStack {
                                     ProgressView("Finding vehicles...")
@@ -300,7 +304,7 @@ struct VehicleView: View {
                                 }
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 
-                                // If vehicles list is empty
+                            // MARK: -  If vehicles list is empty
                             } else if viewModel.vehicles.isEmpty {
                                 VStack {
                                     VStack(spacing: 16){
@@ -387,7 +391,7 @@ struct VehicleView: View {
                                 .padding(.horizontal, 17)
                                 .frame(maxWidth: .infinity,maxHeight: proxy.size.height - 42)
                                 
-                            // If there are vehicles
+                            // MARK: - If there are vehicles
                             } else {
                                 VStack(spacing: 18){
                                     // If there ar more than 4 vehicles show filter options
@@ -422,7 +426,7 @@ struct VehicleView: View {
                                         }
                                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                                         
-                                        // Display each vehicle
+                                    // Display each vehicle
                                     }else{
                                         List() {
                                             ForEach(filteredVehicles.sorted {
@@ -441,6 +445,7 @@ struct VehicleView: View {
                                                 .listRowSeparator(.hidden)
                                                 .listRowBackground(Color.clear)
                                                 
+                                                // Trailing swipe actions
                                                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                                     Button(role: .destructive) {
                                                         vehicleToDelete = vehicle
@@ -517,12 +522,16 @@ struct VehicleView: View {
     }
 }
 
+// Resuable card to display vehicle information
 struct VehicleCard: View {
-    @EnvironmentObject var viewModel: VehicleViewModel
 
+    // Passed argument
     let vehicle: VehicleModel
+    
     @Binding var vehicleToDelete: VehicleModel?
     @Binding var showDeleteConfirmation: Bool
+    
+    @EnvironmentObject var viewModel: VehicleViewModel
 
     var body: some View {
         Button{
@@ -543,8 +552,13 @@ struct VehicleCard: View {
                             .fontWidth(.condensed)
                     }
                     
+                    // Fuel type and colour
                     HStack(spacing: 14) {
-                        Image(systemName: "drop.halffull")
+                        if vehicle.fuelType == "Electricity"{
+                            Image(systemName: "bolt")
+                        }else{
+                            Image(systemName: "drop.halffull")
+                        }
                         Text("\(vehicle.fuelType)")
                             .fontWidth(.condensed)
                                             
@@ -555,6 +569,7 @@ struct VehicleCard: View {
                     .font(.system(size: 14))
                     .foregroundStyle(Color.gray)
                     
+                    // MOT and Tax status
                     HStack{
                         HStack{
                             Circle()
@@ -606,6 +621,7 @@ struct VehicleCard: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 
+                // Vehicle registration
                 VStack(alignment: .trailing, spacing: 20){
                     Text("\(vehicle.registration)")
                         .font(.system(size: 10).weight(.heavy))

@@ -9,11 +9,15 @@ import Foundation
 import SwiftUI
 
 struct EditVehicleView: View {
+    
+    // Arguments and view models
     let vehicle: VehicleModel
+
     @Binding var isPresented: Bool
     @StateObject var viewModel: EditVehicleViewModel
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
 
+    // Initialiser to set the passed vehicle
     init(vehicle: VehicleModel, isPresented: Binding<Bool>) {
         self.vehicle = vehicle
         self._isPresented = isPresented
@@ -23,11 +27,15 @@ struct EditVehicleView: View {
     var body: some View {
         VStack(spacing: 12) {
             VStack(spacing: 24){
+                // Title
                 Text("Edit Vehicle")
                     .font(.system(size: 17).weight(.bold))
+                    .fontWidth(.condensed)
                     .padding(.bottom,6)
                 
                 HStack{
+                    
+                    // Model label and field
                     VStack(spacing: 8){
                         Text("Model")
                             .font(.system(size: 14).weight(.medium))
@@ -35,7 +43,7 @@ struct EditVehicleView: View {
                             "",
                             text: $viewModel.model,
                             prompt: Text("Enter Model")
-                                .foregroundStyle(.black.opacity(0.3))
+                                .foregroundStyle(Color.containerText)
                         )
                         .font(.system(size: 12))
                         .padding(.vertical, 16)
@@ -47,6 +55,7 @@ struct EditVehicleView: View {
                         )
                     }
                     
+                    // Colour label and field
                     VStack(spacing: 8){
                         Text("Colour")
                             .font(.system(size: 14).weight(.medium))
@@ -54,7 +63,7 @@ struct EditVehicleView: View {
                             "",
                             text: $viewModel.colour,
                             prompt: Text("Enter Colour")
-                                .foregroundStyle(.black.opacity(0.3))
+                                .foregroundStyle(Color.containerText)
                         )
                         .font(.system(size: 12))
                         .padding(.vertical, 16)
@@ -67,6 +76,7 @@ struct EditVehicleView: View {
                     }
                 }
                 
+                // Error message
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
@@ -75,11 +85,14 @@ struct EditVehicleView: View {
                 }
                 
                 HStack{
+                    
+                    // Cancel button
                     Button(action: {
                         isPresented = false
                     }) {
                         Text("Cancel")
-                            .font(.system(size: 10).weight(.bold))
+                            .font(.system(size: 12).weight(.bold))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity)
                             .padding(14)
                             .foregroundColor(.redTheme)
@@ -93,11 +106,13 @@ struct EditVehicleView: View {
                         .stroke(Color.containerBorder)
                     )
                 
+                    // Save button
                     Button(action: {
                         viewModel.saveChanges()
                     }) {
                         Text("Save")
-                            .font(.system(size: 10).weight(.bold))
+                            .font(.system(size: 12).weight(.bold))
+                            .fontWidth(.condensed)
                             .frame(maxWidth: .infinity)
                             .padding(14)
                             .foregroundColor(.white)

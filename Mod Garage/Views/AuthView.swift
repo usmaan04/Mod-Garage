@@ -8,15 +8,21 @@
 import SwiftUI
 
 struct AuthView: View {
+    
+    // Bindings to track if users logged in and/or onboarding
     @Binding var isUserLoggedIn: Bool
     @Binding var hasCompletedOnboarding: Bool
+    
     @StateObject private var viewModel = AuthViewModel()
 
     var body: some View {
         NavigationStack {
             Group {
+                // If onboarding show onboard view
                 if viewModel.currentScreen == .onboarding {
                     OnboardView(authVM: viewModel)
+                    
+                // Otherwise show the relevant view based on the current screen
                 } else {
                     VStack {
                         switch viewModel.currentScreen {
@@ -45,6 +51,7 @@ struct AuthView: View {
         .toolbar(.hidden)
     }
 
+    // Simplified authentication footer to show button to switch pages
     @ViewBuilder
     private var authFooter: some View {
         switch viewModel.currentScreen {
@@ -102,6 +109,7 @@ struct AuthView: View {
     }
 }
 
+// Preview
 #Preview {
     AuthView(
         isUserLoggedIn: .constant(false),

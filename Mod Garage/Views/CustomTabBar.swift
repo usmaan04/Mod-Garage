@@ -25,6 +25,7 @@ struct CustomTabBar: View {
             ForEach(Array(Tab.allCases.prefix(5)), id: \.self) { tab in
                 Spacer()
 
+                // If the specified tab is the add enum
                 if tab == .add {
                     Button {
                         withAnimation(.spring()) {
@@ -59,8 +60,9 @@ struct CustomTabBar: View {
                                 .offset(y:40)
                         }
                     }
-                    .offset(y: -26) // slightly lifted look
+                    .offset(y: -26)
 
+                // Or otherwise display an icon and text
                 } else {
                     Button {
                         withAnimation(.easeInOut) {

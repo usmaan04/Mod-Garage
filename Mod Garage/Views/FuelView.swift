@@ -9,14 +9,16 @@ import Foundation
 import SwiftUI
 import Charts
 
+// Helper function to convert number into currency string
 private func currencyString(from value: Double) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .currency
-    // If you have a specific currency, set it here; otherwise it uses locale
     return formatter.string(from: NSNumber(value: value)) ?? "—"
 }
 
 struct FuelView: View {
+    
+    // View models
     @StateObject private var viewModel = FuelViewModel()
     @EnvironmentObject var homeViewModel: HomeViewModel
     @Namespace private var timeframeNamespace
@@ -25,11 +27,13 @@ struct FuelView: View {
         VStack(spacing: 0) {
             VStack{
                 HStack {
+                    // Title
                     Text("Fuel & Efficiency")
                         .font(.system(size: 22).weight(.semibold))
                         .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
+                    // Add fuel log button
                     Button {
                         viewModel.isShowingAddFuelLog = true
                     } label: {
@@ -52,9 +56,13 @@ struct FuelView: View {
             .frame(maxWidth: .infinity, maxHeight: 84)
             .background(Color.container)
             .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+            
+            // MARK: - If loading
             if viewModel.isLoading {
                 ProgressView()
                     .padding(.top, 30)
+                
+            // MARK: - If there is a primary vehicle
             } else if let _ = viewModel.primaryVehicle {
                 GeometryReader{ proxy in
                     ScrollView(.vertical, showsIndicators: false) {
@@ -72,12 +80,12 @@ struct FuelView: View {
                                 )
                             }
                             
+                            // MARK: - MPG Data
                             Text("Efficiency Trends")
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                              
-                            // MPG Trends (placeholder container)
                             VStack(alignment: .leading, spacing: 24) {
                                 VStack(alignment: .leading, spacing: 4){
                                     switch viewModel.selectedTimeframe {
@@ -205,9 +213,10 @@ struct FuelView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.containerBorder, lineWidth: 4)
                                     .fill(Color.container)
-                                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 0)
                             )
 
+                            // MARK: - Spending Data
                             Text("Spending")
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
@@ -347,7 +356,7 @@ struct FuelView: View {
                                 RoundedRectangle(cornerRadius: 12)
                                     .stroke(Color.containerBorder, lineWidth: 4)
                                     .fill(Color.container)
-                                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 0)
                             )
                             
                             HStack{
@@ -356,14 +365,17 @@ struct FuelView: View {
                                     .fontWidth(.condensed)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 
-                                Button{
-                                    viewModel.isShowingAllLogs = true
-                                }label:{
-                                    Text("See All")
-                                        .padding(.trailing, 10)
-                                        .foregroundColor(.redTheme)
-                                        .font(.system(size: 14).weight(.semibold))
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
+                                if viewModel.fuelLogs.count > 3{
+                                    Button{
+                                        viewModel.isShowingAllLogs = true
+                                    }label:{
+                                        Text("See All")
+                                            .padding(.trailing, 10)
+                                            .foregroundColor(.redTheme)
+                                            .font(.system(size: 14).weight(.semibold))
+                                            .fontWidth(.condensed)
+                                            .frame(maxWidth: .infinity, alignment: .trailing)
+                                    }
                                 }
                             }
                             
@@ -402,7 +414,8 @@ struct FuelView: View {
                             }
                     )
                 }
-                
+            
+            // MARK: - Otherwise show an empty state
             } else {
                 VStack(spacing: 16) {
                     ZStack {
@@ -473,6 +486,7 @@ struct FuelView: View {
         }
     }
     
+    // Fuel log parent UIs
     private var addFuelLogSheet: some View {
         Group {
             if let vehicleId = viewModel.primaryVehicle?.id {
@@ -492,7 +506,6 @@ struct FuelView: View {
     }
 
     // Timeframe pills UI
-
     private var timeframePills: some View {
         HStack(spacing: 10) {
             ForEach(FuelTimeframe.allCases) { timeframe in
@@ -522,6 +535,7 @@ struct FuelView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
+    // Handles changing the timeframe by swiping
     private func handleTimeframeSwipe(_ value: DragGesture.Value) {
         let horizontalAmount = value.translation.width
         let verticalAmount = value.translation.height
@@ -530,13 +544,13 @@ struct FuelView: View {
               abs(horizontalAmount) > 40 else { return }
 
         withAnimation(.spring(response: 0.35, dampingFraction: 0.8)) {
-            if horizontalAmount > 0 {
-                // swipe left -> move backward
+            if horizontalAmount < 0 {
+                // swipe left move backward
                 if let next = viewModel.selectedTimeframe.next {
                     viewModel.selectedTimeframe = next
                 }
             } else {
-                // swipe right -> move forward
+                // swipe right move forward
                 if let previous = viewModel.selectedTimeframe.previous {
                     viewModel.selectedTimeframe = previous
                 }
@@ -544,7 +558,7 @@ struct FuelView: View {
         }
     }
 
-    // Reusable UI
+    // Reusable summary cards to show quick information
     private func summaryCard(title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(title)
@@ -567,6 +581,7 @@ struct FuelView: View {
         )
     }
     
+    // Resuable component to use for empty charts
     private func emptyChartState(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 12))
@@ -574,12 +589,14 @@ struct FuelView: View {
             .frame(maxWidth: .infinity, minHeight: 180, alignment: .center)
     }
 
+    // Converts the mpg values into a string
     private func mpgString(_ value: Double?) -> String {
         guard let value else { return "—" }
         return String(format: "%.1f", value)
     }
 }
 
+// Resuable card components to display fuel log information
 struct FuelLogCard: View {
     @EnvironmentObject var homeViewModel: HomeViewModel
     @EnvironmentObject var viewModel: FuelViewModel
@@ -643,7 +660,7 @@ struct FuelLogCard: View {
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(Color.container)
-                .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
         )
     }
 }

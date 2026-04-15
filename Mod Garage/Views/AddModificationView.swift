@@ -21,6 +21,8 @@ struct AddModificationView:View {
         VStack(spacing: 24){
             ScrollView{
                 VStack(spacing: 14){
+                    
+                    // Name label and Field
                     Text("Name")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
@@ -39,11 +41,15 @@ struct AddModificationView:View {
                             .stroke(Color.containerBorder, lineWidth: 3)
                             .fill(Color.container)
                     )
+                    
+                    // Type label and dropdown
                     Text("Type")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     ModTypeDropdown(selection: $viewModel.modType, options: viewModel.modTypes)
+                    
+                    // Cost, date label and field
                     HStack{
                         Text("Cost")
                             .font(.system(size: 16).weight(.medium))
@@ -88,6 +94,7 @@ struct AddModificationView:View {
                                     .fill(Color.container)
                             )
                         }
+                        // Date sheet
                         .sheet(isPresented: $viewModel.showDatePicker) {
                             DatePicker(
                                 "Select date",
@@ -98,6 +105,8 @@ struct AddModificationView:View {
                             .presentationDetents([.medium])
                         }
                     }
+                    
+                    // Description label and field
                     Text("Description")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
@@ -130,6 +139,8 @@ struct AddModificationView:View {
                             .stroke(Color.containerBorder, lineWidth: 3)
                             .fill(Color.container)
                     )
+                    
+                    // Images label and field
                     HStack{
                         Text("Before Image")
                             .font(.system(size: 16).weight(.medium))
@@ -141,6 +152,8 @@ struct AddModificationView:View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     HStack{
+                        
+                        // Before image
                         VStack(spacing: 12){
                             if let selectedImage = viewModel.beforeImage {
                                 Image(uiImage: selectedImage)
@@ -173,6 +186,8 @@ struct AddModificationView:View {
                                 .stroke(Color.containerBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
                                 .fill(Color.container)
                         )
+                        
+                        // After image
                         VStack(spacing: 12){
                             if let selectedImage = viewModel.afterImage {
                                 Image(uiImage: selectedImage)
@@ -209,12 +224,14 @@ struct AddModificationView:View {
                 }
                 .padding(.horizontal,17)
                 
+                // Error message
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.redTheme)
                         .multilineTextAlignment(.center)
                 }
                 
+                // Save button
                 VStack{
                     Button(action: {
                         Task{
@@ -238,7 +255,6 @@ struct AddModificationView:View {
         .frame(maxHeight: .infinity, alignment: .top)
         .navigationTitle("Add a Modification")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarColorScheme(.light, for: .navigationBar)
         .background(Color.background)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading){
@@ -249,7 +265,7 @@ struct AddModificationView:View {
         }
         .onAppear {
             viewModel.vehicleId = vehicleId
-            // link AddModificationViewModel → VehicleDetailViewModel
+            // Link AddModificationViewModel to VehicleDetailViewModel to add modifications
             viewModel.onModificationReady = { modification in
                 Task {
                     await detailViewModel.addModification(modification, vehicleId: vehicleId)
@@ -260,6 +276,7 @@ struct AddModificationView:View {
     }
 }
 
+// Separate dropdown structre
 struct ModTypeDropdown: View {
     @Binding var selection: String
     let options: [String]

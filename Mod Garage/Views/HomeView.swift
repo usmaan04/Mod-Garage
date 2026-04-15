@@ -18,7 +18,6 @@ struct HomeView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             
-            
             // Main content area based on the selected tab
             Group {
                 switch viewModel.selectedTab {
@@ -44,6 +43,7 @@ struct HomeView: View {
             .environmentObject(settingsViewModel)
             .preferredColorScheme(settingsViewModel.overrideColorScheme)
             
+            // Shows the quick add overlay
             if viewModel.isShowingQuickAddMenu {
                 ZStack {
                     Color.black.opacity(0.6)
@@ -120,8 +120,10 @@ struct HomeView: View {
                 .transition(.opacity)
             }
 
+            // The global navigation bar
             CustomTabBar(viewModel: viewModel)
             
+            // Shows the add vehicle overlay
             if vehicleViewModel.isShowingAddVehicle{
                 ZStack{
                     Color.black.opacity(0.6)
@@ -144,6 +146,8 @@ struct HomeView: View {
                         .padding(.horizontal, 25)
                 }
             }
+            
+            // Shows the edit vehicle overlay
             if vehicleViewModel.isShowingEditVehicle{
                 ZStack{
                     Color.black.opacity(0.6)
@@ -168,6 +172,7 @@ struct HomeView: View {
                 }
             }
         }
+        // Universal sheet shows content based on the type of quick action that is passed
         .sheet(item: $viewModel.selectedQuickAction, onDismiss: {
             Task {
                 if let vehicleId = viewModel.primaryVehicle?.id {
@@ -210,6 +215,7 @@ struct HomeView: View {
     }
 }
 
+// Main home dashboard content
 struct DashboardView: View {
     @EnvironmentObject var viewModel: HomeViewModel
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
@@ -223,13 +229,16 @@ struct DashboardView: View {
         VStack(spacing:0){
             VStack{
                 HStack() {
+                    // MARK: - If loading for first time show skeletal load for header
                     if viewModel.isProfileLoading {
+                        // Profile picture
                         Circle()
                             .fill(Color.containerBorder)
                             .frame(width: 50, height: 50)
                             .redacted(reason: .placeholder)
                             .shimmer(speed: 1.6)
 
+                        // Greeting and name
                         VStack(spacing: 6) {
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color.containerBorder)
@@ -245,7 +254,11 @@ struct DashboardView: View {
                                 .shimmer(speed: 1.6)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
+                        
+                    // MARK: - Otherwise show profile picture, greeting and name
                     } else {
+                        
+                        // Profile picture
                         if let photoURL = viewModel.profilePhotoURL {
                             AsyncImage(url: photoURL) { phase in
                                 switch phase {
@@ -286,6 +299,7 @@ struct DashboardView: View {
                                 .clipShape(Circle())
                         }
 
+                        // Greeting and name
                         VStack(spacing: 4) {
                             Text("Welcome Back!")
                                 .font(.system(size: 12))
@@ -300,6 +314,7 @@ struct DashboardView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         
+                        // Notifications button
                         Button {
                             viewModel.isShowingNotifications = true
                         } label: {
@@ -324,12 +339,14 @@ struct DashboardView: View {
             .frame(maxWidth: .infinity, maxHeight: 64)
             .background(Color.container)
             .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+            
             GeometryReader{ proxy in
                 VStack() {
+                    // MARK: - If loading for first time show skeletal load for main content
                     if !viewModel.didRefreshOnThisLaunch {
                         ScrollView{
                             VStack(alignment: .leading, spacing: 16) {
-                                // If loading skeletal load
+                                // Vehicle image skeleton
                                 RoundedRectangle(cornerRadius: 8)
                                     .fill(Color.containerBorder)
                                     .frame(height: 180)
@@ -350,7 +367,7 @@ struct DashboardView: View {
                                         .shimmer(speed: 1.6)
                                 }
 
-                                // Recent activity title
+                                // Modifications title skeleton
                                 RoundedRectangle(cornerRadius: 6)
                                     .fill(Color.containerBorder)
                                     .frame(width: 160, height: 14)
@@ -358,7 +375,7 @@ struct DashboardView: View {
                                     .shimmer(speed: 1.6)
                                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                                // Recent cards skeleton list
+                                // Modification cards skeleton list
                                 HStack(spacing: 10) {
                                     ForEach(0..<3, id: \ .self) { _ in
                                         VStack(spacing: 8){
@@ -385,6 +402,8 @@ struct DashboardView: View {
                             .padding(.horizontal, 17)
                             .offset(y: 16)
                         }
+                        
+                    // MARK: - If there isn't a primary vehicle show an empty state
                     } else if viewModel.primaryVehicle == nil {
                         // Empty state when no vehicles
                         VStack(spacing: 16) {
@@ -393,15 +412,18 @@ struct DashboardView: View {
                                 .font(.system(size: 48))
                                 .foregroundStyle(Color.redTheme)
                             
+                            // No vehicle title
                             Text("No vehicles yet")
                                 .font(.system(size: 18, weight: .semibold))
                             
+                            // Add vehicel prompt
                             Text("Add your first vehicle to track MOT, tax, fuel, and mods in one place.")
                                 .font(.system(size: 14))
                                 .foregroundStyle(Color.containerText)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 16)
 
+                            // Add vehicle button
                             Button {
                                 withAnimation(.spring()) {
                                     vehicleViewModel.isShowingAddVehicle = true
@@ -420,7 +442,7 @@ struct DashboardView: View {
                             .buttonStyle(.plain)
                             .padding(.horizontal, 20)
 
-                            // Optional value bullets
+                            // Value bullets
                             HStack(spacing: 12) {
                                 Label("MOT & Tax reminders", systemImage: "bell.fill")
                                 Label("Fuel insights", systemImage: "gauge.with.dots.needle.33percent")
@@ -433,10 +455,13 @@ struct DashboardView: View {
                         }
                         .padding(.horizontal, 17)
                         
+                    // MARK: - Otherwise show the main dashboard information for the primary vehicle
                     } else if let vehicle = viewModel.primaryVehicle {
                         // Main content
                         ScrollView{
                             VStack(spacing: 18){
+                                
+                                // Vehicle image
                                 VStack(alignment: .leading, spacing: 4){
                                     Text("PRIMARY")
                                         .font(.system(size:10).weight(.bold))
@@ -514,11 +539,13 @@ struct DashboardView: View {
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                                 
+                                // MOT and Tax cards
                                 HStack(spacing: 17) {
+                                    // MOT
                                     VStack(alignment: .leading) {
                                         ZStack(alignment: .topTrailing) {
                                             RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.lightPink)
+                                                .fill(Color.innerContainer)
                                                 .frame(width: 40, height: 40)
                                                 .overlay(
                                                     Image("mot")
@@ -587,10 +614,12 @@ struct DashboardView: View {
                                             .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
+                                    
+                                    // Tax
                                     VStack(alignment: .leading) {
                                         ZStack(alignment: .topTrailing) {
                                             RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.lightPink)
+                                                .fill(Color.innerContainer)
                                                 .frame(width: 40, height: 40)
                                                 .overlay(
                                                     Image(systemName: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90")
@@ -679,16 +708,18 @@ struct DashboardView: View {
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color.containerBorder, lineWidth: 4)
                                             .fill(Color.container)
-                                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
+                                            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 0)
                                     )
                                 }
                                 
+                                // Installed mods header
                                 HStack{
                                     Text("Installed Mods")
                                         .font(.system(size: 18).weight(.semibold))
                                         .fontWidth(.condensed)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     
+                                    // See all mods button
                                     if viewModel.modifications.count > 5 {
                                         Button{
                                             viewModel.isShowingAllMods = true
@@ -703,6 +734,7 @@ struct DashboardView: View {
                                     }
                                 }
                                 
+                                // If theere are mods list show 5
                                 if !viewModel.modifications.isEmpty{
                                     ScrollView(.horizontal, showsIndicators: false) {
                                         HStack(spacing: 12) {
@@ -713,6 +745,8 @@ struct DashboardView: View {
                                         .padding(.horizontal, 2)
                                         .padding(.vertical, 2)
                                     }
+                                    
+                                // Othewise show an empty sate box
                                 } else {
                                     VStack(spacing: 8){
                                         ZStack{
@@ -728,11 +762,13 @@ struct DashboardView: View {
                                             .fontWidth(.condensed)
                                             .frame(maxWidth: .infinity)
                                         
+                                        // Add modification prompt
                                         Text("Add your first modification to personalise your build")
                                             .foregroundColor(.containerText)
                                             .font(.system(size: 12).weight(.medium))
                                             .frame(maxWidth: .infinity)
                                         
+                                        // Add modification button
                                         Button{
                                             viewModel.selectedQuickAction = .modification
                                         }label:{
@@ -741,7 +777,7 @@ struct DashboardView: View {
                                         }
                                         .font(.system(size: 14).weight(.semibold))
                                         .fontWidth(.condensed)
-                                        .foregroundStyle(Color.container)
+                                        .foregroundStyle(Color.white)
                                         .padding(.horizontal,16)
                                         .padding(.vertical,10)
                                         .background(
@@ -755,15 +791,18 @@ struct DashboardView: View {
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color.containerBorder, lineWidth: 4)
                                             .fill(Color.container)
+                                            .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
                                     )
                                 }
                                 
+                                // Recent fuel logs header
                                 HStack{
                                     Text("Recent Fuel Logs")
                                         .font(.system(size: 18).weight(.semibold))
                                         .fontWidth(.condensed)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     
+                                    // See all fuel logs button
                                     if viewModel.fuelLogs.count > 3 {
                                         Button{
                                             viewModel.isShowingAllLogs = true
@@ -778,6 +817,7 @@ struct DashboardView: View {
                                     }
                                 }
                                 
+                                // If theere are fuel logs list show 3
                                 if !viewModel.fuelLogs.isEmpty{
                                     ForEach(viewModel.fuelLogs
                                         .sorted { $0.date > $1.date }
@@ -791,6 +831,7 @@ struct DashboardView: View {
                                         
                                     }
                                 }
+                                // Otherwise show an empty state box
                                 else{
                                     VStack(spacing: 8){
                                         ZStack{
@@ -805,10 +846,12 @@ struct DashboardView: View {
                                             .font(.system(size: 18).weight(.semibold))
                                             .fontWidth(.condensed)
                                         
+                                        // Add modification prompt
                                         Text("Track your fuel purchases to see insights")
                                             .foregroundStyle(.containerText)
                                             .font(.system(size: 12).weight(.medium))
                                         
+                                        // Add modification button
                                         Button{
                                             viewModel.selectedQuickAction = .fuelLog
                                         }label:{
@@ -816,7 +859,7 @@ struct DashboardView: View {
                                         }
                                         .font(.system(size: 14).weight(.semibold))
                                         .fontWidth(.condensed)
-                                        .foregroundStyle(Color.container)
+                                        .foregroundStyle(Color.white)
                                         .padding(.horizontal,16)
                                         .padding(.vertical,10)
                                         .background(
@@ -830,6 +873,7 @@ struct DashboardView: View {
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color.containerBorder, lineWidth: 4)
                                             .fill(Color.container)
+                                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
                                 }
                             }
@@ -841,6 +885,7 @@ struct DashboardView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: proxy.size.height - 84 )
             }
+            // Multiple sheets to show the add modifcations/logs
             .sheet(isPresented:$viewModel.isShowingAllMods){
                 ScrollView{
                     ForEach(viewModel.modifications
@@ -900,6 +945,7 @@ struct DashboardView: View {
     }
 }
 
+// Resuable pulsing circle for MOT and Tax
 struct PulsingCircle: View {
     var isValid: Bool
     var color: Color
@@ -940,6 +986,7 @@ struct PulsingCircle: View {
     }
 }
 
+// Reuable buttons within the quick add overlay
 @ViewBuilder
 private func quickActionRow(title: String, systemImage: String) -> some View {
     VStack(spacing: 10) {
@@ -963,12 +1010,14 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
     .frame(maxWidth: 160, maxHeight: 50)
 }
 
+// Resuable card for displaying modifcation information
 struct ModCard: View {
     let modification: ModificationModel
 
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
             ZStack {
+                // Vehicle image
                 if let urlString = modification.afterImageURL, let url = URL(string: urlString) {
                     AsyncImage(url: url) { phase in
                         switch phase {
@@ -986,7 +1035,7 @@ struct ModCard: View {
                         case .failure(_):
                             ZStack{
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.containerBorder)
+                                    .fill(Color.innerContainer)
                                     .frame(width: 150, height: 150)
                                 
                                 Image(systemName: "wrench.and.screwdriver.fill")
@@ -996,7 +1045,7 @@ struct ModCard: View {
                         @unknown default:
                             ZStack{
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.containerBorder)
+                                    .fill(Color.innerContainer)
                                     .frame(width: 150, height: 150)
                                 
                                 Image(systemName: "wrench.and.screwdriver.fill")
@@ -1009,7 +1058,7 @@ struct ModCard: View {
                 } else {
                     ZStack{
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.containerBorder)
+                            .fill(Color.innerContainer)
                             .frame(width: 150, height: 150)
                             .redacted(reason: .placeholder)
                         
@@ -1019,6 +1068,8 @@ struct ModCard: View {
                     }
                 }
             }
+            
+            // Mod name and description
             VStack(alignment: .center, spacing: 4) {
                 Text(modification.name)
                     .font(.system(size: 18, weight: .semibold))
@@ -1040,12 +1091,12 @@ struct ModCard: View {
     }
 }
 
+// Shimmer for skeletal load
 extension View {
     func shimmer(speed: Double = 1.2) -> some View {
         modifier(GradientShimmer(speed: speed))
     }
 }
-
 private struct GradientShimmer: ViewModifier {
     @State private var phase: CGFloat = -1
     let speed: Double

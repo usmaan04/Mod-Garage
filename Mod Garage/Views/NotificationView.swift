@@ -13,6 +13,7 @@ struct NotificationView: View {
     @StateObject var viewModel: NotificationViewModel
     @State private var isShowingTimePicker = false
 
+    // Chip otions for notification lead times
     private let chipOptions = [60, 30, 14, 7, 3, 1]
 
     var body: some View {
@@ -20,7 +21,9 @@ struct NotificationView: View {
             VStack{
                 ScrollView{
                     VStack(alignment: .leading, spacing: 16) {
+                        // Displays text/buttons depending on notifcation permissions
                         switch viewModel.permissionState {
+                        // If state is not determined
                         case .notDetermined:
                             HStack(spacing: 20) {
                                 ZStack{
@@ -58,7 +61,8 @@ struct NotificationView: View {
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(viewModel.hasPermission == true ? Color.green.opacity(0.3) : Color.lightPink)
                             )
-
+                        
+                        // If user has denied notifications
                         case .denied:
                             HStack(spacing: 20) {
                                 ZStack{
@@ -99,6 +103,8 @@ struct NotificationView: View {
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(viewModel.hasPermission == true ? Color.green.opacity(0.3) : Color.lightPink)
                             )
+                            
+                        // if user has allowed notifications
                         case .authorized:
                             HStack(spacing: 20){
                                 ZStack{
@@ -125,17 +131,23 @@ struct NotificationView: View {
                             )
                         }
                         
+                        // Mot reminders section
                         VStack(alignment: .leading, spacing: 16){
                             HStack(spacing: 10){
+                                
+                                // MOT image
                                 Image("mot")
                                     .resizable()
                                     .scaledToFit()
                                     .foregroundStyle(Color.redTheme)
                                     .frame(width: 32, height: 32)
+                                
+                                // Title
                                 Text("MOT Reminders")
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
                                 
+                                // MOT enabling toggle
                                 Toggle("", isOn: $viewModel.motEnabled)
                                     .onChange(of: viewModel.motEnabled) { _ in viewModel.needsSync = true }
                                 
@@ -143,12 +155,15 @@ struct NotificationView: View {
                             .frame(maxWidth: .infinity)
                             
                             if viewModel.motEnabled{
+                                
+                                // MOT notification description
                                 Text("Select how many days in advance you would like to be notified of your vehicle's MOT expiry date.")
                                     .font(.system(size: 15))
                                     .fontWidth(.condensed)
                                     .foregroundStyle(Color.containerText)
                                     .transition(.scale(scale: 0.95).combined(with: .opacity))
                                 
+                                // Lead time chips
                                 chips(selected: Set(viewModel.motLeadDays)) { day in
                                     var set = Set(viewModel.motLeadDays)
 
@@ -157,7 +172,7 @@ struct NotificationView: View {
                                     } else {
                                         set.insert(day)
                                     }
-
+                                    
                                     viewModel.updateMotLeadDays(Array(set))
                                 }
                                 .transition(.scale(scale: 0.95).combined(with: .opacity))
@@ -172,17 +187,23 @@ struct NotificationView: View {
                                 .fill(Color.container)
                         )
                         
+                        // Tax reminders section
                         VStack(alignment: .leading, spacing: 16){
                             HStack(spacing: 10){
+                                
+                                // Tax image
                                 Image(systemName: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90")
                                     .resizable()
                                     .scaledToFit()
                                     .foregroundStyle(Color.redTheme)
                                     .frame(width: 32, height: 32)
+                                
+                                // Title
                                 Text("Tax Reminders")
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
                                 
+                                // Tax enabling toggle
                                 Toggle("", isOn: $viewModel.taxEnabled)
                                     .onChange(of: viewModel.taxEnabled) { _ in viewModel.needsSync = true }
                                 
@@ -190,13 +211,15 @@ struct NotificationView: View {
                             .frame(maxWidth: .infinity)
                             
                             if viewModel.taxEnabled{
+                                
+                                // Tax notification description
                                 Text("Select how many days in advance you would like to be notified of your vehicle's Tax expiry date.")
                                     .font(.system(size: 15))
                                     .fontWidth(.condensed)
                                     .foregroundStyle(Color.containerText)
                                     .transition(.scale(scale: 0.95).combined(with: .opacity))
                                   
-                                
+                                // Lead time chips
                                 chips(selected: Set(viewModel.taxLeadDays)) { day in
                                     var set = Set(viewModel.taxLeadDays)
 
@@ -220,20 +243,25 @@ struct NotificationView: View {
                                 .fill(Color.container)
                         )
                         
+                        // Notificaton time section
                         VStack(alignment: .leading, spacing: 16) {
                             HStack(spacing: 10){
+                                
+                                // Clock icon
                                 Image(systemName: "clock")
                                     .resizable()
                                     .scaledToFit()
                                     .foregroundStyle(Color.redTheme)
                                     .frame(width: 28, height: 28)
+                                
+                                // Title
                                 Text("Notification Time")
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
 
                                 Spacer()
 
-                                // Inline preview of selected time
+                                // Button and previe wof time
                                 Button {
                                     withAnimation(.spring(response: 0.4, dampingFraction: 0.85, blendDuration: 0.2)) {
                                         isShowingTimePicker.toggle()
@@ -279,6 +307,7 @@ struct NotificationView: View {
                                 .fill(Color.container)
                         )
                         
+                        // Status message
                         if let msg = viewModel.statusMessage {
                             Text(msg)
                                 .padding(.vertical, 4)
@@ -296,7 +325,10 @@ struct NotificationView: View {
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
 
+                        // Clear and sync buttons
                         HStack {
+                            
+                            // Clear button
                             Button(role: .destructive) {
                                 Task { await viewModel.clearAllReminders() }
                             } label: {
@@ -314,9 +346,9 @@ struct NotificationView: View {
                                     RoundedRectangle(cornerRadius: 20)
                                         .stroke(Color.redTheme, lineWidth: 1)
                                 )
-
                             }
                             
+                            // Sync button
                             Button {
                                 Task { await viewModel.syncAll() }
                             } label: {
@@ -358,6 +390,7 @@ struct NotificationView: View {
         }
     }
 
+    // Reusable chips component
     private func chips(selected: Set<Int>, onToggle: @escaping (Int) -> Void) -> some View {
         let cols = [GridItem(.adaptive(minimum: 100), spacing: 8)]
 
@@ -366,6 +399,7 @@ struct NotificationView: View {
                 Button {
                     onToggle(day)
                 } label: {
+                    // Text label
                     Text("\(day) " + (day == 1 ? "day" : "days"))
                         .font(.system(size: 16).weight(.semibold))
                         .foregroundStyle(selected.contains(day) ? Color.white : Color.bw)
@@ -375,7 +409,7 @@ struct NotificationView: View {
                 .buttonStyle(.plain)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(selected.contains(day) ? Color.redTheme : Color.innerContainer)
+                        .fill(selected.contains(day) ? Color.redTheme : Color(.tertiarySystemFill))
                 )
             }
         }
@@ -383,7 +417,8 @@ struct NotificationView: View {
     }
 }
 
-#Preview("NotificationView") {
+// Preview
+#Preview{
     NavigationStack {
         NotificationView(
             viewModel: NotificationViewModel(

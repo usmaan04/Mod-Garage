@@ -16,13 +16,15 @@ struct AddVehicleView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // Loading spinner
+            
+            // MARK: - If searching DVLA
+            
             if viewModel.isLoading {
                 ProgressView("Searching DVLA...")
                     .padding(.top, 20)
                     .font(.system(size: 17))
 
-            // Show vehicle preview only if dvlaVehicle 
+            // MARK: - Show the returned DVLA details if there is a vehicle model
             } else if  viewModel.dvlaVehicle != nil && !viewModel.hasConfirmedDVLA {
                 let vehicle = viewModel.dvlaVehicle
                 VStack(spacing: 14) {
@@ -78,6 +80,7 @@ struct AddVehicleView: View {
                             viewModel.dvlaVehicle = nil
                         }
                         .font(.system(size: 12).weight(.bold))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity)
                         .padding(14)
                         .foregroundColor(.redTheme)
@@ -94,6 +97,7 @@ struct AddVehicleView: View {
                         }) {
                             Text("Yes")
                                 .font(.system(size: 12).weight(.bold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity)
                                 .padding(14)
                                 .foregroundColor(.white)
@@ -104,6 +108,8 @@ struct AddVehicleView: View {
                         )
                     }
                 }
+                
+            // MARK: - Show  the returned DVLA details
             }else if viewModel.hasConfirmedDVLA{
                 VStack(spacing: 14) {
                     Text("Enter your vehicle's model & image")
@@ -204,7 +210,7 @@ struct AddVehicleView: View {
                 }
                 .padding(12)
                 
-            // Show Add Vehicle Form
+            // MARK: - Show the regular first add vehicle form
             } else {
                 VStack(spacing: 24){
                     Text("Add Vehicle")

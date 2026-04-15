@@ -1,9 +1,11 @@
 import Foundation
+import _PhotosUI_SwiftUI
 import Combine
 import FirebaseAuth
 import FirebaseFirestore
 import FirebaseStorage
 import UIKit
+import Photos
 
 // Handles the logic for updating user details
 @MainActor
@@ -17,6 +19,7 @@ class ProfileViewModel: ObservableObject {
     // Properties for picking and displaying profile photos
     @Published var profilePhotoURL: String = ""
     @Published var selectedImage: UIImage? = nil
+    @Published var selectedPhotoItem: PhotosPickerItem?
 
     @Published var isLoading: Bool = false
     @Published var errorMessage: String? = nil
@@ -28,6 +31,19 @@ class ProfileViewModel: ObservableObject {
     init() {
         // Load profile as soon as VM is initialised
         Task { await loadProfile() }
+    }
+    
+    func loadSelectedPhoto() async {
+        guard let selectedPhotoItem else { return }
+
+        do {
+            if let data = try await selectedPhotoItem.loadTransferable(type: Data.self),
+               let image = UIImage(data: data) {
+                selectedImage = image
+            }
+        } catch {
+            errorMessage = "Failed to load selected image."
+        }
     }
 
     // Reload user and fetch the latest data
@@ -119,7 +135,7 @@ class ProfileViewModel: ObservableObject {
             ], merge: true)
 
             profilePhotoURL = finalPhotoURLString
-            successMessage = "Profile updated"
+            successMessage = "Your profile has been updated successfully"
         } catch {
             errorMessage = "Failed to update profile"
         }

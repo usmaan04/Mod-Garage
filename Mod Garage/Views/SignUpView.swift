@@ -18,15 +18,18 @@ struct SignUpView: View {
     
     var body: some View {
         VStack {
+            
             Spacer()
             
-            // - Header
             VStack(spacing: 6) {
+                
+                // Header
                 Text("Welcome!")
                     .font(.system(size: 24, weight: .semibold))
                     .fontWidth(.condensed)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
+                // Prompt
                 Text("Manage your rides, modifications, and MOT all in one place.")
                     .font(.system(size: 14))
                     .tracking(-0.4)
@@ -35,9 +38,9 @@ struct SignUpView: View {
                     .padding(.bottom, 10)
             }
             
-            //  Form Fields
+            // Form Fields
             VStack(spacing: 24) {
-                // Name Label and Field
+                // Name label and field
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Name")
                         .font(.system(size: 16).weight(.medium))
@@ -60,7 +63,7 @@ struct SignUpView: View {
                     )
                 }
                 
-                // Email Label and Field
+                // Email label and field
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Email")
                         .font(.system(size: 16).weight(.medium))
@@ -84,11 +87,13 @@ struct SignUpView: View {
                     )
                 }
                 
-                // Password Field
+                // Password label and field
                 VStack(alignment: .leading, spacing: 8) {
+                    
                     Text("Password")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
+                    
                     SecureField(
                         "",
                         text: $viewModel.password,
@@ -107,7 +112,7 @@ struct SignUpView: View {
                 
             }
             
-            // Validation Errors
+            // Error message
             if let signUpError = viewModel.signUpError {
                 Text(signUpError)
                     .font(.system(size: 14))
@@ -117,7 +122,7 @@ struct SignUpView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
             
-            //  Create Account Button
+            // Sign Up Button
             Button(action: {
                 Task {
                     await viewModel.register()
@@ -141,6 +146,7 @@ struct SignUpView: View {
             
             // Divider with “Or”
             HStack {
+                
                 Divider()
                     .frame(maxWidth: .infinity, maxHeight: 1)
                     .background(Color.gray.opacity(0.4))
@@ -156,7 +162,7 @@ struct SignUpView: View {
             }
             .padding(.vertical, 8)
             
-            // MARK: - Google Sign-In Button
+            // MARK: - Google Sign Up Button
             Button(action: {
                 Task{
                     await viewModel.signUpWithGoogle()
