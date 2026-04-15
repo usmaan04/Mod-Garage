@@ -67,6 +67,22 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
     
 }
 
+private func currencyString(from value: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.currencyCode = "GBP"
+    return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
+}
+
+private func spendingCurrencyString(from value: Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .currency
+    formatter.currencyCode = "GBP"
+    formatter.maximumFractionDigits = 0
+    formatter.minimumFractionDigits = 0
+    return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
+}
+
 struct MPGChartPoint: Identifiable {
     let id: String
     let x: Date
@@ -125,6 +141,9 @@ extension Calendar {
 class FuelViewModel: ObservableObject {
     @Published var primaryVehicle: VehicleModel?
     @Published var fuelLogs: [FuelLogModel] = []
+    
+    @Published var selectedMPGPoint: MPGChartPoint? = nil
+    @Published var selectedSpendPoint: SpendChartPoint? = nil
 
     @Published var isShowingAddFuelLog = false
     @Published var isShowingAllLogs = false
@@ -142,6 +161,20 @@ class FuelViewModel: ObservableObject {
         fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
     }
 
+    var mpgHeaderText: Double {
+        if let selected = selectedMPGPoint {
+            return selected.avgMPG
+        }
+        return averageMPG ?? 0
+    }
+    
+    var spendingHeaderText: String {
+        if let selected = selectedSpendPoint {
+            return spendingCurrencyString(from: selected.totalSpend)
+        }
+        return currencyString(from: totalSpending)
+    }
+    
     private let db = Firestore.firestore()
     
     private var chartAnchorDate: Date {
@@ -213,7 +246,7 @@ class FuelViewModel: ObservableObject {
         return formatter.string(from: date)
     }
     
-    func dayTicksForAnchorMonth(startAtDay: Int = 5, step: Int = 5) -> [Date] {
+    func dayTicksForAnchorMonth(startAtDay: Int = 1, step: Int = 5) -> [Date] {
         var cal = Calendar.current
         cal.timeZone = .current
 
@@ -221,15 +254,19 @@ class FuelViewModel: ObservableObject {
         let monthStart = cal.startOfMonth(for: anchor)
 
         let daysInMonth = cal.range(of: .day, in: .month, for: monthStart)?.count ?? 30
-        let lastDayStart = cal.date(byAdding: .day, value: daysInMonth - 1, to: monthStart)!
 
         var ticks: [Date] = []
 
-        var day = startAtDay
-        while day <= daysInMonth {
-            let d = cal.date(byAdding: .day, value: day - 1, to: monthStart)!
-            ticks.append(d)
-            day += step
+        // Always include day 1
+        let day1 = cal.date(byAdding: .day, value: 0, to: monthStart)!
+        ticks.append(day1)
+
+        // Then include multiples of 5 up to the last day in month
+        var d = 5
+        while d <= daysInMonth {
+            let date = cal.date(byAdding: .day, value: d - 1, to: monthStart)!
+            ticks.append(date)
+            d += 5
         }
 
         return ticks
@@ -592,3 +629,4 @@ class FuelViewModel: ObservableObject {
 
 
 }
+

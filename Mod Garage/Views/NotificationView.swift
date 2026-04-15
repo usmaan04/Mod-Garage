@@ -32,17 +32,18 @@ struct NotificationView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 16, height: 16)
-                                        .foregroundStyle(Color.backgroundW)
+                                        .foregroundStyle(Color.container)
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 8){
                                     Text("Notifications are off")
                                         .font(.system(size: 16).weight(.semibold))
+                                        .foregroundStyle(Color.bw)
                                         .fontWidth(.condensed)
                                     Text("Enable notifications to receive MOT and Tax reminders")
                                         .font(.system(size: 12))
                                         .fontWidth(.condensed)
-                                        .foregroundColor(.navText)
+                                        .foregroundColor(.containerText)
                                         .multilineTextAlignment(.leading)
 
                                     Button("Enable notifications") {
@@ -69,17 +70,18 @@ struct NotificationView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 16, height: 16)
-                                        .foregroundStyle(Color.backgroundW)
+                                        .foregroundStyle(Color.container)
                                 }
                                 
                                 VStack(alignment: .leading, spacing: 8){
                                     Text("Notifications are off")
                                         .font(.system(size: 16).weight(.semibold))
+                                        .foregroundStyle(Color.bw)
                                         .fontWidth(.condensed)
                                     Text("Enable notifications to receive MOT and Tax reminders")
                                         .font(.system(size: 12))
                                         .fontWidth(.condensed)
-                                        .foregroundColor(.navText)
+                                        .foregroundColor(.containerText)
                                         .multilineTextAlignment(.leading)
 
                                     Button("Open iOS Settings") {
@@ -108,13 +110,12 @@ struct NotificationView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width: 24, height: 24)
-                                        .foregroundStyle(Color.backgroundW)
+                                        .foregroundStyle(Color.container)
                                 }
                                 
                                 Text("Notifications are Enabled")
                                     .font(.system(size: 16).weight(.semibold))
                                     .fontWidth(.condensed)
-                                    .foregroundColor(.lightBlack)
                             }
                             .padding(16)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -145,7 +146,7 @@ struct NotificationView: View {
                                 Text("Select how many days in advance you would like to be notified of your vehicle's MOT expiry date.")
                                     .font(.system(size: 15))
                                     .fontWidth(.condensed)
-                                    .foregroundStyle(Color.bodyText)
+                                    .foregroundStyle(Color.containerText)
                                     .transition(.scale(scale: 0.95).combined(with: .opacity))
                                 
                                 chips(selected: Set(viewModel.motLeadDays)) { day in
@@ -168,7 +169,7 @@ struct NotificationView: View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.boxbackground)
+                                .fill(Color.container)
                         )
                         
                         VStack(alignment: .leading, spacing: 16){
@@ -192,7 +193,7 @@ struct NotificationView: View {
                                 Text("Select how many days in advance you would like to be notified of your vehicle's Tax expiry date.")
                                     .font(.system(size: 15))
                                     .fontWidth(.condensed)
-                                    .foregroundStyle(Color.bodyText)
+                                    .foregroundStyle(Color.containerText)
                                     .transition(.scale(scale: 0.95).combined(with: .opacity))
                                   
                                 
@@ -216,7 +217,7 @@ struct NotificationView: View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.boxbackground)
+                                .fill(Color.container)
                         )
                         
                         VStack(alignment: .leading, spacing: 16) {
@@ -242,7 +243,6 @@ struct NotificationView: View {
                                     let minute = viewModel.reminderMinute
                                     Text(String(format: "%02d:%02d", hour, minute))
                                         .font(.system(size: 16).weight(.semibold))
-                                        .foregroundStyle(Color.lightBlack)
                                         .padding(.horizontal, 10)
                                         .padding(.vertical, 6)
                                         .background(
@@ -276,14 +276,15 @@ struct NotificationView: View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.boxbackground)
+                                .fill(Color.container)
                         )
                         
                         if let msg = viewModel.statusMessage {
                             Text(msg)
                                 .padding(.vertical, 4)
                                 .font(.system(size: 14))
-                                .foregroundStyle(Color.bodyText)
+                                .fontWidth(.condensed)
+                                .foregroundStyle(Color.containerText)
                                 .frame(maxWidth: .infinity, alignment: .center)
                                 .multilineTextAlignment(.center)
                         } else {
@@ -291,7 +292,7 @@ struct NotificationView: View {
                                 .padding(.vertical, 4)
                                 .font(.system(size: 14))
                                 .fontWidth(.condensed)
-                                .foregroundStyle(Color.bodyText)
+                                .foregroundStyle(Color.containerText)
                                 .frame(maxWidth: .infinity, alignment: .center)
                         }
 
@@ -325,7 +326,7 @@ struct NotificationView: View {
                                 }
                                 .font(.system(size: 16).weight(.semibold))
                                 .fontWidth(.condensed)
-                                .foregroundStyle(Color.backgroundW)
+                                .foregroundStyle(Color.container)
                                 .padding(.horizontal,10)
                                 .padding(.vertical,16)
                                 .frame(maxWidth: .infinity)
@@ -367,14 +368,14 @@ struct NotificationView: View {
                 } label: {
                     Text("\(day) " + (day == 1 ? "day" : "days"))
                         .font(.system(size: 16).weight(.semibold))
-                        .foregroundStyle(selected.contains(day) ? Color.backgroundW : Color.lightBlack)
+                        .foregroundStyle(selected.contains(day) ? Color.white : Color.bw)
                 }
                 .padding(8)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .buttonStyle(.plain)
                 .background(
                     RoundedRectangle(cornerRadius: 10)
-                        .fill(selected.contains(day) ? Color.redTheme : Color(.tertiarySystemFill))
+                        .fill(selected.contains(day) ? Color.redTheme : Color.innerContainer)
                 )
             }
         }

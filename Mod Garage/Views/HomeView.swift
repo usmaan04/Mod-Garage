@@ -137,8 +137,8 @@ struct HomeView: View {
                         .environmentObject(vehicleViewModel)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder, lineWidth: 2)
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, lineWidth: 2)
+                                .fill(Color.container)
                         )
                         .shadow(radius: 8)
                         .padding(.horizontal, 25)
@@ -159,8 +159,8 @@ struct HomeView: View {
                             .environmentObject(vehicleViewModel)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.rectBorder, lineWidth: 2)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color.containerBorder, lineWidth: 2)
+                                    .fill(Color.container)
                             )
                             .shadow(radius: 8)
                             .padding(.horizontal, 25)
@@ -225,21 +225,21 @@ struct DashboardView: View {
                 HStack() {
                     if viewModel.isProfileLoading {
                         Circle()
-                            .fill(Color.rectBorder)
+                            .fill(Color.containerBorder)
                             .frame(width: 50, height: 50)
                             .redacted(reason: .placeholder)
                             .shimmer(speed: 1.6)
 
                         VStack(spacing: 6) {
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.rectBorder)
+                                .fill(Color.containerBorder)
                                 .frame(width: 90, height: 10)
                                 .redacted(reason: .placeholder)
                                 .shimmer(speed: 1.6)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.rectBorder)
+                                .fill(Color.containerBorder)
                                 .frame(width: 120, height: 14)
                                 .redacted(reason: .placeholder)
                                 .shimmer(speed: 1.6)
@@ -251,7 +251,7 @@ struct DashboardView: View {
                                 switch phase {
                                 case .empty:
                                     Circle()
-                                        .fill(Color.rectBorder)
+                                        .fill(Color.containerBorder)
                                         .frame(width: 50, height: 50)
                                         .redacted(reason: .placeholder)
                                         .shimmer(speed: 1.6)
@@ -290,14 +290,13 @@ struct DashboardView: View {
                             Text("Welcome Back!")
                                 .font(.system(size: 12))
                                 .tracking(-0.2)
-                                .foregroundStyle(Color.bodyText)
+                                .foregroundStyle(Color.containerText)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             Text(viewModel.name)
                                 .padding(.leading, 1)
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
-                                .foregroundStyle(Color.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         
@@ -307,12 +306,12 @@ struct DashboardView: View {
                             ZStack {
                                 Image(systemName: "bell")
                                     .font(.system(size: 24))
-                                    .foregroundStyle(Color.navText.opacity(0.8))
+                                    .foregroundStyle(Color.containerText)
                             }
                             .padding(10)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.rectBorder, lineWidth: 1)
+                                    .stroke(Color.containerBorder, lineWidth: 1)
                             )
                         }
                         
@@ -323,7 +322,7 @@ struct DashboardView: View {
             .padding(.horizontal, 17)
             .padding(.bottom, 17)
             .frame(maxWidth: .infinity, maxHeight: 64)
-            .background(Color.backgroundW)
+            .background(Color.container)
             .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
             GeometryReader{ proxy in
                 VStack() {
@@ -332,7 +331,7 @@ struct DashboardView: View {
                             VStack(alignment: .leading, spacing: 16) {
                                 // If loading skeletal load
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.rectBorder)
+                                    .fill(Color.containerBorder)
                                     .frame(height: 180)
                                     .redacted(reason: .placeholder)
                                     .shimmer(speed: 1.6)
@@ -340,12 +339,12 @@ struct DashboardView: View {
                                 // Two stat cards skeleton
                                 HStack(spacing: 17) {
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.rectBorder)
+                                        .fill(Color.containerBorder)
                                         .frame(height: 150)
                                         .redacted(reason: .placeholder)
                                         .shimmer(speed: 1.6)
                                     RoundedRectangle(cornerRadius: 12)
-                                        .fill(Color.rectBorder)
+                                        .fill(Color.containerBorder)
                                         .frame(height: 150)
                                         .redacted(reason: .placeholder)
                                         .shimmer(speed: 1.6)
@@ -353,7 +352,7 @@ struct DashboardView: View {
 
                                 // Recent activity title
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.rectBorder)
+                                    .fill(Color.containerBorder)
                                     .frame(width: 160, height: 14)
                                     .redacted(reason: .placeholder)
                                     .shimmer(speed: 1.6)
@@ -364,17 +363,17 @@ struct DashboardView: View {
                                     ForEach(0..<3, id: \ .self) { _ in
                                         VStack(spacing: 8){
                                             RoundedRectangle(cornerRadius: 6)
-                                                .fill(Color.rectBorder)
+                                                .fill(Color.containerBorder)
                                                 .frame(width: 150, height: 150)
                                                 .shimmer(speed: 1.6)
                                             RoundedRectangle(cornerRadius: 6)
-                                                .fill(Color.rectBorder)
+                                                .fill(Color.containerBorder)
                                                 .frame(width: 140, height: 14)
                                                 .redacted(reason: .placeholder)
                                                 .shimmer(speed: 1.6)
                                                 .frame(maxWidth: .infinity, alignment: .leading)
                                             RoundedRectangle(cornerRadius: 6)
-                                                .fill(Color.rectBorder)
+                                                .fill(Color.containerBorder)
                                                 .frame(width: 150, height: 14)
                                                 .redacted(reason: .placeholder)
                                                 .shimmer(speed: 1.6)
@@ -396,11 +395,10 @@ struct DashboardView: View {
                             
                             Text("No vehicles yet")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(Color.lightBlack)
                             
                             Text("Add your first vehicle to track MOT, tax, fuel, and mods in one place.")
                                 .font(.system(size: 14))
-                                .foregroundStyle(Color.navText)
+                                .foregroundStyle(Color.containerText)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, 16)
 
@@ -429,7 +427,7 @@ struct DashboardView: View {
                                 Label("Mod log", systemImage: "wrench.and.screwdriver.fill")
                             }
                             .font(.system(size: 11, weight: .semibold))
-                            .foregroundStyle(Color.navText)
+                            .foregroundStyle(Color.containerText)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 10)
                         }
@@ -484,7 +482,7 @@ struct DashboardView: View {
                                                 switch phase {
                                                 case .empty:
                                                     Rectangle()
-                                                        .fill(Color.rectBorder)
+                                                        .fill(Color.containerBorder)
                                                         .frame(maxWidth: .infinity, maxHeight: 220)
                                                         .redacted(reason: .placeholder)
                                                         .shimmer(speed: 1.6)
@@ -570,12 +568,12 @@ struct DashboardView: View {
                                             if vehicle.motStatus == "Valid" {
                                                 Text("Expires \(viewModel.dateFormatter(vehicle.motExpiryDate))")
                                                     .font(.system(size: 11))
-                                                    .foregroundStyle(Color.bodyText)
+                                                    .foregroundStyle(Color.containerText)
                                                     .tracking(-0.4)
                                             } else {
                                                 Text("Expired \(viewModel.dateFormatter(vehicle.motExpiryDate))")
                                                     .font(.system(size: 11))
-                                                    .foregroundStyle(Color.bodyText)
+                                                    .foregroundStyle(Color.containerText)
                                                     .tracking(-0.4)
                                             }
                                         }
@@ -585,8 +583,8 @@ struct DashboardView: View {
                                     .padding(12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.rectBorder, lineWidth: 4)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 4)
+                                            .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
                                     VStack(alignment: .leading) {
@@ -632,7 +630,7 @@ struct DashboardView: View {
                                                 }label:{
                                                     Text("Incorrect? Contact DVLA")
                                                 }
-                                                .foregroundStyle(Color.bodyText)
+                                                .foregroundStyle(Color.containerText)
                                                 .font(.system(size: 11))
                                                 .tracking(-0.4)
                                                 
@@ -661,12 +659,12 @@ struct DashboardView: View {
                                                 if vehicle.taxStatus == "Taxed" {
                                                     Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
                                                         .font(.system(size: 11))
-                                                        .foregroundStyle(Color.bodyText)
+                                                        .foregroundStyle(Color.containerText)
                                                         .tracking(-0.4)
                                                 } else {
                                                     Text("Expired \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
                                                         .font(.system(size: 11))
-                                                        .foregroundStyle(Color.bodyText)
+                                                        .foregroundStyle(Color.containerText)
                                                         .tracking(-0.4)
                                                 }
                                             }
@@ -679,15 +677,14 @@ struct DashboardView: View {
                                     .padding( 12)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.rectBorder, lineWidth: 4)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 4)
+                                            .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
                                 }
                                 
                                 HStack{
                                     Text("Installed Mods")
-                                        .foregroundColor(.lightBlack)
                                         .font(.system(size: 18).weight(.semibold))
                                         .fontWidth(.condensed)
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -720,20 +717,19 @@ struct DashboardView: View {
                                     VStack(spacing: 8){
                                         ZStack{
                                             Circle()
-                                                .fill(Color.rectFill)
+                                                .fill(Color.containerBorder)
                                                 .frame(width: 50, height: 50)
                                             
                                             Image(systemName: "wrench.and.screwdriver")
                                                 .foregroundStyle(.redTheme)
                                         }
                                         Text("No Modifications Yet")
-                                            .foregroundColor(.lightBlack)
                                             .font(.system(size: 18).weight(.semibold))
                                             .fontWidth(.condensed)
                                             .frame(maxWidth: .infinity)
                                         
                                         Text("Add your first modification to personalise your build")
-                                            .foregroundColor(.bodyText)
+                                            .foregroundColor(.containerText)
                                             .font(.system(size: 12).weight(.medium))
                                             .frame(maxWidth: .infinity)
                                         
@@ -745,7 +741,7 @@ struct DashboardView: View {
                                         }
                                         .font(.system(size: 14).weight(.semibold))
                                         .fontWidth(.condensed)
-                                        .foregroundStyle(Color.backgroundW)
+                                        .foregroundStyle(Color.container)
                                         .padding(.horizontal,16)
                                         .padding(.vertical,10)
                                         .background(
@@ -757,14 +753,13 @@ struct DashboardView: View {
                                     .frame(maxWidth: .infinity)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.rectBorder, lineWidth: 4)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 4)
+                                            .fill(Color.container)
                                     )
                                 }
                                 
                                 HStack{
                                     Text("Recent Fuel Logs")
-                                        .foregroundColor(.lightBlack)
                                         .font(.system(size: 18).weight(.semibold))
                                         .fontWidth(.condensed)
                                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -800,19 +795,18 @@ struct DashboardView: View {
                                     VStack(spacing: 8){
                                         ZStack{
                                             Circle()
-                                                .fill(Color.rectFill)
+                                                .fill(Color.containerBorder)
                                                 .frame(width: 50, height: 50)
                                             
                                             Image(systemName: "fuelpump")
                                                 .foregroundStyle(.redTheme)
                                         }
                                         Text("No Fuel logs Yet")
-                                            .foregroundColor(.lightBlack)
                                             .font(.system(size: 18).weight(.semibold))
                                             .fontWidth(.condensed)
                                         
                                         Text("Track your fuel purchases to see insights")
-                                            .foregroundStyle(.bodyText)
+                                            .foregroundStyle(.containerText)
                                             .font(.system(size: 12).weight(.medium))
                                         
                                         Button{
@@ -822,8 +816,7 @@ struct DashboardView: View {
                                         }
                                         .font(.system(size: 14).weight(.semibold))
                                         .fontWidth(.condensed)
-                                        .fontWidth(.condensed)
-                                        .foregroundStyle(Color.backgroundW)
+                                        .foregroundStyle(Color.container)
                                         .padding(.horizontal,16)
                                         .padding(.vertical,10)
                                         .background(
@@ -835,8 +828,8 @@ struct DashboardView: View {
                                     .frame(maxWidth: .infinity)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.rectBorder, lineWidth: 4)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 4)
+                                            .fill(Color.container)
                                     )
                                 }
                             }
@@ -952,7 +945,7 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
     VStack(spacing: 10) {
         ZStack {
             Circle()
-                .fill(Color.boxbackground)
+                .fill(Color.container)
                 .frame(width: 52, height: 52)
 
             Image(systemName: systemImage)
@@ -962,7 +955,7 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
 
         Text(title)
             .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(Color.backgroundW)
+            .foregroundStyle(Color.container)
             .shadow(radius: 1)
 
     }
@@ -981,7 +974,7 @@ struct ModCard: View {
                         switch phase {
                         case .empty:
                             RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.rectBorder)
+                                .fill(Color.containerBorder)
                                 .frame(width: 150, height: 150)
                                 .redacted(reason: .placeholder)
                                 .shimmer(speed: 1.6)
@@ -993,7 +986,7 @@ struct ModCard: View {
                         case .failure(_):
                             ZStack{
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.rectBorder)
+                                    .fill(Color.containerBorder)
                                     .frame(width: 150, height: 150)
                                 
                                 Image(systemName: "wrench.and.screwdriver.fill")
@@ -1003,7 +996,7 @@ struct ModCard: View {
                         @unknown default:
                             ZStack{
                                 RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.rectBorder)
+                                    .fill(Color.containerBorder)
                                     .frame(width: 150, height: 150)
                                 
                                 Image(systemName: "wrench.and.screwdriver.fill")
@@ -1016,7 +1009,7 @@ struct ModCard: View {
                 } else {
                     ZStack{
                         RoundedRectangle(cornerRadius: 6)
-                            .fill(Color.rectBorder)
+                            .fill(Color.containerBorder)
                             .frame(width: 150, height: 150)
                             .redacted(reason: .placeholder)
                         
@@ -1028,16 +1021,15 @@ struct ModCard: View {
             }
             VStack(alignment: .center, spacing: 4) {
                 Text(modification.name)
-                    .foregroundStyle(Color.lightBlack)
                     .font(.system(size: 18, weight: .semibold))
                     .fontWidth(.condensed)
                     .multilineTextAlignment(.center)
                     .frame(width: 140, alignment: .center)
 
                 Text(modification.description ?? "")
-                    .foregroundStyle(Color.navText)
                     .font(.system(size: 14))
                     .fontWidth(.condensed)
+                    .foregroundStyle(Color.containerText)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
                     .frame(width: 150, alignment: .center)
@@ -1065,9 +1057,9 @@ private struct GradientShimmer: ViewModifier {
                     let size = proxy.size
                     LinearGradient(
                         gradient: Gradient(colors: [
-                            Color.white.opacity(0.0),
-                            Color.white.opacity(0.6),
-                            Color.white.opacity(0.0)
+                            Color.container.opacity(0.0),
+                            Color.container.opacity(0.6),
+                            Color.container.opacity(0.0)
                         ]),
                         startPoint: .leading,
                         endPoint: .trailing

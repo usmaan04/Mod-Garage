@@ -34,7 +34,7 @@ struct VehicleDetailView: View {
                     ZStack {
                         if viewModel.listOption == option {
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(Color.backgroundW)
+                                .fill(Color.container)
                                 .matchedGeometryEffect(id: "timeframeHighlight", in: timeframeNamespace)
                         }
                         RoundedRectangle(cornerRadius: 20)
@@ -43,18 +43,18 @@ struct VehicleDetailView: View {
                             if option == .mods{
                                 Image(systemName: "wrench.and.screwdriver.fill")
                                     .foregroundStyle(
-                                        viewModel.listOption == option ? Color.redTheme : Color.navText
+                                        viewModel.listOption == option ? Color.redTheme : Color.containerText
                                     )
                             }
                             else{
                                 Image(systemName: "fuelpump.fill")
                                     .foregroundStyle(
-                                        viewModel.listOption == option ? Color.redTheme : Color.navText
+                                        viewModel.listOption == option ? Color.redTheme : Color.containerText
                                     )
                             }
                             Text(option.label)
                                 .foregroundStyle(
-                                    viewModel.listOption == option ? Color.lightBlack : Color.navText
+                                    viewModel.listOption == option ? Color.bw : Color.containerText
                                 )
                                 .fontWidth(.condensed)
                                 .padding(.vertical, 12)
@@ -70,7 +70,7 @@ struct VehicleDetailView: View {
         .padding(6)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.rectBorder)
+                .fill(Color.innerContainer)
         )
     }
     
@@ -103,7 +103,6 @@ struct VehicleDetailView: View {
                                 Text("\(vehicle.make) " + "\(vehicle.model) ")
                                     .font(.system(size: 38).weight(.bold))
                                     .fontWidth(.condensed)
-                                    .foregroundStyle(Color.lightBlack)
                             }
                             
                             VStack{
@@ -132,8 +131,8 @@ struct VehicleDetailView: View {
                                     .padding(.horizontal, 20)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.rectBorder, lineWidth: 1)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 1)
+                                            .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
                                     )
                                     
@@ -161,12 +160,10 @@ struct VehicleDetailView: View {
                                     .padding(.horizontal, 20)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.rectBorder, lineWidth: 1)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 1)
+                                            .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
                                     )
-                                    
-                                    
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                                 
@@ -181,8 +178,6 @@ struct VehicleDetailView: View {
                                                 .font(.system(size: 14).weight(.medium))
                                                 .fontWidth(.condensed)
                                                 .foregroundStyle(Color.redTheme)
-                                               
-                                             
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         
@@ -202,8 +197,8 @@ struct VehicleDetailView: View {
                                     .padding(.horizontal, 20)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.rectBorder, lineWidth: 1)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 1)
+                                            .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
                                     )
                                     
@@ -231,12 +226,10 @@ struct VehicleDetailView: View {
                                     .padding(.horizontal, 20)
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
-                                            .stroke(Color.rectBorder, lineWidth: 1)
-                                            .fill(Color.boxbackground)
+                                            .stroke(Color.containerBorder, lineWidth: 1)
+                                            .fill(Color.container)
                                             .shadow(color: Color.black.opacity(0.08),radius: 4, x: 0, y: 5)
                                     )
-                                    
-                                    
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -244,7 +237,6 @@ struct VehicleDetailView: View {
                             
                             if viewModel.listOption == .mods{
                                 Text("Installed Mods")
-                                    .foregroundColor(.lightBlack)
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -274,7 +266,6 @@ struct VehicleDetailView: View {
                             }
                             else{
                                 Text("Fill Ups")
-                                    .foregroundColor(.lightBlack)
                                     .font(.system(size: 18).weight(.semibold))
                                     .fontWidth(.condensed)
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -322,7 +313,7 @@ struct VehicleDetailView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .background(Color.backgroundW)
+        .background(Color.container)
         .navigationTitle("Vehicle Details")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -399,7 +390,7 @@ struct ModificationCard: View {
                     switch phase {
                     case .empty:
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.rectBorder)
+                            .fill(Color.innerContainer)
                             .frame(width: 70, height: 70)
                             .redacted(reason: .placeholder)
                             .shimmer(speed: 1.6)
@@ -411,8 +402,8 @@ struct ModificationCard: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     case .failure(_):
                         ZStack{
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.rectBorder)
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.innerContainer)
                                 .frame(width: 70, height: 70)
                             
                             Image(systemName: "wrench.and.screwdriver.fill")
@@ -421,8 +412,8 @@ struct ModificationCard: View {
                         }
                     @unknown default:
                         ZStack{
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(Color.rectBorder)
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.innerContainer)
                                 .frame(width: 70, height: 70)
                             
                             Image(systemName: "wrench.and.screwdriver.fill")
@@ -433,8 +424,8 @@ struct ModificationCard: View {
                 }
             } else {
                 ZStack{
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.rectBorder)
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.innerContainer)
                         .frame(width: 70, height: 70)
                     
                     Image(systemName: "wrench.and.screwdriver.fill")
@@ -445,23 +436,24 @@ struct ModificationCard: View {
             
             VStack(alignment: .leading, spacing: 4){
                 Text(modification.name)
-                    .font(.system(size: 16).weight(.bold))
-                    .foregroundStyle(Color.lightBlack)
+                    .font(.system(size: 18).weight(.bold))
+                    .fontWidth(.condensed)
                     .multilineTextAlignment(.leading)
                 
                 Text("Installed " + "\(viewModel.modDateFormatter(modification.date))")
                     .font(.system(size: 12).weight(.medium))
-                    .foregroundStyle(Color.navText)
+                    .fontWidth(.condensed)
+                    .foregroundStyle(Color.containerText)
                    
                 
                 Text(modification.type)
                     .font(.system(size: 10).weight(.semibold))
-                    .foregroundStyle(Color.navText)
+                    .foregroundStyle(Color.containerText)
                     .padding(.horizontal,8)
                     .padding(.vertical,6)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.rectBorder.opacity(0.4))
+                            .fill(Color.containerBorder)
                     )
             }
         }
@@ -470,7 +462,7 @@ struct ModificationCard: View {
         .frame(maxWidth:. infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 26)
-                .fill(Color.boxbackground)
+                .fill(Color.container)
         )
     }
 }

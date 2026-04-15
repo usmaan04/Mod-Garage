@@ -39,7 +39,7 @@ struct VehicleView: View {
             "",
             text: $searchText,
             prompt: Text("Search by registration, make or model...")
-                .foregroundStyle(Color("bodyText"))
+                .foregroundStyle(Color.containerText)
         )
         .font(.system(size: 12))
         .keyboardType(.asciiCapable)
@@ -48,8 +48,8 @@ struct VehicleView: View {
         .padding(.horizontal, 12)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.boxbackground)
-                .stroke(Color.rectBorder, lineWidth: 1)
+                .fill(Color.container)
+                .stroke(Color.containerBorder, lineWidth: 1)
         )
     }
 
@@ -89,7 +89,7 @@ struct VehicleView: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.redTheme)
-                .stroke(Color(.rectBorder), lineWidth: 1)
+                .stroke(Color(.containerBorder), lineWidth: 1)
         )
     }
 
@@ -201,22 +201,22 @@ struct VehicleView: View {
             HStack {
                 Text(selection.wrappedValue ?? title)
                     .font(.system(size: 13).weight(.semibold))
-                    .foregroundStyle(selection.wrappedValue == nil ? Color.navText : Color.lightBlack)
+                    .foregroundStyle(selection.wrappedValue == nil ? Color.containerText : Color.black)
                     .lineLimit(1)
 
                 Spacer()
 
                 Image(systemName: "chevron.down")
                     .font(.system(size: 12).weight(.semibold))
-                    .foregroundStyle(Color.navText)
+                    .foregroundStyle(Color.containerText)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.boxbackground)
-                    .stroke(Color.rectBorder, lineWidth: 1)
+                    .fill(Color.container)
+                    .stroke(Color.containerBorder, lineWidth: 1)
             )
         }
     }
@@ -262,7 +262,6 @@ struct VehicleView: View {
                     VStack{
                         HStack {
                             Text("My Vehicles")
-                                .foregroundStyle(.lightBlack)
                                 .font(.system(size: 22).weight(.semibold))
                                 .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -286,7 +285,7 @@ struct VehicleView: View {
                     .padding(.horizontal, 17)
                     .padding(.bottom, 17)
                     .frame(maxWidth:.infinity, maxHeight: 64)
-                    .background(Color.backgroundW)
+                    .background(Color.container)
                     .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
                     
                     // Main content
@@ -311,12 +310,11 @@ struct VehicleView: View {
                                             .foregroundStyle(Color.black)
                                         
                                         Text("No Vehicles Found")
-                                            .foregroundStyle(Color.lightBlack)
                                             .multilineTextAlignment(.center)
                                             .font(.system(size: 20, weight: .semibold))
                                         
                                         Text("Add your first vehicle to keep details, modifications and fuel history all in one place")
-                                            .foregroundStyle(Color.bodyText)
+                                            .foregroundStyle(Color.containerText)
                                             .multilineTextAlignment(.center)
                                             .font(.system(size: 14))
                                         
@@ -332,7 +330,7 @@ struct VehicleView: View {
                                             .padding(.vertical, 8)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 20)
-                                                    .stroke(Color.rectBorder, lineWidth: 1)
+                                                    .stroke(Color.containerBorder, lineWidth: 1)
                                             )
                                             HStack{
                                                 Image(systemName: "lock")
@@ -345,7 +343,7 @@ struct VehicleView: View {
                                             .padding(.vertical, 8)
                                             .background(
                                                 RoundedRectangle(cornerRadius: 20)
-                                                    .stroke(Color.rectBorder, lineWidth: 1)
+                                                    .stroke(Color.containerBorder, lineWidth: 1)
                                             )
                                         }
                                        
@@ -419,7 +417,7 @@ struct VehicleView: View {
                                                 .font(.system(size: 34))
                                             
                                             Text("No vehicles match your search/filters.")
-                                                .foregroundStyle(.bodyText)
+                                                .foregroundStyle(.containerText)
                                                 .multilineTextAlignment(.center)
                                         }
                                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -543,8 +541,6 @@ struct VehicleCard: View {
                         Text("\(vehicle.make) \(vehicle.model)")
                             .font(.system(size: 20).weight(.bold))
                             .fontWidth(.condensed)
-                            .foregroundStyle(Color.lightBlack)
-                                            
                     }
                     
                     HStack(spacing: 14) {
@@ -567,7 +563,7 @@ struct VehicleCard: View {
                                 
                                 Text("MOT: \((vehicle.motStatus ?? "-"))")
                                     .font(.system(size: 12).weight(.medium))
-                                    .foregroundStyle(Color.navText)
+                                    .foregroundStyle(Color.containerText)
                                 
                                     .fontWidth(.condensed)
                                   
@@ -577,10 +573,10 @@ struct VehicleCard: View {
                         .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.rectFill)
+                                .fill(Color.containerBorder)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                        .stroke(Color.containerBorder, lineWidth: 1)
                                 )
                         )
                         
@@ -591,7 +587,7 @@ struct VehicleCard: View {
                                 
                                 Text("Tax: \((vehicle.taxStatus ?? "-"))")
                                     .font(.system(size: 12).weight(.medium))
-                                    .foregroundStyle(Color.navText)
+                                    .foregroundStyle(Color.containerText)
                                     .fontWidth(.condensed)
                                 
                         }
@@ -599,10 +595,10 @@ struct VehicleCard: View {
                         .padding(.vertical, 8)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.rectFill)
+                                .fill(Color.containerBorder)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                        .stroke(Color.containerBorder, lineWidth: 1)
                                 )
                         )
                     }
@@ -631,8 +627,8 @@ struct VehicleCard: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.rectBorder, lineWidth: 1)
-                .fill(Color.boxbackground)
+                .stroke(Color.containerBorder, lineWidth: 1)
+                .fill(Color.container)
                 .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
         )
     }

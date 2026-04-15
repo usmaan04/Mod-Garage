@@ -29,15 +29,15 @@ struct AddModificationView:View {
                         "",
                         text: $viewModel.modName,
                         prompt: Text("Sport Exhaust System")
-                            .foregroundStyle(Color.navText)
+                            .foregroundStyle(Color.containerText)
                     )
                     .font(.system(size: 14))
                     .keyboardType(.asciiCapable)
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.rectBorder, lineWidth: 3)
-                            .fill(Color.boxbackground)
+                            .stroke(Color.containerBorder, lineWidth: 3)
+                            .fill(Color.container)
                     )
                     Text("Type")
                         .font(.system(size: 16).weight(.medium))
@@ -60,16 +60,16 @@ struct AddModificationView:View {
                             value: $viewModel.modCost,
                             format: .currency(code: "GBP"),
                             prompt: Text("140.58")
-                                .foregroundStyle(Color.navText)
+                                .foregroundStyle(Color.containerText)
                         )
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.lightBlack)
+                        .foregroundStyle(Color.containerText)
                         .keyboardType(.decimalPad)
                         .padding(16)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.rectBorder, lineWidth: 3)
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, lineWidth: 3)
+                                .fill(Color.container)
                         )
                         Button {
                             viewModel.showDatePicker.toggle()
@@ -79,13 +79,13 @@ struct AddModificationView:View {
                                 Image(systemName: "calendar")
                             }
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.lightBlack)
+                            .foregroundStyle(Color.containerText)
                             .padding(16)
                             .frame(maxWidth: .infinity)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.rectBorder, lineWidth: 3)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color.containerBorder, lineWidth: 3)
+                                    .fill(Color.container)
                             )
                         }
                         .sheet(isPresented: $viewModel.showDatePicker) {
@@ -121,14 +121,14 @@ struct AddModificationView:View {
                     
                     }
                     .font(.system(size: 13))
-                    .foregroundStyle(Color.navText)
+                    .foregroundStyle(Color.containerText)
                     .frame(height: 80, alignment: .leading)
                     .padding(.vertical, 8)
                     .padding(.horizontal, 16)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.rectBorder, lineWidth: 3)
-                            .fill(Color.boxbackground)
+                            .stroke(Color.containerBorder, lineWidth: 3)
+                            .fill(Color.container)
                     )
                     HStack{
                         Text("Before Image")
@@ -157,7 +157,7 @@ struct AddModificationView:View {
                                     .font(.system(size: 12).weight(.medium))
                                 PhotosPicker("Click to upload an image", selection: $viewModel.beforeImageItem, matching: .images)
                                     .font(.system(size: 10))
-                                    .foregroundStyle(Color.bodyText)
+                                    .foregroundStyle(Color.containerText)
                                     .onChange(of: viewModel.beforeImageItem) { _ in
                                         Task {
                                             await viewModel.loadBeforeImage()
@@ -170,8 +170,8 @@ struct AddModificationView:View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.rectBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
+                                .fill(Color.container)
                         )
                         VStack(spacing: 12){
                             if let selectedImage = viewModel.afterImage {
@@ -189,7 +189,7 @@ struct AddModificationView:View {
                                     .font(.system(size: 12).weight(.medium))
                                 PhotosPicker("Click to upload an image", selection: $viewModel.afterImageItem, matching: .images)
                                     .font(.system(size: 10))
-                                    .foregroundStyle(Color.bodyText)
+                                    .foregroundStyle(Color.containerText)
                                     .onChange(of: viewModel.afterImageItem) { _ in
                                         Task {
                                             await viewModel.loadAfterImage()
@@ -202,8 +202,8 @@ struct AddModificationView:View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.rectBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, style: StrokeStyle(lineWidth: 3, dash: [6, 4]))
+                                .fill(Color.container)
                         )
                     }
                 }
@@ -211,7 +211,7 @@ struct AddModificationView:View {
                 
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
-                        .foregroundColor(.red)
+                        .foregroundColor(.redTheme)
                         .multilineTextAlignment(.center)
                 }
                 
@@ -277,7 +277,7 @@ struct ModTypeDropdown: View {
             HStack {
                 Text(selection.isEmpty ? "Select" : selection)
                     .font(.system(size: 14))
-                    .foregroundStyle(Color.navText)
+                    .foregroundStyle(Color.containerText)
 
                 Spacer()
 
@@ -290,8 +290,8 @@ struct ModTypeDropdown: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.rectBorder, lineWidth: 3)
-                    .fill(Color.boxbackground)
+                    .stroke(Color.containerBorder, lineWidth: 3)
+                    .fill(Color.container)
             )
             .contentShape(Rectangle())
         }
@@ -299,6 +299,3 @@ struct ModTypeDropdown: View {
     }
 }
 
-#Preview{
-    //AddModificationView()
-}

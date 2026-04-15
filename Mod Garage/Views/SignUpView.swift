@@ -26,13 +26,12 @@ struct SignUpView: View {
                     .font(.system(size: 24, weight: .semibold))
                     .fontWidth(.condensed)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.lightBlack)
                 
                 Text("Manage your rides, modifications, and MOT all in one place.")
                     .font(.system(size: 14))
                     .tracking(-0.4)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .foregroundColor(.bodyText)
+                    .foregroundStyle(.containerText)
                     .padding(.bottom, 10)
             }
             
@@ -47,7 +46,7 @@ struct SignUpView: View {
                         "",
                         text: $viewModel.name,
                         prompt: Text("Enter your name here...")
-                            .foregroundColor(Color("bodyText"))
+                            .foregroundStyle(Color.containerText)
                     )
                     .font(.system(size: 12))
                     .textInputAutocapitalization(.words)
@@ -56,8 +55,8 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.boxbackground)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                            .fill(Color.container)
+                            .stroke(Color.containerBorder, lineWidth: 1)
                     )
                 }
                 
@@ -70,7 +69,7 @@ struct SignUpView: View {
                         "",
                         text: $viewModel.email,
                         prompt: Text("Enter your email here...")
-                            .foregroundColor(Color("bodyText"))
+                            .foregroundStyle(Color.containerText)
                     )
                     .font(.system(size: 12))
                     .keyboardType(.emailAddress)
@@ -80,8 +79,8 @@ struct SignUpView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.boxbackground)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                            .fill(Color.container)
+                            .stroke(Color.containerBorder, lineWidth: 1)
                     )
                 }
                 
@@ -94,15 +93,15 @@ struct SignUpView: View {
                         "",
                         text: $viewModel.password,
                         prompt: Text("••••••••")
-                            .foregroundColor(Color("bodyText"))
+                            .foregroundStyle(Color.containerText)
                     )
                     .font(.system(size: 12))
                     .padding(.vertical, 16)
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.boxbackground)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                            .fill(Color.container)
+                            .stroke(Color.containerBorder, lineWidth: 1)
                     )
                 }
                 
@@ -175,15 +174,21 @@ struct SignUpView: View {
                     Text("Sign Up with Google")
                         .font(.system(size: 18).weight(.medium))
                         .fontWidth(.condensed)
-                        .foregroundColor(.lightBlack)
                 }
                 .frame(maxWidth: .infinity)
+                .foregroundStyle(
+                    Color(UIColor { trait in
+                        trait.userInterfaceStyle == .dark
+                            ? .white
+                        : .black
+                    })
+                )
                 .padding()
                 .background(
                     Color(UIColor { trait in
                         trait.userInterfaceStyle == .dark
                             ? .black
-                        : .backgroundW
+                        : .white
                     })
                 )
                 .cornerRadius(100)

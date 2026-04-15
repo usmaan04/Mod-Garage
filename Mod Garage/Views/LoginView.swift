@@ -23,14 +23,13 @@ struct LoginView: View {
                     Text("Welcome Back!")
                         .font(.system(size: 24, weight: .semibold))
                         .fontWidth(.condensed)
-                        .frame(maxWidth: .infinity,alignment: .leading)
-                        .foregroundColor(.lightBlack)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     // Title
                     Text("Manage your rides, modifications, and MOT all in one place.")
                         .font(.system(size: 14))
                         .tracking(-0.4)
-                        .frame(maxWidth: .infinity,alignment: .leading)
-                        .foregroundColor(.bodyText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(.containerText)
                         .padding(.bottom, 10)
                 }
                 VStack(spacing:24){
@@ -43,7 +42,7 @@ struct LoginView: View {
                                 "",
                                 text: $viewModel.email,
                                 prompt: Text("Enter your email here...")
-                                    .foregroundColor(Color("bodyText"))
+                                    .foregroundStyle(Color.containerText)
                             )
                             .font(.system(size: 12))
                             .keyboardType(.emailAddress)
@@ -53,8 +52,8 @@ struct LoginView: View {
                             .padding(.horizontal, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.boxbackground)
-                                    .stroke(Color.rectBorder, lineWidth: 1)
+                                    .fill(Color.container)
+                                    .stroke(Color.containerBorder, lineWidth: 1)
                             )
                     }
                     
@@ -90,7 +89,7 @@ struct LoginView: View {
                                     "",
                                     text: $viewModel.password,
                                     prompt: Text("••••••••")
-                                        .foregroundColor(.bodyText)
+                                        .foregroundStyle(Color.containerText)
                                 )
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled(true)
@@ -101,7 +100,7 @@ struct LoginView: View {
                                     "",
                                     text: $viewModel.password,
                                     prompt: Text("••••••••")
-                                        .foregroundColor(.bodyText)
+                                        .foregroundStyle(.containerText)
                                 )
                                 .textInputAutocapitalization(.never)
                                 .autocorrectionDisabled(true)
@@ -122,8 +121,8 @@ struct LoginView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.boxbackground)
-                                .stroke(Color.rectBorder, lineWidth: 1)
+                                .fill(Color.container)
+                                .stroke(Color.containerBorder, lineWidth: 1)
                         )
                     }
                 }
@@ -187,18 +186,24 @@ struct LoginView: View {
                         Image("google")
                             .resizable()
                             .frame(width: 20, height: 20)
-                        Text("Continue with Google")
+                        Text("Log In with Google")
                             .font(.system(size: 18).weight(.medium))
                             .fontWidth(.condensed)
-                            .foregroundColor(.lightBlack)
                     }
                     .frame(maxWidth: .infinity)
+                    .foregroundStyle(
+                        Color(UIColor { trait in
+                            trait.userInterfaceStyle == .dark
+                                ? .white
+                            : .black
+                        })
+                    )
                     .padding()
                     .background(
                         Color(UIColor { trait in
                             trait.userInterfaceStyle == .dark
                                 ? .black
-                            : .backgroundW
+                            : .white
                         })
                     )
                     .cornerRadius(100)

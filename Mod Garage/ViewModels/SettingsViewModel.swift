@@ -23,6 +23,7 @@ class SettingsViewModel: ObservableObject {
     @Published var isEmailPasswordUser: Bool = false
     @Published var showProfile: Bool = false
     @Published var showNotification: Bool = false
+    @Published var showDeleteConfirmation = false
     @Published var showAlert = false
     @Published var alertMessage = ""
     

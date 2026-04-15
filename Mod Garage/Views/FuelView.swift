@@ -12,17 +12,8 @@ import Charts
 private func currencyString(from value: Double) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .currency
-    formatter.currencyCode = "GBP"
-    return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
-}
-
-private func spendingCurrencyString(from value: Double) -> String {
-    let formatter = NumberFormatter()
-    formatter.numberStyle = .currency
-    formatter.currencyCode = "GBP"
-    formatter.maximumFractionDigits = 0
-    formatter.minimumFractionDigits = 0
-    return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
+    // If you have a specific currency, set it here; otherwise it uses locale
+    return formatter.string(from: NSNumber(value: value)) ?? "—"
 }
 
 struct FuelView: View {
@@ -35,7 +26,6 @@ struct FuelView: View {
             VStack{
                 HStack {
                     Text("Fuel & Efficiency")
-                        .foregroundStyle(.lightBlack)
                         .font(.system(size: 22).weight(.semibold))
                         .fontWidth(.condensed)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -60,7 +50,7 @@ struct FuelView: View {
             .zIndex(30)
             .padding(.horizontal, 17)
             .frame(maxWidth: .infinity, maxHeight: 84)
-            .background(Color.backgroundW)
+            .background(Color.container)
             .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
             if viewModel.isLoading {
                 ProgressView()
@@ -83,32 +73,96 @@ struct FuelView: View {
                             }
                             
                             Text("Efficiency Trends")
-                                .foregroundColor(.lightBlack)
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                              
                             // MPG Trends (placeholder container)
-                            VStack(alignment: .leading, spacing: 16) {
+                            VStack(alignment: .leading, spacing: 24) {
+                                VStack(alignment: .leading, spacing: 4){
+                                    switch viewModel.selectedTimeframe {
+                                    case .oneMonth:
+                                        Text("Daily MPG")
+                                            .font(.system(size: 18).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText)
+                                    case .sixMonths, .oneYear:
+                                        Text("Monthly MPG")
+                                            .font(.system(size: 18).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText)
+                                    case .all:
+                                        Text("Yearly MPG")
+                                            .font(.system(size: 18).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText)
+                                    }
+                                    HStack(alignment: .firstTextBaseline, spacing: 2) {
+                                        Text(mpgString(viewModel.mpgHeaderText))
+                                            .font(.system(size: 24).weight(.bold))
+                                        Text("Avg")
+                                            .font(.system(size: 16).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText.opacity(0.8))
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                }
                                 
                                 if viewModel.mpgChartPoints.isEmpty {
                                         emptyChartState("No MPG data for this timeframe.")
                                 } else {
                                     Chart(viewModel.mpgChartPoints) { point in
+                                        RuleMark(y: .value("Baseline", 0))
+                                            .foregroundStyle(Color.containerText.opacity(0.1))
+                                            .lineStyle(StrokeStyle(lineWidth: 1))
                                         LineMark(
                                             x: .value("Date", point.x),
                                             y: .value("Avg MPG", point.avgMPG)
                                         )
-                                        .foregroundStyle(Color.redTheme)
+                                        .foregroundStyle(
+                                            viewModel.selectedMPGPoint == nil
+                                            ? Color.redTheme
+                                            : Color.containerText
+                                        )
                                         PointMark(
                                             x: .value("Date", point.x),
                                             y: .value("Avg MPG", point.avgMPG)
                                         )
-                                        .foregroundStyle(Color.redTheme)
+                                        .symbolSize(100)
+                                        .foregroundStyle(
+                                            viewModel.selectedMPGPoint == nil || viewModel.selectedMPGPoint?.id == point.id
+                                            ? Color.redTheme
+                                            : Color.containerText
+                                        )
                                     }
                                     .frame(height: 180)
                                     .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
                                     .chartXScale(range: .plotDimension(padding: 10))
+                                    .chartOverlay { proxy in
+                                        GeometryReader { geometry in
+                                            Rectangle().fill(.clear).contentShape(Rectangle())
+                                                .gesture(
+                                                    SpatialTapGesture()
+                                                        .onEnded { value in
+                                                            let location = value.location
+                                                            // Find the date on the X axis
+                                                            if let date: Date = proxy.value(atX: location.x) {
+                                                                // Find the point closest to this date
+                                                                let closest = viewModel.mpgChartPoints.min(by: {
+                                                                    abs($0.x.timeIntervalSince(date)) < abs($1.x.timeIntervalSince(date))
+                                                                })
+                                                                
+                                                                // If clicking the same bar, deselect it
+                                                                if viewModel.selectedMPGPoint?.id == closest?.id {
+                                                                    viewModel.selectedMPGPoint = nil
+                                                                } else {
+                                                                    viewModel.selectedMPGPoint = closest
+                                                                }
+                                                            }
+                                                        }
+                                                )
+                                        }
+                                    }
                                     .chartXAxis {
                                         switch viewModel.selectedTimeframe {
                                         case .oneMonth:
@@ -139,50 +193,112 @@ struct FuelView: View {
                                         }
                                     }
                                     .chartYAxis {
-                                        AxisMarks(position: .leading)
+                                        AxisMarks(position: .leading) {
+                                            AxisGridLine()
+                                        }
                                     }
                                 }
                             }
-                            .padding(12)
+                            .padding(16)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.rectBorder, lineWidth: 4)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color.containerBorder, lineWidth: 4)
+                                    .fill(Color.container)
                                     .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                             )
 
                             Text("Spending")
-                                .foregroundColor(.lightBlack)
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
-                            VStack(alignment: .leading, spacing: 16) {
-
+                            VStack(alignment: .leading, spacing: 24) {
+                                VStack(alignment: .leading, spacing: 4){
+                                    switch viewModel.selectedTimeframe {
+                                    case .oneMonth:
+                                        Text("Daily Spending")
+                                            .font(.system(size: 18).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText)
+                                    case .sixMonths, .oneYear:
+                                        Text("Monthly Spending")
+                                            .font(.system(size: 18).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText)
+                                    case .all:
+                                        Text("Yearly Spending")
+                                            .font(.system(size: 18).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText)
+                                    }
+                                    HStack(alignment: .firstTextBaseline, spacing: 2) {
+                                        Text(viewModel.spendingHeaderText)
+                                            .font(.system(size: 24).weight(.bold))
+                                        Text("Total")
+                                            .font(.system(size: 16).weight(.regular))
+                                            .fontWidth(.condensed)
+                                            .foregroundStyle(Color.containerText.opacity(0.8))
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                                
                                 if viewModel.spendChartPoints.isEmpty {
                                     emptyChartState("No spending data for this timeframe.")
                                 } else {
                                     let barWidth: MarkDimension = {
                                         switch viewModel.selectedTimeframe {
-                                        case .oneMonth: return .fixed(6)
-                                        case .sixMonths: return .fixed(35)
+                                        case .oneMonth: return .fixed(15)
+                                        case .sixMonths: return .fixed(50)
                                         case .oneYear: return .fixed(25)
-                                        case .all: return .fixed(35)
+                                        case .all: return .fixed(45)
                                         }
                                     }()
 
                                     Chart(viewModel.spendChartPoints) { point in
+                                        RuleMark(y: .value("Baseline", 0))
+                                            .foregroundStyle(Color.containerText.opacity(0.1))
+                                            .lineStyle(StrokeStyle(lineWidth: 1))
                                         BarMark(
                                             x: .value("Date", point.x),
                                             y: .value("Total Spend", point.totalSpend),
                                             width: barWidth
                                         )
-                                        .foregroundStyle(Color.redTheme)
+                                        .cornerRadius(4)
+                                        .foregroundStyle(
+                                            viewModel.selectedSpendPoint == nil || viewModel.selectedSpendPoint?.id == point.id
+                                            ? Color.redTheme
+                                            : Color.containerText
+                                        )
                                     }
                                     .frame(height: 180)
                                     .chartXScale(domain: viewModel.chartDomain ?? Date.distantPast...Date())
                                     .chartXScale(range: .plotDimension(padding: 10))
+                                    .chartOverlay { proxy in
+                                        GeometryReader { geometry in
+                                            Rectangle().fill(.clear).contentShape(Rectangle())
+                                                .gesture(
+                                                    SpatialTapGesture()
+                                                        .onEnded { value in
+                                                            let location = value.location
+                                                            // Find the date on the X axis
+                                                            if let date: Date = proxy.value(atX: location.x) {
+                                                                // Find the point closest to this date
+                                                                let closest = viewModel.spendChartPoints.min(by: {
+                                                                    abs($0.x.timeIntervalSince(date)) < abs($1.x.timeIntervalSince(date))
+                                                                })
+                                                                
+                                                                // If clicking the same bar, deselect it
+                                                                if viewModel.selectedSpendPoint?.id == closest?.id {
+                                                                    viewModel.selectedSpendPoint = nil
+                                                                } else {
+                                                                    viewModel.selectedSpendPoint = closest
+                                                                }
+                                                            }
+                                                        }
+                                                )
+                                        }
+                                    }
                                     .chartXAxis {
                                         switch viewModel.selectedTimeframe {
                                         case .oneMonth:
@@ -190,6 +306,7 @@ struct FuelView: View {
                                                 AxisValueLabel(centered: false) {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.day())
+                                                            .font(.system(size: 12).weight(.medium))
                                                             
                                                     }
                                                 }
@@ -200,6 +317,7 @@ struct FuelView: View {
                                                 AxisValueLabel(centered: true) {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.month(.abbreviated))
+                                                            .font(.system(size: 12).weight(.medium))
                                                     }
                                                 }
                                             }
@@ -209,38 +327,33 @@ struct FuelView: View {
                                                 AxisValueLabel(centered: true) {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.year())
+                                                            .font(.system(size: 12).weight(.medium))
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                 
                                     .frame(maxWidth: .infinity)
                                     .chartYAxis {
-                                        AxisMarks(position: .leading) { value in
+                                        AxisMarks(position: .leading) {
                                             AxisGridLine()
-                                            AxisTick()
-                                            AxisValueLabel {
-                                                if let v = value.as(Double.self) {
-                                                    Text(spendingCurrencyString(from: v))
-                                                }
-                                            }
                                         }
                                     }
                                 }
                             }
-                            .padding(10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(16)
                             .background(
                                 RoundedRectangle(cornerRadius: 12)
-                                    .stroke(Color.rectBorder, lineWidth: 4)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color.containerBorder, lineWidth: 4)
+                                    .fill(Color.container)
                                     .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                             )
                             
                             HStack{
                                 Text("Recent Logs")
-                                    .foregroundColor(.lightBlack)
-                                    .font(.system(size: 16).weight(.semibold))
+                                    .font(.system(size: 18).weight(.semibold))
+                                    .fontWidth(.condensed)
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 
                                 Button{
@@ -273,7 +386,7 @@ struct FuelView: View {
                             if viewModel.filteredLogs.isEmpty {
                                 Text("No fuel logs found for this timeframe.")
                                     .font(.system(size: 12))
-                                    .foregroundStyle(Color.navText)
+                                    .foregroundStyle(Color.containerText)
                                     .padding(.top, 4)
                             }
 
@@ -294,7 +407,7 @@ struct FuelView: View {
                 VStack(spacing: 16) {
                     ZStack {
                         Circle()
-                            .fill(Color.boxbackground)
+                            .fill(Color.container)
                             .frame(width: 80, height: 80)
                             .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 4)
                         Image(systemName: "car.fill")
@@ -304,11 +417,10 @@ struct FuelView: View {
 
                     Text("No vehicle yet")
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color.lightBlack)
 
                     Text("Add your first vehicle to start tracking fuel and efficiency stats.")
                         .font(.system(size: 14))
-                        .foregroundStyle(Color.navText)
+                        .foregroundStyle(Color.containerText)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
 
@@ -393,7 +505,7 @@ struct FuelView: View {
                         Text(timeframe.label)
                             .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(
-                                viewModel.selectedTimeframe == timeframe ? Color.lightBlack : Color.bodyText
+                                viewModel.selectedTimeframe == timeframe ? Color.bw : Color.containerText
                             )
                             .padding(.bottom, 6)
                         
@@ -406,7 +518,7 @@ struct FuelView: View {
                 .frame(maxWidth: .infinity)
             }
         }
-        .offset(y:5.2)
+        .offset(y:4.9)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
@@ -438,11 +550,10 @@ struct FuelView: View {
             Text(title)
                 .font(.system(size: 16).weight(.medium))
                 .fontWidth(.condensed)
-                .foregroundStyle(Color.navText)
+                .foregroundStyle(Color.containerText)
 
             Text(value)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundStyle(Color.lightBlack)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
@@ -450,8 +561,8 @@ struct FuelView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.rectBorder, lineWidth: 4)
-                .fill(Color.boxbackground)
+                .stroke(Color.containerBorder, lineWidth: 4)
+                .fill(Color.container)
                 .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
         )
     }
@@ -459,16 +570,8 @@ struct FuelView: View {
     private func emptyChartState(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 12))
-            .foregroundStyle(Color.navText.opacity(0.8))
+            .foregroundStyle(Color.containerText)
             .frame(maxWidth: .infinity, minHeight: 180, alignment: .center)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color.boxbackground.opacity(0.6))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 10)
-                            .stroke(Color.rectBorder.opacity(0.6), lineWidth: 1)
-                    )
-            )
     }
 
     private func mpgString(_ value: Double?) -> String {
@@ -494,10 +597,10 @@ struct FuelLogCard: View {
                     Text(viewModel.monthString(from: fuelLog.date))
                         .font(.system(size: 8, weight: .semibold))
                         .tracking(-0.2)
-                        .foregroundStyle(Color.bodyText)
+                        .foregroundStyle(Color.containerText)
                     Text(viewModel.dayString(from: fuelLog.date))
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Color.boxbackground)
+                        .foregroundStyle(Color.white)
                 }
             }
             VStack(alignment: .leading, spacing: 4){
@@ -510,7 +613,6 @@ struct FuelLogCard: View {
                         .font(.system(size: 18).weight(.bold))
                         .frame(maxWidth: .infinity, alignment: .trailing)
                 }
-                .foregroundStyle(Color.lightBlack)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(spacing: 4) {
@@ -530,7 +632,8 @@ struct FuelLogCard: View {
                     }
                 }
                 .font(.system(size: 12).weight(.semibold))
-                .foregroundStyle(Color.navText)
+                .fontWidth(.condensed)
+                .foregroundStyle(Color.containerText)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -539,7 +642,7 @@ struct FuelLogCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.boxbackground)
+                .fill(Color.container)
                 .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
         )
     }

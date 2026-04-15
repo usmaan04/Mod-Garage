@@ -34,12 +34,12 @@ struct CustomTabBar: View {
                         ZStack {
                             // Outer circle
                             Circle()
-                                .fill(Color.backgroundW)
+                                .fill(Color.container)
                                 .frame(width: 62, height: 62)
                                 .overlay(
                                     Circle()
                                         .trim(from: 0.56, to: 0.94)
-                                        .stroke(Color.rectBorder, lineWidth: 1)
+                                        .stroke(Color.containerBorder, lineWidth: 1)
                                 )
 
                             // Inner circle
@@ -55,7 +55,7 @@ struct CustomTabBar: View {
                             Text(tabTitle(tab))
                                 .font(.system(size: 12))
                                 .tracking(-0.2)
-                                .foregroundColor(viewModel.selectedTab == tab ? .redTheme : Color.navText)
+                                .foregroundStyle(viewModel.selectedTab == tab ? .redTheme : Color.containerText)
                                 .offset(y:40)
                         }
                     }
@@ -70,12 +70,12 @@ struct CustomTabBar: View {
                         VStack(spacing: 6) {
                             Image(systemName: tab.rawValue)
                                 .font(.system(size: 22).weight(.light))
-                                .foregroundColor(viewModel.selectedTab == tab ? .redTheme : Color.navText)
+                                .foregroundStyle(viewModel.selectedTab == tab ? .redTheme : Color.containerText)
 
                             Text(tabTitle(tab))
                                 .font(.system(size: 12))
                                 .tracking(-0.2)
-                                .foregroundColor(viewModel.selectedTab == tab ? .redTheme : Color.navText)
+                                .foregroundStyle(viewModel.selectedTab == tab ? .redTheme : Color.containerText)
                         }
                     }
                 }
@@ -88,10 +88,10 @@ struct CustomTabBar: View {
         .frame(height: 84)
         .background(
             RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.rectBorder, lineWidth: 1)
+                .stroke(Color.containerBorder, lineWidth: 1)
                 .shadow(radius: 12)
         )
-        .background(Color.backgroundW)
+        .background(Color.container)
     }
 }
 

@@ -73,7 +73,7 @@ struct VehicleReportView: View {
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.white)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                            .stroke(Color.containerBorder, lineWidth: 1)
                     )
                     
                     modificationsCard
@@ -91,7 +91,7 @@ struct VehicleReportView: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.rectFill)
+                    .fill(Color.containerBorder)
             )
         }
         .padding(.horizontal, 30)
@@ -214,7 +214,7 @@ struct VehicleReportView: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white)
-                .stroke(Color.rectBorder, lineWidth: 1)
+                .stroke(Color.containerBorder, lineWidth: 1)
         )
     }
     
@@ -239,7 +239,7 @@ struct VehicleReportView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14))
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(Color.rectBorder, lineWidth: 1)
+                .stroke(Color.containerBorder, lineWidth: 1)
         )
     }
     
@@ -314,7 +314,7 @@ struct VehicleReportView: View {
         .background(
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color.white)
-                .stroke(Color.rectBorder, lineWidth: 1)
+                .stroke(Color.containerBorder, lineWidth: 1)
         )
     }
     

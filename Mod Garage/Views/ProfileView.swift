@@ -42,8 +42,8 @@ struct ProfileView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.boxbackground)
-                                .stroke(Color.rectBorder, lineWidth: 1)
+                                .fill(Color.container)
+                                .stroke(Color.containerBorder, lineWidth: 1)
                         )
                 }
 
@@ -60,8 +60,8 @@ struct ProfileView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.boxbackground)
-                                .stroke(Color.rectBorder, lineWidth: 1)
+                                .fill(Color.container)
+                                .stroke(Color.containerBorder, lineWidth: 1)
                         )
                 }
 
@@ -77,8 +77,8 @@ struct ProfileView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.boxbackground)
-                                .stroke(Color.rectBorder, lineWidth: 1)
+                                .fill(Color.container)
+                                .stroke(Color.containerBorder, lineWidth: 1)
                         )
                 }
 
@@ -114,7 +114,7 @@ struct ProfileView: View {
                         }
                     }
                     .font(.system(size: 14).weight(.semibold))
-                    .foregroundStyle(Color.backgroundW)
+                    .foregroundStyle(Color.container)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 16)
                     .frame(maxWidth: .infinity)
@@ -162,9 +162,11 @@ struct ProfileView: View {
             AsyncImage(url: url) { phase in
                 switch phase {
                 case .empty:
-                    ProgressView()
+                    Image("profilePic")
+                        .resizable()
+                        .scaledToFill()
                         .frame(width: 150, height: 150)
-                        .frame(maxWidth: .infinity)
+                        .clipShape(Circle())
 
                 case .success(let image):
                     image
@@ -172,7 +174,6 @@ struct ProfileView: View {
                         .scaledToFill()
                         .frame(width: 150, height: 150)
                         .clipShape(Circle())
-                        .frame(maxWidth: .infinity)
 
                 case .failure(_):
                     Image("AdaptiveLaunch")
@@ -180,21 +181,22 @@ struct ProfileView: View {
                         .scaledToFit()
                         .frame(width: 150, height: 150)
                         .frame(maxWidth: .infinity)
+                        .clipShape(Circle())
 
                 @unknown default:
                     Image("AdaptiveLaunch")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 150, height: 150)
-                        .frame(maxWidth: .infinity)
+                        .clipShape(Circle())
                 }
             }
         } else {
             Image("AdaptiveLaunch")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 150, height: 150, alignment: .center)
-                .frame(maxWidth: .infinity)
+                .frame(width: 150, height: 150)
+                .clipShape(Circle())
         }
     }
 

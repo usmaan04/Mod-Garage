@@ -123,7 +123,7 @@ struct OnboardView: View {
                 
                 Text("Track your builds, log your fuel, and manage your collection all in one high performance garage designed for the driven.")
                     .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(.navText)
+                    .foregroundStyle(.containerText)
                     .lineSpacing(8)
                     .tracking(0.2)
                     .frame(alignment: .leading)
@@ -167,7 +167,7 @@ struct OnboardView: View {
                         "",
                         text: $loginVM.email,
                         prompt: Text("Enter your email here...")
-                            .foregroundColor(Color("bodyText"))
+                            .foregroundStyle(Color.containerText)
                     )
                     .font(.system(size: 12))
                     .keyboardType(.emailAddress)
@@ -177,8 +177,8 @@ struct OnboardView: View {
                     .padding(.horizontal, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.boxbackground)
-                            .stroke(Color.rectBorder, lineWidth: 1)
+                            .fill(Color.container)
+                            .stroke(Color.containerBorder, lineWidth: 1)
                     )
             }
             
@@ -209,7 +209,7 @@ struct OnboardView: View {
                             "",
                             text: $loginVM.password,
                             prompt: Text("••••••••")
-                                .foregroundColor(.bodyText)
+                                .foregroundStyle(Color.containerText)
                         )
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
@@ -220,7 +220,7 @@ struct OnboardView: View {
                             "",
                             text: $loginVM.password,
                             prompt: Text("••••••••")
-                                .foregroundColor(.bodyText)
+                                .foregroundStyle(Color.containerText)
                         )
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled(true)
@@ -232,7 +232,7 @@ struct OnboardView: View {
                         loginVM.isPasswordVisible.toggle()
                     }) {
                         Image(systemName: loginVM.isPasswordVisible ? "eye" : "eye.slash")
-                            .foregroundColor(.gray)
+                            .foregroundStyle(Color.containerText)
                     }
                     .buttonStyle(.plain)
                     .contentShape(Rectangle())
@@ -241,8 +241,8 @@ struct OnboardView: View {
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.boxbackground)
-                        .stroke(Color.rectBorder, lineWidth: 1)
+                        .fill(Color.container)
+                        .stroke(Color.containerBorder, lineWidth: 1)
                 )
             }
             
@@ -300,15 +300,21 @@ struct OnboardView: View {
                         Text("Sign Up with Google")
                             .font(.system(size: 10).weight(.medium))
                             .fontWidth(.condensed)
-                            .foregroundColor(.lightBlack)
                     }
                     .frame(maxWidth: .infinity)
+                    .foregroundStyle(
+                        Color(UIColor { trait in
+                            trait.userInterfaceStyle == .dark
+                                ? .white
+                            : .black
+                        })
+                    )
                     .padding(.vertical, 16)
                     .background(
                         Color(UIColor { trait in
                             trait.userInterfaceStyle == .dark
                                 ? .black
-                            : .backgroundW
+                            : .white
                         })
                     )
                     .cornerRadius(100)
@@ -320,7 +326,7 @@ struct OnboardView: View {
             Button(action: { authVM.currentStep = 1 }) {
                 HStack(spacing: 4) {
                     Text("Dont have an account? ")
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundStyle(Color.containerText)
                     Text("SIGN UP")
                         .foregroundStyle(Color.redTheme)
                         .fontWeight(.semibold)
@@ -350,7 +356,7 @@ struct OnboardView: View {
                     "",
                     text: $signUpVM.name,
                     prompt: Text("Enter your name here...")
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundStyle(Color.containerText)
                 )
                 .font(.system(size: 12))
                 .textInputAutocapitalization(.words)
@@ -359,8 +365,8 @@ struct OnboardView: View {
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.boxbackground)
-                        .stroke(Color.rectBorder, lineWidth: 1)
+                        .fill(Color.container)
+                        .stroke(Color.containerBorder, lineWidth: 1)
                 )
             }
             
@@ -373,7 +379,7 @@ struct OnboardView: View {
                     "",
                     text: $signUpVM.email,
                     prompt: Text("Enter your email here...")
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundStyle(Color.containerText)
                 )
                 .font(.system(size: 12))
                 .keyboardType(.emailAddress)
@@ -383,8 +389,8 @@ struct OnboardView: View {
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.boxbackground)
-                        .stroke(Color.rectBorder, lineWidth: 1)
+                        .fill(Color.container)
+                        .stroke(Color.containerBorder, lineWidth: 1)
                 )
             }
             
@@ -397,15 +403,15 @@ struct OnboardView: View {
                     "",
                     text: $signUpVM.password,
                     prompt: Text("••••••••")
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundStyle(Color.containerText)
                 )
                 .font(.system(size: 12))
                 .padding(.vertical, 16)
                 .padding(.horizontal, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.boxbackground)
-                        .stroke(Color.rectBorder, lineWidth: 1)
+                        .fill(Color.container)
+                        .stroke(Color.containerBorder, lineWidth: 1)
                 )
             }
             
@@ -462,15 +468,21 @@ struct OnboardView: View {
                         Text("Sign Up with Google")
                             .font(.system(size: 10).weight(.medium))
                             .fontWidth(.condensed)
-                            .foregroundColor(.lightBlack)
                     }
                     .frame(maxWidth: .infinity)
+                    .foregroundStyle(
+                        Color(UIColor { trait in
+                            trait.userInterfaceStyle == .dark
+                                ? .white
+                            : .black
+                        })
+                    )
                     .padding(.vertical, 16)
                     .background(
                         Color(UIColor { trait in
                             trait.userInterfaceStyle == .dark
                                 ? .black
-                            : .backgroundW
+                            : .white
                         })
                     )
                     .cornerRadius(100)
@@ -483,7 +495,7 @@ struct OnboardView: View {
             Button(action: { authVM.currentStep = 3 }) {
                 HStack(spacing: 4) {
                     Text("Already a member?")
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundStyle(Color.containerText)
                     Text("LOG IN")
                         .foregroundStyle(Color.redTheme)
                         .fontWeight(.semibold)
@@ -563,7 +575,7 @@ struct OnboardView: View {
                                 cornerRadius: 12,
                                 style: .continuous
                             )
-                            .stroke(Color.rectBorder)
+                            .stroke(Color.containerBorder)
                         )
                     
                         Button(action: {
@@ -596,16 +608,15 @@ struct OnboardView: View {
                             "",
                             text: $addVehicleVM.model,
                             prompt: Text("Golf")
-                                .foregroundStyle(.black.opacity(0.3))
+                                .foregroundStyle(Color.containerText)
                         )
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.lightBlack)
                         .multilineTextAlignment(.center)
                         .keyboardType(.asciiCapable)
                         .padding(14)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder)
+                                .stroke(Color.containerBorder)
                                 
                         )
                         
@@ -621,7 +632,7 @@ struct OnboardView: View {
                             PhotosPicker("Upload image", selection: $addVehicleVM.carImageItem, matching: .images)
                                 .font(.system(size: 16).weight(.regular))
                                 .fontWidth(.condensed)
-                                .foregroundStyle(Color.bodyText)
+                                .foregroundStyle(Color.containerText)
                                 .onChange(of: addVehicleVM.carImageItem) { _ in
                                     Task {
                                         await addVehicleVM.loadImage()
@@ -646,7 +657,7 @@ struct OnboardView: View {
                                 cornerRadius: 12,
                                 style: .continuous
                             )
-                            .stroke(Color.rectBorder)
+                            .stroke(Color.containerBorder)
                         )
                         
                         Button(action: {
@@ -722,7 +733,7 @@ struct OnboardView: View {
                                 cornerRadius: 12,
                                 style: .continuous
                             )
-                            .stroke(Color.rectBorder)
+                            .stroke(Color.containerBorder)
                         )
                     
                         Button(action: {
@@ -776,7 +787,7 @@ struct ProgressBar: View {
                     .shadow(color: Color.redTheme.opacity(0.6), radius: 6, x: 0, y: 2)
             }
         }
-        .frame(height: 6) 
+        .frame(height: 6)
         .padding(.horizontal, 24)
     }
 }

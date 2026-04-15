@@ -34,14 +34,14 @@ struct AddFuelLogView:View {
                         text: $viewModel.location
                     )
                     .font(.system(size: 14))
-                    .foregroundStyle(Color("lightBlack"))
+                    .foregroundStyle(Color.containerText)
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled(false)
                     .padding(16)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.rectBorder, lineWidth: 3)
-                            .fill(Color.boxbackground)
+                            .stroke(Color.containerBorder, lineWidth: 3)
+                            .fill(Color.container)
                     )
                     HStack{
                         Text("Total Cost")
@@ -66,8 +66,8 @@ struct AddFuelLogView:View {
                         .keyboardType(.decimalPad)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.rectBorder, lineWidth: 3)
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, lineWidth: 3)
+                                .fill(Color.container)
                         )
                         HStack{
                             TextField(
@@ -85,12 +85,12 @@ struct AddFuelLogView:View {
                         .keyboardType(.decimalPad)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.rectBorder, lineWidth: 3)
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, lineWidth: 3)
+                                .fill(Color.container)
                         )
                     }
                     .font(.system(size: 14))
-                    .foregroundStyle(Color("lightBlack"))
+                    .foregroundStyle(Color.containerText)
                     
                     HStack{
                         Text("Odometer Mileage")
@@ -117,13 +117,13 @@ struct AddFuelLogView:View {
                                 .fontWidth(.condensed)
                         }
                         .font(.system(size: 14))
-                        .foregroundStyle(Color("lightBlack"))
+                        .foregroundStyle(Color.containerText)
                         .textInputAutocapitalization(.never)
                         .padding(16)
                         .background(
                             RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.rectBorder, lineWidth: 3)
-                                .fill(Color.boxbackground)
+                                .stroke(Color.containerBorder, lineWidth: 3)
+                                .fill(Color.container)
                         )
                         
                         Button {
@@ -134,13 +134,13 @@ struct AddFuelLogView:View {
                                 Image(systemName: "calendar")
                             }
                             .font(.system(size: 14))
-                            .foregroundStyle(Color.lightBlack)
+                            .foregroundStyle(Color.containerText)
                             .padding(16)
                             .frame(maxWidth: .infinity)
                             .background(
                                 RoundedRectangle(cornerRadius: 20)
-                                    .stroke(Color.rectBorder, lineWidth: 3)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color.containerBorder, lineWidth: 3)
+                                    .fill(Color.container)
                             )
                         }
                         .sheet(isPresented: $viewModel.showDatePicker) {
@@ -158,7 +158,7 @@ struct AddFuelLogView:View {
                         Text("Price Per Litre")
                             .font(.system(size: 16).weight(.medium))
                             .fontWidth(.condensed)
-                            .foregroundStyle(Color.navText)
+                            .foregroundStyle(Color.containerText)
                         
                         HStack(spacing:0){
                             Text("£")
@@ -175,8 +175,8 @@ struct AddFuelLogView:View {
                     .frame(maxWidth: .infinity)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(Color.rectBorder, lineWidth: 3)
-                            .fill(Color.boxbackground)
+                            .stroke(Color.containerBorder, lineWidth: 3)
+                            .fill(Color.container)
                     )
                     
                 }

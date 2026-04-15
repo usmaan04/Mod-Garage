@@ -29,7 +29,7 @@ struct AddVehicleView: View {
                     
                     Text("Is this your vehicle?")
                         .font(.system(size: 17).weight(.bold))
-                        .foregroundStyle(Color.lightBlack)
+                        .fontWidth(.condensed)
                     
                     Text("\(vehicle!.registrationNumber)")
                         .font(.system(size: 14).weight(.bold))
@@ -45,8 +45,9 @@ struct AddVehicleView: View {
                     
                     
                     
-                    Text("\(vehicle!.make)")
-                        .font(.system(size: 16))
+                    Text("\(vehicle!.make.sentenceCased)")
+                        .font(.system(size: 18))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity)
                     
                     
@@ -54,15 +55,17 @@ struct AddVehicleView: View {
                         HStack{
                             Image(systemName: "paintbrush")
                                 .font(.system(size: 22))
-                            Text("\(vehicle!.colour)")
-                                .font(.system(size: 16))
+                            Text("\(vehicle!.colour.sentenceCased)")
+                                .font(.system(size: 18))
+                                .fontWidth(.condensed)
                         }
                         .frame(maxWidth: .infinity, alignment: .center)
                         HStack{
                             Image(systemName: "calendar")
                                 .font(.system(size: 22))
                             Text("\(vehicle!.yearOfManufacture.map(String.init) ?? "-")")
-                                .font(.system(size: 16))
+                                .font(.system(size: 18))
+                                .fontWidth(.condensed)
                         }
                         .frame(maxWidth: .infinity, alignment: .center)
                         
@@ -83,7 +86,7 @@ struct AddVehicleView: View {
                                 cornerRadius: 12,
                                 style: .continuous
                             )
-                            .stroke(Color.rectBorder)
+                            .stroke(Color.containerBorder)
                         )
                         
                         Button(action: {
@@ -103,9 +106,9 @@ struct AddVehicleView: View {
                 }
             }else if viewModel.hasConfirmedDVLA{
                 VStack(spacing: 14) {
-                    Text("Enter your vehicle's Model & image")
+                    Text("Enter your vehicle's model & image")
                         .font(.system(size: 17).weight(.bold))
-                        .foregroundStyle(Color.lightBlack)
+                        .fontWidth(.condensed)
                     
                     HStack{
                         TextField(
@@ -115,19 +118,19 @@ struct AddVehicleView: View {
                                 .foregroundStyle(.black.opacity(0.3))
                         )
                         .font(.system(size: 12, weight: .semibold))
-                        .foregroundStyle(Color.lightBlack)
+                        .foregroundStyle(Color.containerText)
                         .multilineTextAlignment(.center)
                         .keyboardType(.asciiCapable)
                         .padding(14)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder)
+                                .stroke(Color.containerBorder)
                                 
                         )
                         HStack(spacing: 16){
                             PhotosPicker("Upload image", selection: $viewModel.carImageItem, matching: .images)
                                 .font(.system(size: 10))
-                                .foregroundStyle(Color.bodyText)
+                                .foregroundStyle(Color.containerText)
                                 .onChange(of: viewModel.carImageItem) { _ in
                                         Task {
                                             await viewModel.loadImage()
@@ -145,7 +148,7 @@ struct AddVehicleView: View {
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.rectBorder)
+                                .stroke(Color.containerBorder)
                                 
                         )
                     }
@@ -154,7 +157,7 @@ struct AddVehicleView: View {
                         Toggle(isOn: $viewModel.makePrimary) {
                             Text("Make this primary?")
                                 .font(.system(size: 12))
-                                .foregroundColor(Color.lightBlack)
+                                .foregroundColor(Color.containerText)
                         }
                         .tint(Color.redTheme)
                         
@@ -170,7 +173,8 @@ struct AddVehicleView: View {
                         Button("Back") {
                             viewModel.hasConfirmedDVLA = false
                         }
-                        .font(.system(size: 10).weight(.bold))
+                        .font(.system(size: 12).weight(.bold))
+                        .fontWidth(.condensed)
                         .frame(maxWidth: .infinity)
                         .padding(14)
                         .foregroundColor(.redTheme)
@@ -179,14 +183,15 @@ struct AddVehicleView: View {
                                 cornerRadius: 12,
                                 style: .continuous
                             )
-                            .stroke(Color.rectBorder)
+                            .stroke(Color.containerBorder)
                         )
                         
                         Button(action: {
                             Task { await viewModel.confirmVehicle() }
                         }) {
                             Text("Add Vehicle")
-                                .font(.system(size: 10).weight(.bold))
+                                .font(.system(size: 12).weight(.bold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity)
                                 .padding(14)
                                 .foregroundColor(.white)
@@ -203,8 +208,8 @@ struct AddVehicleView: View {
             } else {
                 VStack(spacing: 24){
                     Text("Add Vehicle")
-                        .font(.system(size: 17).weight(.bold))
-                        .foregroundStyle(Color.lightBlack)
+                        .font(.system(size: 20).weight(.bold))
+                        .fontWidth(.condensed)
                         .padding(.bottom,6)
 
                     TextField(
@@ -238,7 +243,8 @@ struct AddVehicleView: View {
                             isPresented = false
                         }) {
                             Text("Cancel")
-                                .font(.system(size: 10).weight(.bold))
+                                .font(.system(size: 12).weight(.bold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity)
                                 .padding(14)
                                 .foregroundColor(.redTheme)
@@ -249,14 +255,15 @@ struct AddVehicleView: View {
                                 cornerRadius: 12,
                                 style: .continuous
                             )
-                            .stroke(Color.rectBorder)
+                            .stroke(Color.containerBorder)
                         )
                     
                         Button(action: {
                             viewModel.searchRegistration()
                         }) {
                             Text("Search")
-                                .font(.system(size: 10).weight(.bold))
+                                .font(.system(size: 12).weight(.bold))
+                                .fontWidth(.condensed)
                                 .frame(maxWidth: .infinity)
                                 .padding(14)
                                 .foregroundColor(.white)

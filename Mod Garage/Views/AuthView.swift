@@ -53,7 +53,7 @@ struct AuthView: View {
                 HStack(spacing: 4) {
                     Text("Don't have an account? ")
                         .font(.system(size: 14))
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundColor(Color.containerText)
 
                     Text("SIGN UP")
                         .foregroundStyle(Color.redTheme)
@@ -69,7 +69,7 @@ struct AuthView: View {
                 HStack(spacing: 4) {
                     Text("Already have an account? ")
                         .font(.system(size: 14))
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundColor(Color.containerText)
 
                     Text("LOG IN")
                         .foregroundStyle(Color.redTheme)
@@ -85,7 +85,7 @@ struct AuthView: View {
                 HStack(spacing: 0) {
                     Text("Want to go back? ")
                         .font(.system(size: 14))
-                        .foregroundColor(Color("bodyText"))
+                        .foregroundColor(Color.containerText)
 
                     Text("GO BACK")
                         .foregroundStyle(Color.redTheme)

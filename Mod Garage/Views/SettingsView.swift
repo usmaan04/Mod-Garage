@@ -25,14 +25,13 @@ struct SettingsView: View {
             VStack(spacing: 0){
                 VStack{
                     Text("Settings")
-                        .foregroundStyle(Color.lightBlack)
                         .font(.system(size: 20).weight(.semibold))
                         .fontWidth(.condensed)
                         .padding(.bottom, 12)
                 }
                 .zIndex(30)
                 .frame(maxWidth:.infinity, maxHeight: 48)
-                .background(Color.backgroundW)
+                .background(Color.container)
                 .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
                 
                 GeometryReader{ proxy in
@@ -43,8 +42,11 @@ struct SettingsView: View {
                                     AsyncImage(url: photoURL) { phase in
                                         switch phase {
                                         case .empty:
-                                            ProgressView()
-                                                .frame(width: 64, height: 64)
+                                            Image("profilePic")
+                                                .resizable()
+                                                .scaledToFill()
+                                                .frame(width: 100, height: 100)
+                                                .clipShape(Circle())
 
                                         case .success(let image):
                                             image
@@ -83,19 +85,17 @@ struct SettingsView: View {
                                         Text("\(viewModel.name)")
                                             .font(.system(size: 20).weight(.semibold))
                                             .fontWidth(.condensed)
-                                            .foregroundColor(Color.lightBlack)
                                             .frame(maxWidth: .infinity,alignment: .center)
                                     }
                                     Text("Member since \(viewModel.memberDate)")
                                         .font(.system(size: 10))
-                                        .foregroundColor(Color.navText)
+                                        .foregroundColor(Color.containerText)
                                         .frame(maxWidth: .infinity,alignment: .center)
                                 }
                                 
                             }
                                 
                             Text("General")
-                                .foregroundColor(.lightBlack)
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                             
@@ -116,13 +116,12 @@ struct SettingsView: View {
                             .padding(.vertical, 8)
                             .background(
                                 RoundedRectangle(cornerRadius: 18)
-                                    .stroke(Color(.rectBorder), lineWidth: 2)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color(.containerBorder), lineWidth: 2)
+                                    .fill(Color.container)
                                     .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                             )
                             
                             Text("Preferences")
-                                .foregroundColor(.lightBlack)
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                             
@@ -155,7 +154,6 @@ struct SettingsView: View {
                                                 Text("Theme")
                                                     .font(.system(size: 14).weight(.medium))
                                                     .fontWidth(.condensed)
-                                                    .foregroundColor(.lightBlack)
                                                 // Show current selection label
                                                 Text({ () -> String in
                                                     if let override = viewModel.overrideColorScheme {
@@ -165,7 +163,7 @@ struct SettingsView: View {
                                                     }
                                                 }())
                                                 .font(.system(size: 10))
-                                                .foregroundColor(.navText)
+                                                .foregroundStyle(.containerText)
                                             }
 
                                             Spacer()
@@ -184,10 +182,10 @@ struct SettingsView: View {
                                                         }
                                                     }())
                                                     .font(.system(size: 14))
-                                                    .foregroundStyle(Color.navText)
+                                                    .foregroundStyle(Color.containerText)
                                                     Image(systemName: "chevron.down")
                                                         .font(.system(size: 12))
-                                                        .foregroundStyle(Color.navText.opacity(0.6))
+                                                        .foregroundStyle(Color.containerText)
                                                 }
                                                 .contentShape(Rectangle())
                                             }
@@ -202,13 +200,12 @@ struct SettingsView: View {
                             .padding(.vertical, 8)
                             .background(
                                 RoundedRectangle(cornerRadius: 18)
-                                    .stroke(Color(.rectBorder), lineWidth: 2)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color(.containerBorder), lineWidth: 2)
+                                    .fill(Color.container)
                                     .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                             )
                             
                             Text("Support")
-                                .foregroundColor(.lightBlack)
                                 .font(.system(size: 18).weight(.semibold))
                                 .fontWidth(.condensed)
                             
@@ -223,7 +220,7 @@ struct SettingsView: View {
                                     }
                                 }
                                 Divider()
-                                    .foregroundStyle(Color.rectBorder)
+                                    .foregroundStyle(Color.containerBorder)
                                     .frame(height: 2)
                                 SettingComponent(
                                     iconName: "questionmark.circle.fill",
@@ -239,8 +236,8 @@ struct SettingsView: View {
                             .padding(.vertical, 8)
                             .background(
                                 RoundedRectangle(cornerRadius: 18)
-                                    .stroke(Color(.rectBorder), lineWidth: 2)
-                                    .fill(Color.boxbackground)
+                                    .stroke(Color(.containerBorder), lineWidth: 2)
+                                    .fill(Color.container)
                                     .shadow(color: Color.black.opacity(0.05),radius: 3, x: 0, y: 2)
                             )
                             
@@ -260,18 +257,11 @@ struct SettingsView: View {
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color(.redTheme).opacity(0.2), lineWidth: 1)
-                                            .fill(Color.boxbackground)
+                                            .fill(Color.container)
                                     )
                                     
                                     Button(action: {
-                                        Task {
-                                            do {
-                                                try await appViewModel.deleteAccount()
-                                            } catch {
-                                                viewModel.alertMessage = " Failed to delete account, please try again."
-                                                viewModel.showAlert = true
-                                            }
-                                        }
+                                        viewModel.showDeleteConfirmation = true
                                     }) {
                                         Text("Delete Account")
                                     }
@@ -316,6 +306,25 @@ struct SettingsView: View {
             .alert(viewModel.alertMessage, isPresented: $viewModel.showAlert) {
                 Button("OK", role: .cancel) { }
             }
+            .confirmationDialog(
+                "Are you sure?",
+                isPresented: $viewModel.showDeleteConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button("Delete All Data", role: .destructive) {
+                    Task {
+                        do {
+                            try await appViewModel.deleteAccount()
+                        } catch {
+                            viewModel.alertMessage = "Re-authentication required. Please log out and back in to delete your account."
+                            viewModel.showAlert = true
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This action is permanent and will remove all your vehicles and data.")
+            }
             .task {
                 await vehicleViewModel.loadVehicles()
             }
@@ -359,8 +368,8 @@ struct SettingComponent: View {
                 
                 Text(title)
                     .font(.system(size: 14).weight(.medium))
+                    .foregroundStyle(Color.bw)
                     .fontWidth(.condensed)
-                    .foregroundStyle(.lightBlack)
                 
                 Spacer()
                 
@@ -370,7 +379,7 @@ struct SettingComponent: View {
                 } else {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 12))
-                        .foregroundStyle(Color.navText.opacity(0.3))
+                        .foregroundStyle(Color.containerText)
                 }
             }
             .padding(.horizontal, 18)

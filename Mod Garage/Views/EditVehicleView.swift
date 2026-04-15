@@ -25,7 +25,6 @@ struct EditVehicleView: View {
             VStack(spacing: 24){
                 Text("Edit Vehicle")
                     .font(.system(size: 17).weight(.bold))
-                    .foregroundStyle(Color.lightBlack)
                     .padding(.bottom,6)
                 
                 HStack{
@@ -43,8 +42,8 @@ struct EditVehicleView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.boxbackground)
-                                .stroke(Color.rectBorder, lineWidth: 1)
+                                .fill(Color.container)
+                                .stroke(Color.containerBorder, lineWidth: 1)
                         )
                     }
                     
@@ -62,8 +61,8 @@ struct EditVehicleView: View {
                         .padding(.horizontal, 12)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.boxbackground)
-                                .stroke(Color.rectBorder, lineWidth: 1)
+                                .fill(Color.container)
+                                .stroke(Color.containerBorder, lineWidth: 1)
                         )
                     }
                 }
@@ -91,7 +90,7 @@ struct EditVehicleView: View {
                             cornerRadius: 12,
                             style: .continuous
                         )
-                        .stroke(Color.rectBorder)
+                        .stroke(Color.containerBorder)
                     )
                 
                     Button(action: {

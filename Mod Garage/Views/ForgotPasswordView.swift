@@ -15,13 +15,13 @@ struct ForgotPasswordView: View {
     var body: some View{
         VStack(alignment: .center, spacing: 16){
             Text("Forgot Password")
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundColor(.lightBlack)
+                .font(.system(size: 24, weight: .semibold))
+                .fontWidth(.condensed)
             
             Text("Enter the email associated with your account and we'll send you a link to reset it")
                 .font(.system(size: 14))
                 .tracking(-0.4)
-                .foregroundColor(.bodyText)
+                .foregroundColor(.containerText)
                 .frame(maxWidth: .infinity, alignment: .center)
                 .multilineTextAlignment(.center)
 
@@ -31,15 +31,15 @@ struct ForgotPasswordView: View {
                 prompt: Text("Enter email")
             )
             .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(Color.lightBlack)
+            .foregroundStyle(Color.containerText)
             .keyboardType(.asciiCapable)
             .multilineTextAlignment(.center)
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .center)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.rectBorder, lineWidth: 1)
-                    .fill(Color.boxbackground)
+                    .stroke(Color.containerBorder, lineWidth: 1)
+                    .fill(Color.container)
             )
             
             if viewModel.isLoading{
@@ -49,7 +49,7 @@ struct ForgotPasswordView: View {
             if let error = viewModel.errorMessage {
                 Text(error)
                     .font(.system(size: 13))
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.redTheme)
                     .frame(maxWidth: .infinity, alignment: .center)
                     .multilineTextAlignment(.center)
             }
