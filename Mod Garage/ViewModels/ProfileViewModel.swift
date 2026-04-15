@@ -5,12 +5,16 @@ import FirebaseFirestore
 import FirebaseStorage
 import UIKit
 
+// Handles the logic for updating user details
 @MainActor
 class ProfileViewModel: ObservableObject {
+    
+    // Form fields for the view
     @Published var name: String = ""
     @Published var email: String = ""
     @Published var password: String = ""
 
+    // Properties for picking and displaying profile photos
     @Published var profilePhotoURL: String = ""
     @Published var selectedImage: UIImage? = nil
 
@@ -22,9 +26,11 @@ class ProfileViewModel: ObservableObject {
     private let storage = Storage.storage()
 
     init() {
+        // Load profile as soon as VM is initialised
         Task { await loadProfile() }
     }
 
+    // Reload user and fetch the latest data
     func loadProfile() async {
         guard let user = Auth.auth().currentUser else {
             errorMessage = "No logged in user."
@@ -37,6 +43,7 @@ class ProfileViewModel: ObservableObject {
         successMessage = nil
 
         do {
+            // Refresh
             try? await user.reload()
             let refreshedUser = Auth.auth().currentUser
 
@@ -62,6 +69,7 @@ class ProfileViewModel: ObservableObject {
         }
     }
 
+    // Update profile by uploading image, updating Firebase Auth and then Firestore
     func updateProfile() async {
         guard let user = Auth.auth().currentUser else {
             errorMessage = "No logged in user."
@@ -113,10 +121,11 @@ class ProfileViewModel: ObservableObject {
             profilePhotoURL = finalPhotoURLString
             successMessage = "Profile updated"
         } catch {
-            errorMessage = "Failed to update profile: \(error.localizedDescription)"
+            errorMessage = "Failed to update profile"
         }
     }
-
+    
+    // Sends single image to Firebase Storage and returns the URL String
     private func uploadProfileImage(_ image: UIImage) async throws -> String {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(
@@ -126,6 +135,7 @@ class ProfileViewModel: ObservableObject {
             )
         }
 
+        // Compress image
         guard let imageData = image.jpegData(compressionQuality: 0.75) else {
             throw NSError(
                 domain: "ProfileViewModel",
@@ -134,11 +144,13 @@ class ProfileViewModel: ObservableObject {
             )
         }
 
+        // Set the folder structure where the file will be saved in Firestore
         let ref = storage.reference().child("profile_images/\(uid)/avatar.jpg")
 
         let metadata = StorageMetadata()
         metadata.contentType = "image/jpeg"
 
+        // Upload image and get the url for the image
         _ = try await ref.putDataAsync(imageData, metadata: metadata)
         let downloadURL = try await ref.downloadURL()
 

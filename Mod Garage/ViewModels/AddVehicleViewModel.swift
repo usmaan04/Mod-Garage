@@ -46,7 +46,7 @@ class AddVehicleViewModel: ObservableObject {
 
     @Published var carImage: UIImage?
     
-    // Is set when vehicle is ready
+    // Callback to tell parent view that vehicle is ready to be saved
     var onVehicleReady: ((VehicleModel) -> Void)?
     
     var existingVehicleCount: Int = 0

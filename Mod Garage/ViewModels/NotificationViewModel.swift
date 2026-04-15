@@ -10,11 +10,14 @@ import SwiftUI
 import Combine
 import UserNotifications
 
+// Enumeration to represent the diffenrent cases of notification permission
 enum NotificationPermissionState {
     case notDetermined
     case denied
     case authorized
 }
+
+// Handles the logic to request permission and set notifications
 @MainActor
 final class NotificationViewModel: ObservableObject {
 
@@ -24,13 +27,15 @@ final class NotificationViewModel: ObservableObject {
     @Published var isSyncing: Bool = false
     @Published var statusMessage: String? = nil
 
-    // MARK: - Preferences (Global v1)
+    // Preferences
+    // Save directly to UserDefaults so settings stay between app launches
     @AppStorage(NotificationKeys.motEnabled) var motEnabled: Bool = true
     @AppStorage(NotificationKeys.taxEnabled) var taxEnabled: Bool = true
 
     @AppStorage(NotificationKeys.motLeadCSV) private var motLeadCSV: String = LeadDays.defaultCSV
     @AppStorage(NotificationKeys.taxLeadCSV) private var taxLeadCSV: String = LeadDays.defaultCSV
 
+    // Custom time of day for the notifications
     @AppStorage(NotificationKeys.hour) var reminderHour: Int = 9
     @AppStorage(NotificationKeys.minute) var reminderMinute: Int = 0
 
@@ -64,6 +69,7 @@ final class NotificationViewModel: ObservableObject {
 
     // MARK: - Permission
 
+    // Asks the system to see if user has allowed notifications
     func refreshPermission() async {
         let s = await manager.notificationSettings()
 
@@ -92,6 +98,7 @@ final class NotificationViewModel: ObservableObject {
         }
     }
 
+    // Triggers the "Allow Notifications" popup
     func requestPermission() async {
         let s = await manager.notificationSettings()
 
@@ -107,10 +114,8 @@ final class NotificationViewModel: ObservableObject {
 
         case .denied:
             statusMessage = "Notifications are disabled for Mod Garage. Enable them in iOS Settings."
-            // (UI should offer an "Open iOS Settings" button)
 
         case .authorized, .provisional, .ephemeral:
-            // User may have turned off banners/lockscreen etc.
             await refreshPermission()
             if !hasPermission {
                 statusMessage = "Notifications are enabled, but alerts are turned off. Turn on Lock Screen / Banners in iOS Settings."
@@ -136,6 +141,7 @@ final class NotificationViewModel: ObservableObject {
 
     // MARK: - Sync
 
+    // Clears existing reminders, builds new notifictaions and schedules them
     func syncAll() async {
         isSyncing = true
         defer { isSyncing = false }
@@ -146,7 +152,7 @@ final class NotificationViewModel: ObservableObject {
             return
         }
 
-        // Build the notifications we want
+        // Build the notifications
         let vehicles = vehicleProvider()
         let requests = buildRequests(for: vehicles)
         
@@ -156,7 +162,7 @@ final class NotificationViewModel: ObservableObject {
         }
 
         // Remove only our reminders, then add new
-        await removeOurPendingRequests()
+        await removePendingRequests()
 
         do {
             for r in requests {
@@ -169,14 +175,14 @@ final class NotificationViewModel: ObservableObject {
     }
 
     func clearAllReminders() async {
-        await removeOurPendingRequests()
+        await removePendingRequests()
         statusMessage = "Cleared all reminders"
         needsSync = false
     }
 
     // MARK: - Internals
 
-    private func removeOurPendingRequests() async {
+    private func removePendingRequests() async {
         let pending = await manager.pendingRequests()
         let ourPrefix = "\(NotificationKeys.idPrefix)_"
 
@@ -186,6 +192,7 @@ final class NotificationViewModel: ObservableObject {
         }
     }
 
+    // Goes through all vehciles and creates the notification information
     private func buildRequests(for vehicles: [VehicleModel]) -> [UNNotificationRequest] {
         var out: [UNNotificationRequest] = []
 
@@ -201,6 +208,7 @@ final class NotificationViewModel: ObservableObject {
         return out
     }
 
+    // Creates the  notification form the information given by the request
     private func build(
         type: ReminderType,
         vehicle: VehicleModel,
@@ -212,13 +220,18 @@ final class NotificationViewModel: ObservableObject {
         var out: [UNNotificationRequest] = []
 
         for days in leadDays {
+            
+            // Calculate: Expiry Date - x days
             guard let baseDate = calendar.date(byAdding: .day, value: -days, to: expiry) else { continue }
 
+            // Set the time
             var comps = calendar.dateComponents([.year, .month, .day], from: baseDate)
             comps.hour = reminderHour
             comps.minute = reminderMinute
 
             guard let scheduledDate = calendar.date(from: comps) else { continue }
+            
+            // Ensure a notification isn't scheduled for a date that has already passed
             guard scheduledDate > Date() else { continue }
 
             let content = UNMutableNotificationContent()

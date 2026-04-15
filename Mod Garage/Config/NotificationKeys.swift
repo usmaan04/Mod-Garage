@@ -21,7 +21,7 @@ enum NotificationKeys {
     // AppStorage keys
     static let needsSync = "notificationsNeedSync"
 
-    // Flags to determine if the user has opted into specific reminder types
+    // Flags to determine if the user has chosen specific reminder types
     static let motEnabled = "motRemindersEnabled"
     static let taxEnabled = "taxRemindersEnabled"
 

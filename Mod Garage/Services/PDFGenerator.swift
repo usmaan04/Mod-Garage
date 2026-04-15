@@ -8,6 +8,7 @@
 import SwiftUI
 import UIKit
 
+// Converts a view into a sharable PDF
 struct PDFGenerator {
     static func createVehicleReportPDF(
         vehicle: VehicleModel,
@@ -16,6 +17,7 @@ struct PDFGenerator {
         latestMileage: Int?
     ) throws -> URL {
 
+        // A4 paper size
         let pageWidth: CGFloat = 595.2
         let pageHeight: CGFloat = 841.8
         let horizontalPadding: CGFloat = 20
@@ -38,6 +40,7 @@ struct PDFGenerator {
         hostedView.backgroundColor = .white
         hostedView.bounds = CGRect(x: 0, y: 0, width: contentWidth, height: maxContentHeight)
 
+        // Calculate height based on content
         let targetSize = CGSize(width: contentWidth, height: UIView.layoutFittingCompressedSize.height)
         let fittedSize = hostedView.systemLayoutSizeFitting(
             targetSize,
@@ -48,15 +51,19 @@ struct PDFGenerator {
         let finalHeight = min(fittedSize.height, maxContentHeight)
         hostedView.bounds = CGRect(x: 0, y: 0, width: contentWidth, height: finalHeight)
 
+        // Sanitise file name
         let safeMake = vehicle.make.replacingOccurrences(of: " ", with: "_")
         let safeModel = vehicle.model.replacingOccurrences(of: " ", with: "_")
 
+        // Save to temporary folder
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("\(safeMake)_\(safeModel)_Report.pdf")
 
+        // Setup the actual PDF context
         let pageBounds = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
         let pdfRenderer = UIGraphicsPDFRenderer(bounds: pageBounds)
 
+        // Start render
         try pdfRenderer.writePDF(to: url) { context in
             context.beginPage()
 
@@ -70,6 +77,7 @@ struct PDFGenerator {
             hostedView.drawHierarchy(in: drawRect, afterScreenUpdates: true)
         }
 
+        // Return file path
         return url
     }
 }

@@ -11,11 +11,12 @@ import Combine
 import FirebaseFirestore
 import FirebaseAuth
 
+// Represents the different toggles/ pills in the detail view
+// Check whether to look at vehicles mods or fuel logs
 enum ListOption: String, CaseIterable, Identifiable {
     case mods
     case logs
 
-    // Required for SwiftUI ForEach
     var id: String { rawValue }
 
     // Display label for the UI pills
@@ -28,9 +29,11 @@ enum ListOption: String, CaseIterable, Identifiable {
 
 }
 
+// Handles logic for displaying singular vehicle information in the vehicle detail view
 @MainActor
 final class VehicleDetailViewModel: ObservableObject {
 
+    // UI state for showing sheets and managing tab selection
     @Published var isShowingAddModification = false
     @Published var isShowingAddFuelLog = false
     @Published var listOption: ListOption = .mods
@@ -39,16 +42,18 @@ final class VehicleDetailViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
     
+    // Properties for the PDF Export feature
     @Published var reportURL: URL?
     @Published var isGeneratingReport = false
     
+    // Gets the highest fuel log odometer/mileage value
     var latestFuelLogMileage: Int? {
         fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
     }
 
     private let db = Firestore.firestore()
 
-    // Add a new modification
+    // Adds a new mod into the modifications subcollection
     func addModification(_ modification: ModificationModel, vehicleId: String) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -72,7 +77,7 @@ final class VehicleDetailViewModel: ObservableObject {
         }
     }
     
-    // Add a new fuel log
+    // Adds a new fuel log into the fuelLogs subcollection
     func addFuelLog(_ fuelLog: FuelLogModel, vehicleId: String) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -95,7 +100,7 @@ final class VehicleDetailViewModel: ObservableObject {
         }
     }
     
-    // Load modification list
+    // Gets the modifications stored in Firestore
     func loadModifications(_ vehicleId: String) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -127,7 +132,7 @@ final class VehicleDetailViewModel: ObservableObject {
         isLoading = false
     }
     
-    // Load fuel logs
+    // Gets the fuel logs stored in Firestore
     func loadFuelLogs(_ vehicleId: String) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -159,6 +164,7 @@ final class VehicleDetailViewModel: ObservableObject {
         isLoading = false
     }
     
+    // Gets the current vehicle and calls PDFGenerator service file
     func generateVehicleReportPDF(vehicle: VehicleModel) async {
         isGeneratingReport = true
         reportURL = nil

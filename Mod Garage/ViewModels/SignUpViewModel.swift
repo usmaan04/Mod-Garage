@@ -12,6 +12,7 @@ import FirebaseCore
 import GoogleSignIn
 import UIKit
 
+// Handles the logic for creating a new account
 @MainActor
 class SignUpViewModel: ObservableObject {
     @Published var name = ""
@@ -23,7 +24,7 @@ class SignUpViewModel: ObservableObject {
     @Published var isUserLoggedIn = false
     @Published var isLoading = false
     
-    //Determine if email is valid
+    // Determine if email is valid using a Regex
     private func isEmailValid(_ email: String) -> Bool {
         // Common regex pattern
         let emailPattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
@@ -37,6 +38,7 @@ class SignUpViewModel: ObservableObject {
 
     
     // Determine if password is strong enough
+    // 8+ characters, at least one number, and one special character
     func isPasswordValid(_ pass: String) -> Bool {
         // Check 8 char length
         if pass.count < 8 {
@@ -54,7 +56,7 @@ class SignUpViewModel: ObservableObject {
         return hasNumber && hasSpecialChar
     }
     
-    // Centralized form validation: sets signUpError and returns validity
+    // Validates user entered/enterable fields
     @discardableResult
     func isFormValid() -> Bool {
         // Reset previous error
@@ -68,13 +70,11 @@ class SignUpViewModel: ObservableObject {
             return false
         }
 
-        // Email format
         if !isEmailValid(email) {
             signUpError = "Please enter a valid email address"
             return false
         }
 
-        // Password strength
         if !isPasswordValid(password) {
             signUpError = "Password must include at least 8 characters, a number and a special character"
             return false
@@ -98,8 +98,10 @@ class SignUpViewModel: ObservableObject {
         let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
         
         do{
+            // Create user in Firebase Auth
             let result = try await Auth.auth().createUser(withEmail: trimmedEmail, password: trimmedPassword)
             
+            // Save user details to Firestore
             try await saveUserDataToFirestore(userID: result.user.uid, name: name, email: trimmedEmail)
             
             self.isUserLoggedIn = true
@@ -109,8 +111,8 @@ class SignUpViewModel: ObservableObject {
             
             let nsError = error as NSError
             
+            // Map Firebase error to user friendly messages
             if nsError.domain == AuthErrorDomain {
-              
                 if let errorCode = AuthErrorCode(rawValue: nsError.code) {
                     switch errorCode {
                     case .emailAlreadyInUse:
@@ -136,6 +138,9 @@ class SignUpViewModel: ObservableObject {
     }
 
     // MARK: - Sign Up with Google
+    
+    // Implemets Google Identity SDK flow
+    //Uses Google OAuth flow
     func signUpWithGoogle() async {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             alertMessage = "Missing Google Client ID."
@@ -187,7 +192,8 @@ class SignUpViewModel: ObservableObject {
             let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
 
             let authResult = try await Auth.auth().signIn(with: credential)
-
+            
+            // Save user details to Firestore
             try await saveUserDataToFirestore(
                 userID: authResult.user.uid,
                 name: user.profile?.name ?? "User",
@@ -202,7 +208,7 @@ class SignUpViewModel: ObservableObject {
         isLoading = false
     }
     
-    //  Firestore Helper
+    // Saves the users details to Firestore
     private func saveUserDataToFirestore(userID: String, name: String, email: String) async throws {
         let db = Firestore.firestore()
         let userData: [String: Any] = [

@@ -68,7 +68,7 @@ struct PrimaryVehicleService {
             batch.updateData(["isPrimary": true], forDocument: newPrimary.reference)
         }
         
-        // 4. Commit everything at once
+        // Commit everything at once
         try await batch.commit()
     }
 }

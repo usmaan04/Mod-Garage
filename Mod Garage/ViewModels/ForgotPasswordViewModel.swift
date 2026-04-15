@@ -12,9 +12,11 @@ import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
 
+// Handles logic for the forgot password view/flow
 @MainActor
 class ForgotPasswordViewModel: ObservableObject {
-    // Published Properties (Bound to LoginView)
+    
+    // UI states
     @Published var email = ""
     @Published var errorMessage: String? = nil
     @Published var alertMessage: String? = nil
@@ -33,7 +35,7 @@ class ForgotPasswordViewModel: ObservableObject {
         return emailPredicate.evaluate(with: email)
     }
     
-    // Centralized form validation: sets errorMessage and returns validity
+    // Validates user entered/enterable fields
     func isFormValid() -> Bool {
         // Reset previous error
         errorMessage = nil
@@ -70,6 +72,7 @@ class ForgotPasswordViewModel: ObservableObject {
         self.errorMessage = nil
         self.alertMessage = nil
 
+        // Send password reset email
         Auth.auth().sendPasswordReset(withEmail: trimmedEmail) { [weak self] error in
             guard let self = self else { return }
             // Ensure updates happen on main actor since the class is @MainActor

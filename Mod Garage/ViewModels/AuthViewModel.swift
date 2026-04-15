@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-// Enumeration to reprsent the different authentication screens
+// Enumeration to represent the different authentication screens
 enum AuthScreen {
     case login
     case signup
@@ -24,7 +24,7 @@ class AuthViewModel: ObservableObject {
     // Persistent flag stored on the device
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding: Bool = false
         
-    // Tracks the current step: 0 = Welcome, 1 = Bio/Profile, 2 = First Vehicle
+    // Tracks the current step of onboarding
     @Published var currentStep: Int = 0
     
     init() {
@@ -32,7 +32,7 @@ class AuthViewModel: ObservableObject {
             // If they haven't finished onboarding, send them there first
             self.currentScreen = .onboarding
         } else {
-            // Otherwise, start them on the regular Signup page as per your requirement
+            // Otherwise, start them on the regular sign up page
             self.currentScreen = .signup
         }
     }
@@ -42,10 +42,10 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // Call this when the user finishes the last step of your wizard.
+    // ompletes onborading
     func finishOnboarding() {
         withAnimation {
-            hasCompletedOnboarding = true // Save the "bookmark" forever
+            hasCompletedOnboarding = true
         }
     }
 
@@ -65,6 +65,6 @@ class AuthViewModel: ObservableObject {
     }
     
     func showOnboarding() {
-            currentScreen = .onboarding
-        }
+        currentScreen = .onboarding
+    }
 }

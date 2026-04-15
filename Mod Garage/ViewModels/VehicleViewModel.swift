@@ -11,11 +11,14 @@ import Combine
 import FirebaseFirestore
 import FirebaseAuth
 
+// Handles the logic for the collection of vehciels in the users account
 @MainActor
 class VehicleViewModel: ObservableObject {
     
+    // Communicates with the NotificationViewModel to re-sync notifications
     @AppStorage(NotificationKeys.needsSync) private var needsSync: Bool = false
     
+    // UI state properties for controlling navigation and showning sheets/overlays
     @Published var isShowingAddVehicle = false
     @Published var isShowingEditVehicle = false
     @Published var vehicles: [VehicleModel] = []
@@ -27,7 +30,7 @@ class VehicleViewModel: ObservableObject {
     
     private let db = Firestore.firestore()
     
-    // Returns the signed number of days between today and the provided date.
+    // Calculates days remaining for MOT/Tax countdowns
     func daysBetweenToday(date: Date?) -> Int {
         guard let date = date else { return 0 }
         let calendar = Calendar.current
@@ -37,7 +40,7 @@ class VehicleViewModel: ObservableObject {
         return components.day ?? 0
     }
     
-    // Add a new vehicle
+    // Adds a new vehicle into the vehicles subcollection
     func addVehicle(_ vehicle: VehicleModel) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -52,7 +55,7 @@ class VehicleViewModel: ObservableObject {
         
         do {
             try path.setData(from: vehicle)
-            // Set all others as false if selected vehicle is primary
+            // Set all others as false if selected vehicle is  chosen as primary
             if vehicle.isPrimary {
                 do {
                     try await PrimaryVehicleService.setPrimary(
@@ -64,8 +67,11 @@ class VehicleViewModel: ObservableObject {
                     return
                 }
             }
+            
+            // Trigger a notification sync
             needsSync = true
-            // Refresh list
+            
+            // Refresh list and close overlay
             await loadVehicles()
             isShowingAddVehicle = false
         } catch {
@@ -73,6 +79,7 @@ class VehicleViewModel: ObservableObject {
         }
     }
     
+    // Makes the chosen vehicle primary
     func makePrimary(_ vehicle: VehicleModel) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -93,7 +100,7 @@ class VehicleViewModel: ObservableObject {
         }
     }
     
-    // Load vehicles list
+    // Gets the vehicles stored in Firestore
     func loadVehicles() async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -123,6 +130,7 @@ class VehicleViewModel: ObservableObject {
         isLoading = false
     }
     
+    // Delets a vehicle from users account/Firestore
     func deleteVehicle(_ vehicle: VehicleModel) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
@@ -136,7 +144,7 @@ class VehicleViewModel: ObservableObject {
             .document(vehicle.id)
         
         do {
-            // If the vehicle being deleted is primary → assign a new one
+            // If the vehicle being deleted is primary, assign a new one
             if vehicle.isPrimary {
                 try await PrimaryVehicleService.deleteAndSetNewPrimary(
                     deletingVehicleId: vehicle.id,
@@ -144,9 +152,10 @@ class VehicleViewModel: ObservableObject {
                 )
             }
             
-            // Delete the vehicle itself
+            // Delete the vehicle
             try await path.delete()
             
+            // Trigger a notification sync
             needsSync = true
             
             // Refresh list

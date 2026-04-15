@@ -103,8 +103,7 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Full account cleanup
-
+    // Full account cleanup
     private func deleteAllUserData(uid: String) async throws {
         let userRef = db.collection("users").document(uid)
         let vehiclesRef = userRef.collection("vehicles")

@@ -19,7 +19,7 @@ struct DVLAService {
         // Web address for the VES
         let url = URL(string: "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles")!
         
-        // Prepaere request to be sent over the internet
+        // Prepare request to be sent over the internet
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
@@ -43,7 +43,7 @@ struct DVLAService {
         // Map the JSON response to the DVLAResponseModel
         let decoded = try JSONDecoder().decode(DVLAResponseModel.self, from: data)
         
-        // Return vehicle back to app
+        // Return vehicle back 
         return decoded
     }
 }

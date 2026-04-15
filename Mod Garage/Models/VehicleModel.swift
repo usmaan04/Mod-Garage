@@ -8,7 +8,7 @@
 import Foundation
 
 // A data model representing a vehicle owned by a user
-// Maps directly to users collection in Firestore
+// Maps directly to users subcollection in Firestore
 struct VehicleModel: Identifiable, Codable {
     var id: String
     var userId: String

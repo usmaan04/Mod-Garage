@@ -7,8 +7,7 @@
 
 import Foundation
 
-// An enumeration representing the quick menu options
-// Corresponds to a tab in the global navigation bar
+// An enumeration representing a tab in the global navigation bar
 enum Tab: String, CaseIterable, Identifiable {
     case home = "house"
     case vehicle = "car"

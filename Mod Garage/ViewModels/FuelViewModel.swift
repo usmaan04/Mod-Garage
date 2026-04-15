@@ -10,6 +10,7 @@ import Foundation
 import FirebaseAuth
 import FirebaseFirestore
 
+// Represents the different timeframe to filter fuel information by
 enum FuelTimeframe: String, CaseIterable, Identifiable {
     case oneMonth
     case sixMonths
@@ -19,7 +20,7 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
     // Required for SwiftUI ForEach
     var id: String { rawValue }
 
-    // Display label for the UI pills
+    // UI Labels
     var label: String {
         switch self {
         case .oneMonth: return "1M"
@@ -29,8 +30,7 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
         }
     }
 
-    // Start date used for filtering fuel logs.
-    // `nil` means "no filtering" (All).
+    // Logic to calculate cutoff dates
     func startDate(from now: Date = Date()) -> Date? {
         let calendar = Calendar.current
 
@@ -49,6 +49,7 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
         }
     }
     
+    // Helpers to move timeframe through swiping
     var next: FuelTimeframe? {
         let all = Self.allCases
         guard let index = all.firstIndex(of: self), index < all.count - 1 else {
@@ -56,7 +57,7 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
         }
         return all[index + 1]
     }
-
+    
     var previous: FuelTimeframe? {
         let all = Self.allCases
         guard let index = all.firstIndex(of: self), index > 0 else {
@@ -67,13 +68,13 @@ enum FuelTimeframe: String, CaseIterable, Identifiable {
     
 }
 
+// Foramts strings into currency
 private func currencyString(from value: Double) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .currency
     formatter.currencyCode = "GBP"
     return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
 }
-
 private func spendingCurrencyString(from value: Double) -> String {
     let formatter = NumberFormatter()
     formatter.numberStyle = .currency
@@ -83,20 +84,20 @@ private func spendingCurrencyString(from value: Double) -> String {
     return formatter.string(from: NSNumber(value: value)) ?? "£0.00"
 }
 
+// Data structures for the Swift Charts
 struct MPGChartPoint: Identifiable {
     let id: String
     let x: Date
     let avgMPG: Double
 }
-
 struct SpendChartPoint: Identifiable {
     let id: String
     let x: Date
     let totalSpend: Double
 }
 
+// Calculate the midpoint to center markers
 extension Calendar {
-    
     func startOfDayLocal(_ date: Date) -> Date {
             var c = self
             c.timeZone = .current
@@ -135,13 +136,13 @@ extension Calendar {
     }
 }
 
-
-
+// Handles the main logic to display fuel data
 @MainActor
 class FuelViewModel: ObservableObject {
     @Published var primaryVehicle: VehicleModel?
     @Published var fuelLogs: [FuelLogModel] = []
     
+    //Used to display sepcifc tappable chart points
     @Published var selectedMPGPoint: MPGChartPoint? = nil
     @Published var selectedSpendPoint: SpendChartPoint? = nil
 
@@ -154,42 +155,33 @@ class FuelViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String? = nil
 
-    // Prevents repeated reloads
     private(set) var hasLoadedOnce = false
-    
-    var latestFuelLogMileage: Int? {
-        fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
-    }
-
-    var mpgHeaderText: Double {
-        if let selected = selectedMPGPoint {
-            return selected.avgMPG
-        }
-        return averageMPG ?? 0
-    }
-    
-    var spendingHeaderText: String {
-        if let selected = selectedSpendPoint {
-            return spendingCurrencyString(from: selected.totalSpend)
-        }
-        return currencyString(from: totalSpending)
-    }
-    
     private let db = Firestore.firestore()
     
+    // Finds the latest log date to anchor charts correctly
     private var chartAnchorDate: Date {
         let now = Date()
         let latestLogDate = fuelLogs.map(\.date).max() ?? now
         return max(now, latestLogDate)
     }
     
-    var spendChartYMax: Double {
-        let maxVal = spendChartPoints.map(\.totalSpend).max() ?? 0
-        // add 10% headroom + minimum sensible scale
-        return max(10, maxVal * 1.2)
+    // Gets the highest fuel log odometer/mileage value
+    var latestFuelLogMileage: Int? {
+        fuelLogs.max(by: { $0.mileage < $1.mileage })?.mileage
     }
 
-    // filtered logs derived from selection
+    // Shhows averages or the selected point value
+    var mpgHeaderText: Double {
+        if let selected = selectedMPGPoint { return selected.avgMPG }
+        return averageMPG ?? 0
+    }
+    
+    var spendingHeaderText: String {
+        if let selected = selectedSpendPoint { return spendingCurrencyString(from: selected.totalSpend) }
+        return currencyString(from: totalSpending)
+    }
+
+    // Filters logs based on the timeframe
     var filteredLogs: [FuelLogModel] {
         guard let start = selectedTimeframe.startDate() else {
             return fuelLogs
@@ -209,7 +201,8 @@ class FuelViewModel: ObservableObject {
         return total / Double(filteredLogs.count)
     }
     
-    // Values for plotting MPG chart
+    // MARK: - Chart data mapping
+    // Switches the logic based on the timeframe
     var mpgChartPoints: [MPGChartPoint] {
         switch selectedTimeframe {
         case .oneMonth:
@@ -228,24 +221,11 @@ class FuelViewModel: ObservableObject {
         case .sixMonths, .oneYear:
             return monthlySpendPointsForTimeframe()
         case .all:
-            return yearlySpendPointsForAll()
+            return yearlySpendPoints()
         }
     }
     
-    func monthString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.dateFormat = "MMM"
-        return formatter.string(from: date).uppercased()
-    }
-
-    func dayString(from date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale.current
-        formatter.dateFormat = "d"
-        return formatter.string(from: date)
-    }
-    
+    // Generates x axis for 1 month timeframe, shows 1 and then every 5 days
     func dayTicksForAnchorMonth(startAtDay: Int = 1, step: Int = 5) -> [Date] {
         var cal = Calendar.current
         cal.timeZone = .current
@@ -271,8 +251,8 @@ class FuelViewModel: ObservableObject {
 
         return ticks
     }
-
-    // Domain for the MPG chart X axis
+    
+    // Calculates the domain for the MPG chart X axis
     var chartDomain: ClosedRange<Date>? {
         let cal = Calendar.current
         let anchor = chartAnchorDate
@@ -301,6 +281,21 @@ class FuelViewModel: ObservableObject {
         }
     }
     
+    // Formats dates into months or days
+    func monthString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "MMM"
+        return formatter.string(from: date).uppercased()
+    }
+    func dayString(from date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale.current
+        formatter.dateFormat = "d"
+        return formatter.string(from: date)
+    }
+    
+    // Determines the values to display MPG per day
     private func dailyMPGPointsForCurrentMonth() -> [MPGChartPoint] {
         var cal = Calendar.current
         cal.timeZone = .current
@@ -337,6 +332,7 @@ class FuelViewModel: ObservableObject {
         return points
     }
     
+    // Determines the values to display spending per day
     private func dailySpendPointsForAnchorMonth() -> [SpendChartPoint] {
         var cal = Calendar.current
         cal.timeZone = .current
@@ -370,7 +366,7 @@ class FuelViewModel: ObservableObject {
         return points
     }
 
-
+    // Determines the values to display MPG per month
     private func monthlyMPGPoints() -> [MPGChartPoint] {
         let grouped = Dictionary(grouping: filteredLogs) { log in
             monthId(for: log.date) // "YYYY-MM"
@@ -389,6 +385,7 @@ class FuelViewModel: ObservableObject {
         return points
     }
     
+    // Determines the values to display spending per month
     private func monthlySpendPointsForTimeframe() -> [SpendChartPoint] {
         let grouped = Dictionary(grouping: filteredLogs) { log in
             monthId(for: log.date) // "YYYY-MM"
@@ -407,6 +404,7 @@ class FuelViewModel: ObservableObject {
         return points
     }
 
+    // Determines the values to display MPG per year
     private func yearlyMPGPoints() -> [MPGChartPoint] {
         let grouped = Dictionary(grouping: filteredLogs) { log in
             yearId(for: log.date) // "YYYY"
@@ -425,9 +423,10 @@ class FuelViewModel: ObservableObject {
         return points
     }
     
-    private func yearlySpendPointsForAll() -> [SpendChartPoint] {
+    // Determines the values to display spending per year
+    private func yearlySpendPoints() -> [SpendChartPoint] {
         let grouped = Dictionary(grouping: filteredLogs) { log in
-            yearId(for: log.date) // "YYYY"
+            yearId(for: log.date)
         }
 
         let cal = Calendar.current
@@ -469,9 +468,8 @@ class FuelViewModel: ObservableObject {
         #endif
     }
 
-    // Call this from the view.
-    // 1) load primary vehicle
-    // 2) load fuel logs for that vehicle
+    // MARK: - Firebase Logic
+    // Retrieves all fuel logs from Firestore
     func loadFuelScreenData(force: Bool = false) async {
         if hasLoadedOnce && !force { return }
 
@@ -564,6 +562,7 @@ class FuelViewModel: ObservableObject {
         }
     }
 
+    // Load the latest 300 fuel logs
     private func loadFuelLogsInternal(uid: String, vehicleId: String) async throws {
         let logsQuery = db
             .collection("users")

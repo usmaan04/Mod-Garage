@@ -14,12 +14,12 @@ class SplashScreenViewModel: ObservableObject {
     // Keeps track of whether the Splash screen is still on screen
     @Published var isLoading = true
     
-    // Keeps track of whether to send user to the Home or the Sign Up screen
+    // Determines whether to send user to the Home or the Sign Up screen
     @Published var isAuthenticated = false
     
     // Check if user is authenticated
     func checkUserAuth() {
-        // SAdd 2 second delay
+        // Add 2 second delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
             // Check Firebase to see if there is a 'currentUser' saved
             self.isAuthenticated = Auth.auth().currentUser != nil

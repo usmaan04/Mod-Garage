@@ -11,6 +11,7 @@ import FirebaseAuth
 import FirebaseFirestore
 import SwiftUI
 
+// Handles the logic for the preferneces and actions for the settings screen
 @MainActor
 class SettingsViewModel: ObservableObject {
     @Published var profilePhotoURL: URL?
@@ -18,8 +19,11 @@ class SettingsViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var memberDate: String = ""
     @Published var selectedTab: Tab = .home
+    
     // App appearance preference: "system", "light", or "dark"
     @AppStorage("preferredColorScheme") private var preferredColorSchemeRaw: String = "system"
+    
+    // Flags for showing conditional UI
     @Published var isEmailPasswordUser: Bool = false
     @Published var showProfile: Bool = false
     @Published var showNotification: Bool = false
@@ -42,6 +46,7 @@ class SettingsViewModel: ObservableObject {
             } else {
                 preferredColorSchemeRaw = "system"
             }
+            // Manually tell the app that the theme has changed
             objectWillChange.send()
         }
     }
@@ -53,6 +58,7 @@ class SettingsViewModel: ObservableObject {
         fetchUserDetails()
     }
 
+    // Gets the users name and when they joined by calculating it
     func fetchUserDetails() {
         guard let user = Auth.auth().currentUser else {
             self.isEmailPasswordUser = false
@@ -88,7 +94,7 @@ class SettingsViewModel: ObservableObject {
                 let fetchedName = data["name"] as? String ?? "User"
                 let fetchedEmail = data["email"] as? String ?? userEmailAtCapture ?? ""
                 
-                // Date formatter
+                // Format the join Date
                 let formatter = DateFormatter()
                 formatter.dateFormat = "MMM yyyy"
                 
@@ -117,6 +123,7 @@ class SettingsViewModel: ObservableObject {
     private func updateAuthProviderState() {
         guard let user = Auth.auth().currentUser else { return }
         let providerIDs = user.providerData.map { $0.providerID }
+        
         if providerIDs.contains("password") {
             self.isEmailPasswordUser = true
         } else {

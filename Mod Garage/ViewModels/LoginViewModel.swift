@@ -12,9 +12,11 @@ import FirebaseAuth
 import FirebaseCore
 import GoogleSignIn
 
+// Handles the logging in authentication
 @MainActor
 class LoginViewModel: ObservableObject {
-    // Published Properties (Bound to LoginView)
+    
+    // Published Properties
     @Published var email = ""
     @Published var forgotEmail = ""
     @Published var password = ""
@@ -25,7 +27,7 @@ class LoginViewModel: ObservableObject {
     @Published var isUserLoggedIn = false
     @Published var isLoading = false
     
-    // Centralized form validation: sets loginError and returns validity
+    // Validates user entered/enterable fields
     @discardableResult
     func isFormValid() -> Bool {
         // Reset previous error
@@ -34,12 +36,13 @@ class LoginViewModel: ObservableObject {
         let trimmedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedPassword = password.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        // Prevent empty fields
         if trimmedEmail.isEmpty || trimmedPassword.isEmpty {
             loginError = "Please fill in all fields"
             return false
         }
 
-        // Optional: basic email format check using simple contains to avoid duplicating regex
+        // Basic email format check 
         if !trimmedEmail.contains("@") || !trimmedEmail.contains(".") {
             loginError = "Please enter a valid email address"
             return false
@@ -48,7 +51,7 @@ class LoginViewModel: ObservableObject {
         return true
     }
     
-    // Email/Password Login
+    // Email/Password authentication
     func login() {
         
         // Validate form
@@ -66,6 +69,7 @@ class LoginViewModel: ObservableObject {
             self.isLoading = false
             
             if let error = error {
+                // Map Firebase error to user friendly messages
                 self.loginError = self.handleFirebaseError(error)
                 return
             }
@@ -75,7 +79,9 @@ class LoginViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Google Sign-In
+    // MARK: - Google Log-In
+    
+    // Implemets Google Identity SDK flow
     func signInWithGoogle() {
         guard let clientID = FirebaseApp.app()?.options.clientID else {
             alertMessage = "Missing Google Client ID."
@@ -101,6 +107,7 @@ class LoginViewModel: ObservableObject {
                 return
             }
 
+            // Get token from google response
             guard let user = result?.user,
                   let idToken = user.idToken?.tokenString else {
                 Task { @MainActor in
