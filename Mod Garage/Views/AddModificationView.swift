@@ -14,6 +14,7 @@ struct AddModificationView:View {
     @StateObject private var viewModel = AddModificationViewModel()
     
     @EnvironmentObject var detailViewModel: VehicleDetailViewModel
+    @EnvironmentObject var toastManager: ToastManager
     
     let vehicleId: String
     
@@ -270,8 +271,12 @@ struct AddModificationView:View {
                 Task {
                     await detailViewModel.addModification(modification, vehicleId: vehicleId)
                     dismiss()
+                    toastManager.show("Modification added successfully", style: .success)
                 }
             }
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
     }
 }

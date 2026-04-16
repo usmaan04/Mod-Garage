@@ -81,6 +81,9 @@ struct ForgotPasswordView: View {
         }
         .padding(.horizontal, 17)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .onTapGesture {
+            hideKeyboard()
+        }
     }
 }
 

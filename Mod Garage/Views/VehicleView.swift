@@ -12,6 +12,7 @@ struct VehicleView: View {
     
     // View models
     @EnvironmentObject private var viewModel: VehicleViewModel
+    @EnvironmentObject var toastManager: ToastManager
 
     // Delete states and properties
     @State private var vehicleToDelete: VehicleModel? = nil
@@ -411,6 +412,9 @@ struct VehicleView: View {
                                         }
                                         .padding(.horizontal, 17)
                                         .offset(y: 16)
+                                        .onTapGesture {
+                                            hideKeyboard()
+                                        }
                                     }
                                     
                                     // If no filters match
@@ -470,6 +474,7 @@ struct VehicleView: View {
                                                         Button {
                                                             Task {
                                                                 await viewModel.makePrimary(vehicle)
+                                                                toastManager.show("Changed primary vehicle successfully", style: .success)
                                                             }
                                                         } label: {
                                                             Label("Make Primary", systemImage: "star.fill")
@@ -495,6 +500,7 @@ struct VehicleView: View {
                             Task {
                                 if let vehicle = vehicleToDelete {
                                     await viewModel.deleteVehicle(vehicle)
+                                    toastManager.show("Vehicle deleted successfully", style: .success)
                                 }
                             }
                         }

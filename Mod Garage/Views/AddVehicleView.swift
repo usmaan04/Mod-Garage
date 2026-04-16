@@ -13,12 +13,13 @@ struct AddVehicleView: View {
     @Binding var isPresented: Bool
     @StateObject private var viewModel = AddVehicleViewModel()
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
+    
+    @EnvironmentObject var toastManager: ToastManager
 
     var body: some View {
         VStack(spacing: 12) {
             
             // MARK: - If searching DVLA
-            
             if viewModel.isLoading {
                 ProgressView("Searching DVLA...")
                     .padding(.top, 20)
@@ -291,6 +292,7 @@ struct AddVehicleView: View {
                 Task {
                     await vehicleViewModel.addVehicle(vehicle)
                     isPresented = false
+                    toastManager.show("Vehicle added successfully", style: .success)
                 }
             }
         }

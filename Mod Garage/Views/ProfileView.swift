@@ -10,7 +10,7 @@ struct ProfileView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .center, spacing: 16) {
                 ZStack {
                     
                     avatarView
@@ -36,6 +36,7 @@ struct ProfileView: View {
                     Text("Name")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     
                     TextField("Enter your name", text: $viewModel.name)
                         .autocorrectionDisabled()
@@ -57,6 +58,7 @@ struct ProfileView: View {
                     Text("Email")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     TextField("Enter your email",
                               text: $viewModel.email)
@@ -80,6 +82,7 @@ struct ProfileView: View {
                     Text("Password")
                         .font(.system(size: 16).weight(.medium))
                         .fontWidth(.condensed)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
                     SecureField("Enter a new password", text: $viewModel.password)
                         .font(.system(size: 12))

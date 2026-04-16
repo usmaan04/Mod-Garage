@@ -47,7 +47,6 @@ struct LoginView: View {
                             .font(.system(size: 12))
                             .keyboardType(.emailAddress)
                             .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled(true)
                             .padding(.vertical, 16)
                             .padding(.horizontal, 12)
                             .background(
@@ -94,7 +93,6 @@ struct LoginView: View {
                                         .foregroundStyle(Color.containerText)
                                 )
                                 .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled(true)
                                 .keyboardType(.asciiCapable)
                                 .font(.system(size: 12))
                             } else {
@@ -105,7 +103,6 @@ struct LoginView: View {
                                         .foregroundStyle(.containerText)
                                 )
                                 .textInputAutocapitalization(.never)
-                                .autocorrectionDisabled(true)
                                 .keyboardType(.asciiCapable)
                                 .font(.system(size: 12))
                             }

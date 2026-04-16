@@ -79,12 +79,46 @@ struct VehicleDetailView: View {
     var body: some View {
         ZStack(alignment: .top) {
             ZStack(alignment: .top) {
-                // Background vehicle image
-                Image("carimg")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .ignoresSafeArea(.container, edges: .top)
+                
+                if let urlString = vehicle.imageURL, let url = URL(string: urlString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .empty:
+                            Circle()
+                                .fill(Color.containerBorder)
+                                .frame(width: 50, height: 50)
+                                .redacted(reason: .placeholder)
+                                .shimmer(speed: 1.6)
+
+                        case .success(let image):
+                            image
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .ignoresSafeArea(.container, edges: .top)
+
+                        case .failure(_):
+                            Image("carPlaceholder")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .ignoresSafeArea(.container, edges: .top)
+
+                        @unknown default:
+                            Image("carPlaceholder")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .ignoresSafeArea(.container, edges: .top)
+                        }
+                    }
+                } else {
+                    Image("carPlaceholder")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .ignoresSafeArea(.container, edges: .top)
+                }
                 
             }
             GeometryReader{proxy in
@@ -103,6 +137,10 @@ struct VehicleDetailView: View {
                                             RoundedRectangle(cornerRadius: 4)
                                                 .fill(Color.redTheme)
                                         )
+                                }
+                                else{
+                                    Text("")
+                                        .padding(.vertical, 4)
                                 }
                                 
                                 Text("\(vehicle.make) " + "\(vehicle.model) ")
@@ -228,10 +266,10 @@ struct VehicleDetailView: View {
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                         
-                                        Text("\(vehicle.year)")
-                                            .font(.system(size: 18).weight(.semibold))
-                                            .fontWidth(.condensed)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        Text(vehicle.year, format: .number.grouping(.never))
+                                              .font(.system(size: 18).weight(.semibold))
+                                              .fontWidth(.condensed)
+                                              .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                     .padding(.vertical, 14)
                                     .padding(.horizontal, 20)
@@ -312,7 +350,7 @@ struct VehicleDetailView: View {
                             }
                         }
                         .padding(.horizontal, 17)
-                        .padding(.top, 80)
+                        .padding(.top, 65)
                         .padding(.bottom, 16)
                     }
                     .frame(maxHeight: proxy.size.height - 48)
@@ -320,10 +358,9 @@ struct VehicleDetailView: View {
                 }
                 .background(LinearGradient(
                     gradient: Gradient(stops: [
-                        .init(color: Color.background.opacity(0.0), location: 0.0),
-                        .init(color: Color.background.opacity(0.2), location: 0.1),
-                       
-                        .init(color: Color.background.opacity(1), location: 0.24)
+                        .init(color: Color.background.opacity(0.0), location: 0.12),
+                        .init(color: Color.background.opacity(0.99), location: 0.21),
+                        .init(color: Color.background.opacity(1.0), location: 0.23)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -368,7 +405,6 @@ struct VehicleDetailView: View {
                 }
             }
         }
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .sheet(isPresented: $viewModel.isShowingAddModification) {
             NavigationStack {
                 AddModificationView(vehicleId: vehicle.id)

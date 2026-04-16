@@ -93,7 +93,6 @@ struct OnboardView: View {
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: authVM.currentStep)
             }
         }
-        .ignoresSafeArea(.keyboard)
         .onAppear {
             // Link your vehicle logic
             addVehicleVM.onVehicleReady = { vehicle in
@@ -269,7 +268,6 @@ struct OnboardView: View {
                     .tracking(-0.4)
                     .foregroundColor(.redTheme)
                     .padding(4)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
             
             HStack {
@@ -536,7 +534,10 @@ struct OnboardView: View {
             
             // MARK: - If is loading
             if addVehicleVM.isLoading {
-                ProgressView("Searching DVLA...")
+                VStack(alignment: .center){
+                    ProgressView("Searching DVLA...")
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
             
             // MARK: - Show the returned DVLA details if there is a vehicle model
             } else if let dvla = addVehicleVM.dvlaVehicle, !addVehicleVM.hasConfirmedDVLA {

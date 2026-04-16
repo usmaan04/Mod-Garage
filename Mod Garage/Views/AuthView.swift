@@ -49,6 +49,9 @@ struct AuthView: View {
         }
         .ignoresSafeArea(.keyboard)
         .toolbar(.hidden)
+        .onTapGesture {
+            hideKeyboard()
+        }
     }
 
     // Simplified authentication footer to show button to switch pages

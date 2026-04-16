@@ -15,6 +15,7 @@ struct AddFuelLogView:View {
     
     @EnvironmentObject var detailViewModel: VehicleDetailViewModel
     @EnvironmentObject var fuelViewModel: FuelViewModel
+    @EnvironmentObject var toastManager: ToastManager
     
     let vehicleId: String
     let method: String
@@ -245,9 +246,13 @@ struct AddFuelLogView:View {
                     Task {
                         await detailViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
                         dismiss()
+                        toastManager.show("Fuel log added successfully", style: .success)
                     }
                 }
             }
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
     }
 }
