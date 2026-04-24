@@ -84,10 +84,10 @@ struct VehicleDetailView: View {
                     AsyncImage(url: url) { phase in
                         switch phase {
                         case .empty:
-                            Circle()
-                                .fill(Color.containerBorder)
-                                .frame(width: 50, height: 50)
-                                .redacted(reason: .placeholder)
+                            Rectangle()
+                                .scaledToFit()
+                                .frame(maxWidth: .infinity)
+                                .ignoresSafeArea(.container, edges: .top)
                                 .shimmer(speed: 1.6)
 
                         case .success(let image):

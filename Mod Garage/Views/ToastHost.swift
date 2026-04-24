@@ -22,9 +22,7 @@ struct ToastHost: View {
                             .move(edge: .top)
                             .combined(with: .opacity)
                         )
-                        .onTapGesture {
-                            toastManager.hide()
-                        }
+                     
                     
                 }
             }

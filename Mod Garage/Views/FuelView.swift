@@ -179,6 +179,8 @@ struct FuelView: View {
                                                 AxisValueLabel(centered: false) {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.day())
+                                                            .font(.system(size: 12).weight(.medium))
+                                                            .padding(.top, 4)
                                                     }
                                                 }
                                             }
@@ -189,14 +191,21 @@ struct FuelView: View {
                                                 AxisValueLabel(centered: true) {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.month(.abbreviated))
-                                                            .frame(maxWidth: .infinity, alignment: .center)
+                                                            .font(.system(size: 12).weight(.medium))
+                                                            .padding(.top, 4)
                                                     }
                                                 }
                                             }
 
                                         case .all:
                                             AxisMarks(values: .stride(by: .year)) { value in
-                                                AxisValueLabel(centered: true)
+                                                AxisValueLabel(centered: true){
+                                                    if let date = value.as(Date.self){
+                                                        Text(date, format:.dateTime.year())
+                                                            .font(.system(size: 12).weight(.medium))
+                                                            .padding(.top, 4)
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -260,7 +269,7 @@ struct FuelView: View {
                                         case .oneMonth: return .fixed(15)
                                         case .sixMonths: return .fixed(50)
                                         case .oneYear: return .fixed(25)
-                                        case .all: return .fixed(45)
+                                        case .all: return .fixed(40)
                                         }
                                     }()
 
@@ -316,6 +325,7 @@ struct FuelView: View {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.day())
                                                             .font(.system(size: 12).weight(.medium))
+                                                            .padding(.top, 2)
                                                             
                                                     }
                                                 }
@@ -327,6 +337,7 @@ struct FuelView: View {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.month(.abbreviated))
                                                             .font(.system(size: 12).weight(.medium))
+                                                            .padding(.top, 2)
                                                     }
                                                 }
                                             }
@@ -337,6 +348,7 @@ struct FuelView: View {
                                                     if let date = value.as(Date.self) {
                                                         Text(date, format: .dateTime.year())
                                                             .font(.system(size: 12).weight(.medium))
+                                                            .padding(.top, 2)
                                                     }
                                                 }
                                             }

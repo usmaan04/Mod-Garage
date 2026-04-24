@@ -233,20 +233,21 @@ struct AddFuelLogView:View {
             viewModel.previousMileage = previousMileage
                     
             if method == "fuel"{
-                // Link AddModificationViewModel  with FuelViewModel to add log
+                // Link AddModificationViewModel with FuelViewModel to add log
                 viewModel.onFuelLogReady = { fuelLog in
                     Task {
                         await fuelViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
                         dismiss()
+                        toastManager.show("Fuel Log added successfully", style: .success)
                     }
                 }
             }else{
-                // Link AddModificationViewModel  with VehicleDetailViewModel to add log
+                // Link AddModificationViewModel with VehicleDetailViewModel to add log
                 viewModel.onFuelLogReady = { fuelLog in
                     Task {
                         await detailViewModel.addFuelLog(fuelLog, vehicleId: vehicleId)
                         dismiss()
-                        toastManager.show("Fuel log added successfully", style: .success)
+                        toastManager.show("Fuel Log added successfully", style: .success)
                     }
                 }
             }

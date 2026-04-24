@@ -12,6 +12,7 @@ struct VehicleView: View {
     
     // View models
     @EnvironmentObject private var viewModel: VehicleViewModel
+    @EnvironmentObject var homeViewModel: HomeViewModel
     @EnvironmentObject var toastManager: ToastManager
 
     // Delete states and properties
@@ -474,6 +475,13 @@ struct VehicleView: View {
                                                         Button {
                                                             Task {
                                                                 await viewModel.makePrimary(vehicle)
+                                                                await homeViewModel.loadVehicleData()
+
+                                                                    if let vehicleId = homeViewModel.primaryVehicle?.id {
+                                                                        await homeViewModel.loadModifications(vehicleId)
+                                                                        await homeViewModel.loadFuelLogs(vehicleId)
+                                                                    }
+                                                                
                                                                 toastManager.show("Changed primary vehicle successfully", style: .success)
                                                             }
                                                         } label: {

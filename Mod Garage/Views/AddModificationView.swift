@@ -281,7 +281,7 @@ struct AddModificationView:View {
     }
 }
 
-// Separate dropdown structre
+// Separate dropdown structure
 struct ModTypeDropdown: View {
     @Binding var selection: String
     let options: [String]

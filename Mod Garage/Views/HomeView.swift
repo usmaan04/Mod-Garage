@@ -60,7 +60,7 @@ struct HomeView: View {
 
                         ZStack {
                             // Optional guide circle (commented out)
-                            Circle().stroke(Color.white.opacity(0.8), lineWidth: 3).frame(width: radius * 2, height: radius * 2).position(center)
+                            Circle().stroke(Color.container, lineWidth: 3).frame(width: radius * 2, height: radius * 2).position(center)
 
                             // Button at -60 degrees (upper-right on the arc)
                             Button {
@@ -175,6 +175,7 @@ struct HomeView: View {
         // Universal sheet shows content based on the type of quick action that is passed
         .sheet(item: $viewModel.selectedQuickAction, onDismiss: {
             Task {
+                await viewModel.loadVehicleData()
                 if let vehicleId = viewModel.primaryVehicle?.id {
                     await viewModel.loadModifications(vehicleId)
                     await viewModel.loadFuelLogs(vehicleId)
@@ -545,7 +546,7 @@ struct DashboardView: View {
                                     VStack(alignment: .leading) {
                                         ZStack(alignment: .topTrailing) {
                                             RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.innerContainer)
+                                                .fill(Color.lightPink)
                                                 .frame(width: 40, height: 40)
                                                 .overlay(
                                                     Image("mot")
@@ -619,7 +620,7 @@ struct DashboardView: View {
                                     VStack(alignment: .leading) {
                                         ZStack(alignment: .topTrailing) {
                                             RoundedRectangle(cornerRadius: 8)
-                                                .fill(Color.innerContainer)
+                                                .fill(Color.lightPink)
                                                 .frame(width: 40, height: 40)
                                                 .overlay(
                                                     Image(systemName: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90")
@@ -708,7 +709,7 @@ struct DashboardView: View {
                                         RoundedRectangle(cornerRadius: 12)
                                             .stroke(Color.containerBorder, lineWidth: 4)
                                             .fill(Color.container)
-                                            .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 0)
+                                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 0)
                                     )
                                 }
                                 
@@ -742,8 +743,6 @@ struct DashboardView: View {
                                                 ModCard(modification: mod)
                                             }
                                         }
-                                        .padding(.horizontal, 2)
-                                        .padding(.vertical, 2)
                                     }
                                     
                                 // Othewise show an empty sate box
@@ -1002,7 +1001,7 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
 
         Text(title)
             .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(Color.container)
+            .foregroundStyle(Color.white)
             .shadow(radius: 1)
 
     }
@@ -1010,7 +1009,7 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
     .frame(maxWidth: 160, maxHeight: 50)
 }
 
-// Resuable card for displaying modifcation information
+// Resuable card for displaying modification information
 struct ModCard: View {
     let modification: ModificationModel
 

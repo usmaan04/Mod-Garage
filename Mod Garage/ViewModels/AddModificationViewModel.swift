@@ -124,17 +124,11 @@ final class AddModificationViewModel: ObservableObject {
                 )
             }
 
-            // Upload after image or set a placeholder one
+            // Upload after image or set an empty one
             if let afterImage {
                 finalAfterURLString = try await uploadImage(afterImage, vehicleId ,modificationId)
-            } else if let placeholder = UIImage(named: "carimg") {
-                finalAfterURLString = try await uploadImage(placeholder, vehicleId, modificationId)
             } else {
-                throw NSError(
-                    domain: "AddModificationViewModel",
-                    code: 404,
-                    userInfo: [NSLocalizedDescriptionKey: "Missing placeholder image asset 'carimg'."]
-                )
+                finalAfterURLString = ""
             }
             
             // Create modifcation model using the inputted and calculated values

@@ -275,8 +275,9 @@ class FuelViewModel: ObservableObject {
             return start...end
             
         case .all:
-            let start = cal.date(byAdding: .year, value: -5, to: cal.startOfMonth(for: anchor))!
-            let end = cal.date(byAdding: .year, value: 1, to: cal.startOfMonth(for: anchor))!
+            let anchorYear = cal.component(.year, from: anchor)
+            let start = cal.date(from: DateComponents(year: anchorYear - 5, month: 1, day: 1))!
+            let end = cal.date(from: DateComponents(year: anchorYear + 1, month: 1, day: 1))!
             return start...end
         }
     }
