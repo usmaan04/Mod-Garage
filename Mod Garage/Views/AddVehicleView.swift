@@ -122,9 +122,9 @@ struct AddVehicleView: View {
                             "",
                             text: $viewModel.model,
                             prompt: Text("Golf")
-                                .foregroundStyle(.black.opacity(0.3))
+                                .foregroundStyle(Color.containerText)
                         )
-                        .font(.system(size: 12, weight: .semibold))
+                        .font(.system(size: 12))
                         .foregroundStyle(Color.containerText)
                         .multilineTextAlignment(.center)
                         .keyboardType(.asciiCapable)
@@ -136,7 +136,7 @@ struct AddVehicleView: View {
                         )
                         HStack(spacing: 16){
                             PhotosPicker("Upload image", selection: $viewModel.carImageItem, matching: .images)
-                                .font(.system(size: 10))
+                                .font(.system(size: 12))
                                 .foregroundStyle(Color.containerText)
                                 .onChange(of: viewModel.carImageItem) { _ in
                                         Task {
@@ -151,7 +151,7 @@ struct AddVehicleView: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
-                        .padding(14)
+                        .padding(16)
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
@@ -287,12 +287,19 @@ struct AddVehicleView: View {
         .onAppear {
             viewModel.existingVehicleCount = vehicleViewModel.vehicles.count
             
-            // Important: link AddVehicleViewModel → VehicleViewModel
+            // Link AddVehicleViewModel with VehicleViewModel
             viewModel.onVehicleReady = { vehicle in
                 Task {
-                    await vehicleViewModel.addVehicle(vehicle)
-                    isPresented = false
-                    toastManager.show("Vehicle added successfully", style: .success)
+                    let success = await vehicleViewModel.addVehicle(vehicle)
+                                
+                    if success {
+                        
+                        toastManager.show("Vehicle added successfully", style: .success)
+                        
+                        withAnimation(.snappy) {
+                            isPresented = false
+                        }
+                    }
                 }
             }
         }

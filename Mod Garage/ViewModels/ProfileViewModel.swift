@@ -1,3 +1,10 @@
+//
+//  ProfileViewModel.swift
+//  Mod Garage
+//
+//  Created by Usmaan Ahmed on 12/04/2026.
+//
+
 import Foundation
 import _PhotosUI_SwiftUI
 import Combine

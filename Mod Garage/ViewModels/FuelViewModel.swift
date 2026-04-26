@@ -177,10 +177,10 @@ class FuelViewModel: ObservableObject {
     }
     
     var spendingHeaderText: String {
-        if let selected = selectedSpendPoint { return spendingCurrencyString(from: selected.totalSpend) }
+        if let selected = selectedSpendPoint { return currencyString(from: selected.totalSpend) }
         return currencyString(from: totalSpending)
     }
-
+    
     // Filters logs based on the timeframe
     var filteredLogs: [FuelLogModel] {
         guard let start = selectedTimeframe.startDate() else {
@@ -523,15 +523,17 @@ class FuelViewModel: ObservableObject {
             return
         }
 
-        let logsCollection = db
+        let path = db
             .collection("users")
             .document(uid)
             .collection("vehicles")
             .document(vehicleId)
             .collection("fuelLogs")
+            .document(fuelLog.id)
+        
 
         do {
-            try logsCollection.addDocument(from: fuelLog)
+            try path.setData(from: fuelLog)
             await refreshFuelLogs()
             isShowingAddFuelLog = false
         } catch {

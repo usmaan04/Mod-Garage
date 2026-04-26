@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import FirebaseFirestore
 import FirebaseAuth
+import FirebaseStorage
 
 // Represents the different toggles/ pills in the detail view
 // Check whether to look at vehicles mods or fuel logs
@@ -60,15 +61,16 @@ final class VehicleDetailViewModel: ObservableObject {
             return
         }
         
-        let modsCollection = db
+        let path = db
             .collection("users")
             .document(uid)
             .collection("vehicles")
             .document(vehicleId)
             .collection("modifications")
+            .document(modification.id)
         
         do {
-            try modsCollection.addDocument(from: modification)
+            try path.setData(from: modification)
             await loadModifications(vehicleId)
             isShowingAddModification = false
         
@@ -162,6 +164,60 @@ final class VehicleDetailViewModel: ObservableObject {
         }
         
         isLoading = false
+    }
+    
+    // Deletes a mod and its related images
+    func deleteModification(_ modification: ModificationModel, vehicleId: String) async -> Bool {
+        guard let uid = Auth.auth().currentUser?.uid else{
+            errorMessage = "User must be logged in."
+            return false
+        }
+        
+        let modId = modification.id
+        if modId.isEmpty {
+            errorMessage = "The modification to delete is missing an id"
+            return false
+        }
+
+        let modRef = db.collection("users")
+            .document(uid)
+            .collection("vehicles")
+            .document(vehicleId)
+            .collection("modifications")
+            .document(modId)
+
+        do {
+            // Delete the document from Firestore
+            try await modRef.delete()
+            
+            try await deleteStorageFolder("modification_images/\(uid)/\(vehicleId)/\(modId)")
+
+            // Refresh mod list
+            await loadModifications(vehicleId)
+            return true
+            
+        } catch {
+            errorMessage = "Failed to delete modification: \(error.localizedDescription)"
+            return false
+        }
+    }
+    
+    // Deletes folderr of images
+    private func deleteStorageFolder(_ path: String) async throws {
+        let storageRef = Storage.storage().reference().child(path)
+        
+        do {
+            let list = try await storageRef.listAll()
+            
+            for item in list.items {
+                try await item.delete()
+            }
+
+            for prefix in list.prefixes {
+                try await deleteStorageFolder("\(path)/\(prefix.name)")
+            }
+        } catch {
+        }
     }
     
     // Gets the current vehicle and calls PDFGenerator service file

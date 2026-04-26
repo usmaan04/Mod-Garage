@@ -1,5 +1,5 @@
 //
-//  MainAppView.swift
+//  HomeView.swift
 //  Mod Garage
 //
 //  Created by Usmaan Ahmed on 23/10/2025.
@@ -9,6 +9,7 @@ import FirebaseAuth
 
 struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
+    @EnvironmentObject var toastManager: ToastManager
     @StateObject private var viewModel = HomeViewModel()
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var vehicleViewModel = VehicleViewModel()
@@ -22,13 +23,13 @@ struct HomeView: View {
             Group {
                 switch viewModel.selectedTab {
                 case .home:
-                    DashboardView(detailViewModel: detailViewModel)
+                    DashboardView(detailViewModel: detailViewModel, toastManager: toastManager)
                         .environmentObject(vehicleViewModel)
                 case .vehicle:
                     VehicleView()
                         .environmentObject(vehicleViewModel)
                 case .add:
-                    DashboardView(detailViewModel: detailViewModel)
+                    DashboardView(detailViewModel: detailViewModel, toastManager: toastManager)
                         .environmentObject(vehicleViewModel)
                 case .fuel:
                     FuelView()
@@ -145,6 +146,7 @@ struct HomeView: View {
                         .shadow(radius: 8)
                         .padding(.horizontal, 25)
                 }
+                .transition(.opacity)
             }
             
             // Shows the edit vehicle overlay
@@ -169,6 +171,19 @@ struct HomeView: View {
                             .shadow(radius: 8)
                             .padding(.horizontal, 25)
                     } 
+                }
+            }
+        }
+        // Shows the notification overlay
+        .overlay(alignment: .topTrailing) {
+            Group {
+                if viewModel.isShowingUpcoming {
+                    reminderOverlay
+                        .padding(.top, 48)
+                        .padding(.trailing, 17)
+                        .transition(.scale(scale: 0.95, anchor: .topTrailing).combined(with: .opacity))
+                } else {
+                    EmptyView()
                 }
             }
         }
@@ -212,7 +227,135 @@ struct HomeView: View {
                 }
             }
         }
+        .onChange(of: viewModel.selectedTab) { _ in
+            withAnimation(.spring()) {
+                viewModel.isShowingUpcoming = false
+            }
+        }
         .ignoresSafeArea( edges: .bottom)
+    }
+    
+    // Main structure for a reminder to show
+    private struct ReminderItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let subtitle: String
+        let daysRemaining: Int
+        let icon: String
+    }
+
+    // Gets all the vehicles with MOT and Tax expiries less than 41 days
+    private var upcomingReminders: [ReminderItem] {
+        vehicleViewModel.vehicles
+            .flatMap { vehicle -> [ReminderItem] in
+                var reminders: [ReminderItem] = []
+
+                if let motDate = vehicle.motExpiryDate {
+                    let days = viewModel.daysBetweenToday(date: motDate)
+
+                    if days >= 0 && days <= 60 {
+                        reminders.append(
+                            ReminderItem(
+                                title: "MOT Due",
+                                subtitle: "\(vehicle.make) \(vehicle.model) • \(vehicle.registration)",
+                                daysRemaining: days,
+                                icon: "doc.text.fill"
+                            )
+                        )
+                    }
+                }
+
+                if let taxDate = vehicle.taxExpiryDate {
+                    let days = viewModel.daysBetweenToday(date: taxDate)
+
+                    if days >= 0 && days <= 40 {
+                        reminders.append(
+                            ReminderItem(
+                                title: "Tax Due",
+                                subtitle: "\(vehicle.make) \(vehicle.model) • \(vehicle.registration)",
+                                daysRemaining: days,
+                                icon: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90"
+                            )
+                        )
+                    }
+                }
+
+                return reminders
+            }
+            .sorted { $0.daysRemaining < $1.daysRemaining }
+    }
+    
+    // Display of all the close reminders
+    private var reminderOverlay: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Upcoming Reminders")
+                    .font(.system(size: 16, weight: .bold))
+                    .fontWidth(.condensed)
+
+                Spacer()
+
+                Button {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        viewModel.isShowingUpcoming = false
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(Color.containerText)
+                }
+            }
+
+            if upcomingReminders.isEmpty {
+                Text("No MOT or Tax reminders due soon")
+                    .font(.system(size: 13))
+                    .fontWidth(.condensed)
+                    .foregroundStyle(Color.containerText)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            } else {
+                
+                // Display details of the closest 4 vehicle's close to legal expiry
+                ForEach(upcomingReminders.prefix(4)) { reminder in
+                    HStack(spacing: 10) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.lightPink)
+                                .frame(width: 34, height: 34)
+
+                            Image(systemName: reminder.icon)
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(Color.redTheme)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(reminder.title)
+                                .font(.system(size: 14, weight: .semibold))
+                                .fontWidth(.condensed)
+
+                            Text(reminder.subtitle)
+                                .font(.system(size: 11))
+                                .foregroundStyle(Color.containerText)
+                                .lineLimit(1)
+                        }
+
+                        Spacer()
+
+                        Text(reminder.daysRemaining == 0 ? "Today" : "\(reminder.daysRemaining)d")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(reminder.daysRemaining <= 7 ? Color.redTheme : Color.containerText)
+                    }
+                }
+            }
+        }
+        .padding(18)
+        .frame(width: 310)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.container)
+                .stroke(Color.containerBorder, lineWidth: 1)
+                .shadow(color: Color.black.opacity(0.2), radius: 12, x: 0, y: 6)
+        )
     }
 }
 
@@ -225,6 +368,7 @@ struct DashboardView: View {
     @Environment(\.openURL) private var openURL
     
     let detailViewModel: VehicleDetailViewModel
+    let toastManager: ToastManager
     
     var body: some View {
         VStack(spacing:0){
@@ -317,7 +461,9 @@ struct DashboardView: View {
                         
                         // Notifications button
                         Button {
-                            viewModel.isShowingNotifications = true
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                                    viewModel.isShowingUpcoming.toggle()
+                                }
                         } label: {
                             ZStack {
                                 Image(systemName: "bell")
@@ -330,6 +476,7 @@ struct DashboardView: View {
                                     .stroke(Color.containerBorder, lineWidth: 1)
                             )
                         }
+                        .sensoryFeedback(.impact(weight: .light, intensity: 1), trigger: viewModel.isShowingUpcoming)
                         
                     }
                 }
@@ -442,6 +589,7 @@ struct DashboardView: View {
                             }
                             .buttonStyle(.plain)
                             .padding(.horizontal, 20)
+                            .sensoryFeedback(.impact(weight: .light, intensity: 1), trigger: vehicleViewModel.isShowingAddVehicle)
 
                             // Value bullets
                             HStack(spacing: 12) {
@@ -750,7 +898,7 @@ struct DashboardView: View {
                                     VStack(spacing: 8){
                                         ZStack{
                                             Circle()
-                                                .fill(Color.containerBorder)
+                                                .fill(Color.lightPink)
                                                 .frame(width: 50, height: 50)
                                             
                                             Image(systemName: "wrench.and.screwdriver")
@@ -835,7 +983,7 @@ struct DashboardView: View {
                                     VStack(spacing: 8){
                                         ZStack{
                                             Circle()
-                                                .fill(Color.containerBorder)
+                                                .fill(Color.lightPink)
                                                 .frame(width: 50, height: 50)
                                             
                                             Image(systemName: "fuelpump")
@@ -865,6 +1013,7 @@ struct DashboardView: View {
                                             RoundedRectangle(cornerRadius: 20)
                                                 .fill(Color.redTheme)
                                         )
+                                        
                                     }
                                     .padding(16)
                                     .frame(maxWidth: .infinity)
@@ -887,18 +1036,24 @@ struct DashboardView: View {
             // Multiple sheets to show the add modifcations/logs
             .sheet(isPresented:$viewModel.isShowingAllMods){
                 ScrollView{
-                    ForEach(viewModel.modifications
-                        .sorted { $0.date > $1.date }
-                    ) { modification in
-                        ModificationCard(
-                            detailVM: detailViewModel,
-                            modification: modification,
-                        )
-                        .environmentObject(viewModel)
-                        
+                    if let vehicleId = viewModel.primaryVehicle?.id{
+                        ForEach(viewModel.modifications
+                            .sorted { $0.date > $1.date }
+                        ) { modification in
+                            ModificationCard(
+                                detailVM: detailViewModel,
+                                modification: modification,
+                                vehicleId: vehicleId,
+                                toastManager: toastManager
+                            )
+                            .environmentObject(viewModel)
+                            
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 36)
+                    } else {
+                        Text("No vehicle selected")
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 36)
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.background)
@@ -923,14 +1078,6 @@ struct DashboardView: View {
                 .background(Color.background)
                 .presentationDragIndicator(.visible)
             }
-            .sheet(isPresented: $viewModel.isShowingNotifications) {
-                NavigationStack {
-                    NotificationView(viewModel: NotificationViewModel(vehicleProvider: {
-                        vehicleViewModel.vehicles
-                    }))
-                }
-                .presentationDragIndicator(.visible)
-            }
             .onAppear {
                 Task {
                     await viewModel.loadVehicleData()
@@ -938,6 +1085,16 @@ struct DashboardView: View {
                         await viewModel.loadModifications(vehicleId)
                         await viewModel.loadFuelLogs(vehicleId)
                     }
+                }
+            }
+            .onTapGesture(count: 1) {
+                withAnimation(.spring()) {
+                    viewModel.isShowingUpcoming = false
+                }
+            }
+            .onChange(of: viewModel.isShowingUpcoming) { isShowing in
+                if isShowing {
+                    Task { await vehicleViewModel.loadVehicles() }
                 }
             }
         }

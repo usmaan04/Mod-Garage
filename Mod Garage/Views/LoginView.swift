@@ -132,8 +132,10 @@ struct LoginView: View {
                         .font(.system(size: 14))
                         .tracking(-0.4)
                         .foregroundColor(.redTheme)
-                        .padding(4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 4)
+                        .padding(.bottom, -6)
+                        .frame(alignment: .center)
+                        .multilineTextAlignment(.center)
                 }
                 
                 // Login Button
@@ -158,7 +160,8 @@ struct LoginView: View {
                             .cornerRadius(100)
                     }
                 }
-                .padding(.top, 2)
+                .padding(.top, 12)
+                .sensoryFeedback(.impact(weight: .medium, intensity: 1), trigger: viewModel.isLoading)
                 
                 // Divider with Or
                 HStack {
@@ -212,6 +215,7 @@ struct LoginView: View {
                 Spacer()
             }
             .padding(.horizontal, 17)
+            .background(Color.background)
             .alert(isPresented: $viewModel.showAlert) {
                 Alert(
                     title: Text("Notice"),
@@ -220,7 +224,6 @@ struct LoginView: View {
                 )
             }
         }
-        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
 

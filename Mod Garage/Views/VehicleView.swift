@@ -451,7 +451,7 @@ struct VehicleView: View {
                                                 .listRowBackground(Color.clear)
                                                 
                                                 // Trailing swipe actions
-                                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                                     Button(role: .destructive) {
                                                         vehicleToDelete = vehicle
                                                         showDeleteConfirmation = true
@@ -459,13 +459,6 @@ struct VehicleView: View {
                                                         Label("Delete", systemImage: "trash")
                                                     }
                                                     .tint(Color.redTheme)
-                                                    Button {
-                                                        viewModel.vehicleToEdit = vehicle
-                                                        viewModel.isShowingEditVehicle = true
-                                                    } label: {
-                                                        Label("Edit", systemImage: "pencil")
-                                                    }
-                                                    .tint(.blue)
 
                                                 }
 
@@ -489,6 +482,13 @@ struct VehicleView: View {
                                                         }
                                                         .tint(.yellow)
                                                     }
+                                                    Button {
+                                                        viewModel.vehicleToEdit = vehicle
+                                                        viewModel.isShowingEditVehicle = true
+                                                    } label: {
+                                                        Label("Edit", systemImage: "pencil")
+                                                    }
+                                                    .tint(.blue)
                                                 }
 
                                             }

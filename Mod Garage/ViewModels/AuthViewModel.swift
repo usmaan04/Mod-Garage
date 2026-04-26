@@ -29,7 +29,7 @@ class AuthViewModel: ObservableObject {
     
     init() {
         if !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding") {
-            // If they haven't finished onboarding, send them there first
+            // If the user hasn't finished onboarding, send them there first
             self.currentScreen = .onboarding
         } else {
             // Otherwise, start them on the regular sign up page
@@ -42,7 +42,7 @@ class AuthViewModel: ObservableObject {
         }
     }
     
-    // ompletes onborading
+    // Completes onboarding
     func finishOnboarding() {
         withAnimation {
             hasCompletedOnboarding = true

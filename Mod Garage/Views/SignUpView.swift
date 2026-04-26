@@ -118,8 +118,10 @@ struct SignUpView: View {
                     .font(.system(size: 14))
                     .tracking(-0.4)
                     .foregroundColor(.redTheme)
-                    .padding(4)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 4)
+                    .padding(.bottom, -6)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
             }
             
             // Sign Up Button
@@ -143,6 +145,7 @@ struct SignUpView: View {
                     .cornerRadius(100)
             }
             .padding(.top, 12)
+            .sensoryFeedback(.impact(weight: .medium, intensity: 1), trigger: viewModel.isLoading)
             
             // Divider with “Or”
             HStack {

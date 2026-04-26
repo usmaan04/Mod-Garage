@@ -11,6 +11,7 @@ struct SplashScreenView: View {
     
     // Active state
     @State private var isActive = false
+    @StateObject var viewModel = SplashScreenViewModel()
     
     var body: some View {
         // Show App view if active
@@ -30,9 +31,13 @@ struct SplashScreenView: View {
                 .animation(.easeOut(duration: 0.5), value: isActive)
             }
             .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                    withAnimation {
-                        isActive = true
+                // Ask for notification permission
+                viewModel.requestNotificationPermission {
+                    // Ensure splash shows for at least 2.5s
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                        withAnimation {
+                            isActive = true
+                        }
                     }
                 }
             }

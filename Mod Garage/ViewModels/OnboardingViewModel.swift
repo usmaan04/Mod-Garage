@@ -1,5 +1,5 @@
 //
-//  OnboardingProgressViewModel.swift
+//  OnboardingViewModel.swift
 //  Mod Garage
 //
 //  Created by Usmaan Ahmed on 12/04/2026.
@@ -20,12 +20,13 @@ class OnboardingViewModel: ObservableObject {
         }
     }
     
-    // Helper to set values for pre-set steps
+    // Helper to set values for preset steps
     func updateForStep(_ step: Int) {
         switch step {
         case 1: setProgress(to: 0.33)
         case 2: setProgress(to: 0.66)
-        case 3: setProgress(to: 0.33) 
+        case 3: setProgress(to: 0.33)
+        case 4: setProgress(to: 0.33)
         default: setProgress(to: 0.0)
         }
     }

@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 import FirebaseFirestore
 import FirebaseAuth
+import FirebaseStorage
 
 // Handles the logic for the collection of vehciels in the users account
 @MainActor
@@ -41,10 +42,10 @@ class VehicleViewModel: ObservableObject {
     }
     
     // Adds a new vehicle into the vehicles subcollection
-    func addVehicle(_ vehicle: VehicleModel) async {
+    func addVehicle(_ vehicle: VehicleModel) async -> Bool {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
-            return
+            return false
         }
         
         let path = db
@@ -64,7 +65,7 @@ class VehicleViewModel: ObservableObject {
                     )
                 } catch {
                     errorMessage = "Failed to set primary vehicle: \(error.localizedDescription)"
-                    return
+                    return false
                 }
             }
             
@@ -73,9 +74,10 @@ class VehicleViewModel: ObservableObject {
             
             // Refresh list and close overlay
             await loadVehicles()
-            isShowingAddVehicle = false
+            return true
         } catch {
             errorMessage = "Failed to save vehicle: \(error.localizedDescription)"
+            return false
         }
     }
     
@@ -130,14 +132,14 @@ class VehicleViewModel: ObservableObject {
         isLoading = false
     }
     
-    // Delets a vehicle from users account/Firestore
+    // Deletes a vehicle from users account/Firestore
     func deleteVehicle(_ vehicle: VehicleModel) async {
         guard let uid = Auth.auth().currentUser?.uid else {
             errorMessage = "No logged in user."
             return
         }
         
-        let path = db
+        let vehicleRef = db
             .collection("users")
             .document(uid)
             .collection("vehicles")
@@ -152,8 +154,16 @@ class VehicleViewModel: ObservableObject {
                 )
             }
             
+            // Delete all the vehucles mods and fuel logs
+            try await deleteCollection(vehicleRef.collection("modifications"))
+            try await deleteCollection(vehicleRef.collection("fuelLogs"))
+            
+            // Delete all the images related to the vehicle and it's mods
+            try await deleteStorageFolder("vehicle_images/\(uid)/\(vehicle.id)")
+            try await deleteStorageFolder("modification_images/\(uid)/\(vehicle.id)")
+            
             // Delete the vehicle
-            try await path.delete()
+            try await vehicleRef.delete()
             
             // Trigger a notification sync
             needsSync = true
@@ -163,6 +173,34 @@ class VehicleViewModel: ObservableObject {
             
         } catch {
             errorMessage = "Failed to delete vehicle: \(error.localizedDescription)"
+        }
+    }
+    
+    // Loops through a collection s and deletes every document inside
+    private func deleteCollection(_ collection: CollectionReference) async throws {
+        let snapshot = try await collection.getDocuments()
+        for document in snapshot.documents {
+            try await document.reference.delete()
+        }
+    }
+    
+    // Deletes folders of images
+    private func deleteStorageFolder(_ path: String) async throws {
+        let storageRef = Storage.storage().reference().child(path)
+        
+        do {
+            let list = try await storageRef.listAll()
+            
+            // Delete files
+            for item in list.items {
+                try await item.delete()
+            }
+            
+            // Recursively delete subfolders
+            for prefix in list.prefixes {
+                try await deleteStorageFolder("\(path)/\(prefix.name)")
+            }
+        } catch {
         }
     }
     

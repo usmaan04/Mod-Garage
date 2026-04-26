@@ -31,6 +31,7 @@ final class AddModificationViewModel: ObservableObject {
     @Published var beforeImage: UIImage?
     @Published var afterImage: UIImage?
 
+    @Published var isLoading: Bool = false
     @Published var showDatePicker = false
     @Published var errorMessage: String? = nil
     
@@ -104,6 +105,8 @@ final class AddModificationViewModel: ObservableObject {
         guard isFormValid() else {
             return
         }
+        
+        isLoading = true
 
         var finalBeforeURLString = ""
         var finalAfterURLString = ""
@@ -114,14 +117,8 @@ final class AddModificationViewModel: ObservableObject {
             // Upload before image or set a placeholder one
             if let beforeImage {
                 finalBeforeURLString = try await uploadImage(beforeImage, vehicleId, modificationId)
-            } else if let placeholder = UIImage(named: "carimg") {
-                finalBeforeURLString = try await uploadImage(placeholder, vehicleId,modificationId)
-            } else {
-                throw NSError(
-                    domain: "AddModificationViewModel",
-                    code: 404,
-                    userInfo: [NSLocalizedDescriptionKey: "Missing placeholder image asset 'carimg'."]
-                )
+            }else {
+                finalAfterURLString = ""
             }
 
             // Upload after image or set an empty one
@@ -144,6 +141,8 @@ final class AddModificationViewModel: ObservableObject {
                 createdAt: Date()
             )
 
+            isLoading = false
+            
             // Set onModificationReady for saving
             onModificationReady?(newModification)
             

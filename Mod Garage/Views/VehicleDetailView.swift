@@ -21,6 +21,7 @@ struct VehicleDetailView: View {
     // View models
     @StateObject private var viewModel = VehicleDetailViewModel()
     @EnvironmentObject var homeViewModel: HomeViewModel
+    @EnvironmentObject var toastManager: ToastManager
     @Namespace private var timeframeNamespace
     
     let vehicle:VehicleModel
@@ -34,13 +35,16 @@ struct VehicleDetailView: View {
                     }
                 } label: {
                     ZStack {
+                        
                         if viewModel.listOption == option {
                             RoundedRectangle(cornerRadius: 16)
                                 .fill(Color.container)
                                 .matchedGeometryEffect(id: "timeframeHighlight", in: timeframeNamespace)
                         }
+                        
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.clear)
+                        
                         HStack(spacing: 8){
                             if option == .mods{
                                 Image(systemName: "wrench.and.screwdriver.fill")
@@ -60,13 +64,13 @@ struct VehicleDetailView: View {
                                 )
                                 .fontWidth(.condensed)
                                 .padding(.vertical, 12)
-                                
                         }
                         .font(.system(size: 14, weight: .bold))
                         .frame(maxWidth: .infinity, alignment: .center)
                     }
                 }
                 .buttonStyle(.plain)
+                .sensoryFeedback(.impact(weight: .light, intensity: 1), trigger: viewModel.listOption)
             }
         }
         .padding(6)
@@ -298,6 +302,8 @@ struct VehicleDetailView: View {
                                     ModificationCard(
                                         detailVM: viewModel,
                                         modification: modification,
+                                        vehicleId: vehicle.id,
+                                        toastManager: toastManager
                                         
                                     )
                                     .environmentObject(homeViewModel)
@@ -333,6 +339,14 @@ struct VehicleDetailView: View {
                                     )
                                     .environmentObject(homeViewModel)
                                     .environmentObject(FuelViewModel())
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                        Button(role: .destructive) {
+                                            //
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                        .tint(Color.redTheme)
+                                    }
                                     
                                 }
                                 Button {
@@ -436,6 +450,9 @@ struct ModificationCard: View {
 
     let detailVM: VehicleDetailViewModel
     let modification: ModificationModel
+    let vehicleId: String
+    let toastManager: ToastManager
+    
 
     var body: some View {
         HStack(spacing: 18){
@@ -513,6 +530,29 @@ struct ModificationCard: View {
                             .fill(Color.containerBorder)
                     )
             }
+            
+            // Edit and delete buttons
+            VStack{
+                Button{
+                    Task {
+                        let success = await detailVM.deleteModification(modification, vehicleId: vehicleId)
+                        
+                        if success {
+                            toastManager.show("Modification deleted successfully", style: .success)
+                        }
+                    }
+                }label: {
+                    Image(systemName: "trash")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.white)
+                }
+                .padding(8)
+                .background(
+                    Circle()
+                        .fill(Color.redTheme)
+                )
+            }
+            .frame(maxWidth: .infinity,maxHeight: .infinity, alignment: .topTrailing)
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 18)

@@ -76,8 +76,6 @@ struct ForgotPasswordView: View {
                     .foregroundColor(.white)
                     .cornerRadius(100)
             }
-            .disabled(viewModel.email.isEmpty)
-            
         }
         .padding(.horizontal, 17)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)

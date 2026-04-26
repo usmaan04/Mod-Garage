@@ -25,10 +25,7 @@ class ForgotPasswordViewModel: ObservableObject {
     
     //Determine if email is valid
     private func isEmailValid(_ email: String) -> Bool {
-        // Common regex pattern
         let emailPattern = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        
-        // Create a predicate to test the email against the pattern
         let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailPattern)
         
         // Returns true only if condition is met

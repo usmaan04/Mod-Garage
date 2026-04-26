@@ -20,7 +20,7 @@ struct AuthView: View {
             Group {
                 // If onboarding show onboard view
                 if viewModel.currentScreen == .onboarding {
-                    OnboardView(authVM: viewModel)
+                    OnboardingView(authVM: viewModel)
                     
                 // Otherwise show the relevant view based on the current screen
                 } else {

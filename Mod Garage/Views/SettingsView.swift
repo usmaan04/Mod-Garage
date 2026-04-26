@@ -335,14 +335,14 @@ struct SettingsView: View {
                         do {
                             try await appViewModel.deleteAccount()
                         } catch {
-                            viewModel.alertMessage = "Re-authentication required. Please log out and back in to delete your account."
+                            viewModel.alertMessage = "Re-authentication required, Please log out and back in to delete your account."
                             viewModel.showAlert = true
                         }
                     }
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("This action is permanent and will remove all your vehicles and data.")
+                Text("This action is permanent and will remove all your vehicles and data")
             }
             .task {
                 await vehicleViewModel.loadVehicles()

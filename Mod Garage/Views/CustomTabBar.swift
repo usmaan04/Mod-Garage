@@ -29,7 +29,7 @@ struct CustomTabBar: View {
                 if tab == .add {
                     Button {
                         withAnimation(.spring()) {
-                            viewModel.isShowingQuickAddMenu = true
+                            viewModel.isShowingQuickAddMenu.toggle()
                         }
                     } label: {
                         ZStack {
@@ -61,11 +61,13 @@ struct CustomTabBar: View {
                         }
                     }
                     .offset(y: -26)
+                    .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: viewModel.isShowingQuickAddMenu)
 
                 // Or otherwise display an icon and text
                 } else {
                     Button {
                         withAnimation(.easeInOut) {
+                            viewModel.isShowingQuickAddMenu = false
                             viewModel.selectedTab = tab
                         }
                     } label: {
@@ -80,6 +82,7 @@ struct CustomTabBar: View {
                                 .foregroundStyle(viewModel.selectedTab == tab ? .redTheme : Color.containerText)
                         }
                     }
+                    .sensoryFeedback(.impact(weight: .heavy, intensity: 1), trigger: viewModel.selectedTab)
                 }
 
                 Spacer()

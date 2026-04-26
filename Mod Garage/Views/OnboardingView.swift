@@ -1,5 +1,5 @@
 //
-//  WelcomeView.swift
+//  OnboardingView.swift
 //  Mod Garage
 //
 //  Created by Usmaan Ahmed on 11/04/2026.
@@ -9,12 +9,13 @@ import Foundation
 import SwiftUI
 import PhotosUI
 
-struct OnboardView: View {
+struct OnboardingView: View {
     @ObservedObject var authVM: AuthViewModel
     
     // View models
     @StateObject private var signUpVM = SignUpViewModel()
     @StateObject private var loginVM = LoginViewModel()
+    @StateObject private var forgotVM = ForgotPasswordViewModel()
     @StateObject private var addVehicleVM = AddVehicleViewModel()
     @StateObject private var vehicleViewModel = VehicleViewModel()
     @StateObject private var onboardVM = OnboardingViewModel()
@@ -35,9 +36,10 @@ struct OnboardView: View {
                 LinearGradient(
                     gradient: Gradient(stops: [
                         .init(color: Color.clear, location: 0.0),
-                        .init(color: Color.background.opacity(0.2), location: 0.25),
-                        .init(color: Color.background.opacity(0.6), location: 0.3),
-                        .init(color: Color.background.opacity(1), location: 0.35)
+                        .init(color: Color.background.opacity(0.2), location: 0.3),
+                        .init(color: Color.background.opacity(0.4), location: 0.31),
+                        .init(color: Color.background.opacity(0.99), location: 0.38),
+                        .init(color: Color.background.opacity(1), location: 0.45)
                     ]),
                     startPoint: .top,
                     endPoint: .bottom
@@ -80,6 +82,12 @@ struct OnboardView: View {
                                     insertion: .move(edge: .trailing),
                                     removal: .move(edge: .trailing)
                                 ))
+                        case 4:
+                            forgotContent
+                                .transition(.asymmetric(
+                                    insertion: .move(edge: .trailing),
+                                    removal: .move(edge: .trailing)
+                                ))
                         default:
                             EmptyView()
                         }
@@ -89,7 +97,7 @@ struct OnboardView: View {
 
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, 260)
+                .padding(.top, 290)
                 .animation(.spring(response: 0.5, dampingFraction: 0.8), value: authVM.currentStep)
             }
         }
@@ -205,7 +213,7 @@ struct OnboardView: View {
                         .fontWidth(.condensed)
                     // Forgot Password
                     Button {
-                        authVM.showForgot()
+                        authVM.currentStep = 4
                     } label: {
                         HStack(spacing: 6) {
                             Text("Forgot password?")
@@ -266,8 +274,11 @@ struct OnboardView: View {
                 Text(loginError)
                     .font(.system(size: 14))
                     .tracking(-0.4)
+                    .padding(.top, -6)
+                    .padding(.bottom, -6)
                     .foregroundColor(.redTheme)
-                    .padding(4)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
             }
             
             HStack {
@@ -294,6 +305,7 @@ struct OnboardView: View {
                             .cornerRadius(100)
                     }
                 }
+                .sensoryFeedback(.impact(weight: .medium, intensity: 1), trigger: loginVM.isLoading)
                 
                 // Or divider
                 Text("Or")
@@ -438,8 +450,10 @@ struct OnboardView: View {
                     .font(.system(size: 14))
                     .tracking(-0.4)
                     .foregroundColor(.redTheme)
-                    .padding(4)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, -8)
+                    .padding(.bottom, -8)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .multilineTextAlignment(.center)
             }
             
             HStack {
@@ -462,6 +476,7 @@ struct OnboardView: View {
                         .foregroundColor(.white)
                         .cornerRadius(100)
                 }
+                .sensoryFeedback(.impact(weight: .medium, intensity: 1), trigger: signUpVM.isLoading)
                 
                 // Or divider
                 Text("Or")
@@ -526,6 +541,103 @@ struct OnboardView: View {
             
         }
         
+    }
+    
+    // Forgot password content
+    private var forgotContent: some View {
+        VStack(spacing: 20) {
+            
+            // Title
+            Text("Forgot Password")
+                .font(.system(size: 34).weight(.medium))
+                .tracking(-1)
+                .fontWidth(.condensed)
+                .frame(maxWidth: .infinity, alignment: .center)
+            
+            Spacer()
+            
+            VStack{
+                // Email label and field
+                VStack(alignment: .center, spacing: 8) {
+                    Text("Email")
+                        .font(.system(size: 16).weight(.medium))
+                        .fontWidth(.condensed)
+                    TextField(
+                        "",
+                        text: $forgotVM.email,
+                        prompt: Text("Enter your email here...")
+                            .foregroundStyle(Color.containerText)
+                    )
+                    .font(.system(size: 12))
+                    .keyboardType(.emailAddress)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.container)
+                            .stroke(Color.containerBorder, lineWidth: 1)
+                    )
+                }
+                .padding(.bottom, 10)
+                
+                // Error message
+                if let signUpError = forgotVM.errorMessage {
+                    Text(signUpError)
+                        .font(.system(size: 14))
+                        .tracking(-0.4)
+                        .foregroundColor(.redTheme)
+                        .padding(.top, -4)
+                        .padding(.bottom, 4)
+                       
+                        .multilineTextAlignment(.center)
+                }
+                
+                // Alert message
+                if let alert = forgotVM.alertMessage {
+                    Text(alert)
+                        .font(.system(size: 13))
+                        .foregroundStyle(.green)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .multilineTextAlignment(.center)
+                }
+                
+                // Send reset link button
+                Button(action: {
+                    forgotVM.forgotPassword()
+                }) {
+                    Text("Send Reset Link")
+                        .font(.system(size: 12).weight(.bold))
+                        .fontWidth(.condensed)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.redTheme)
+                        .foregroundColor(.white)
+                        .cornerRadius(100)
+                }
+            }
+            .padding(.bottom, 60)
+            .sensoryFeedback(.impact(weight: .medium, intensity: 1), trigger: forgotVM.isLoading)
+            
+            Spacer()
+                            
+            // Footer button to switch to log in
+            Button(action: { authVM.currentStep = 3 }) {
+                HStack(spacing: 4) {
+                    Text("Remember your details?")
+                        .foregroundStyle(Color.containerText)
+                    Text("LOG IN")
+                        .foregroundStyle(Color.redTheme)
+                        .fontWeight(.semibold)
+                        .fontWidth(.condensed)
+                }
+                .font(.footnote)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.bottom, 20)
+            
+        }
     }
 
     // Add vehicle content
@@ -821,3 +933,4 @@ struct ProgressBar: View {
         .padding(.horizontal, 24)
     }
 }
+
