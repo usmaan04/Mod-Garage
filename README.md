@@ -197,14 +197,14 @@ All user data is securely stored using Firebase services.
       - Use your app bundle identifier, for example: com.usmaan.modgarage
       - Enable Services
       - Turn on:
-      - Firebase Authentication
-      - Google Sign-In
-      - Cloud Firestore
+          Firebase Authentication
+          Google Sign-In
+          Cloud Firestore
       - Firebase Storage (if using image uploads)
       - Download Config File
       - Download:
-      - GoogleService-Info.plist
-      - Drag this file into your Xcode project root.
+          GoogleService-Info.plist
+          Drag this file into your Xcode project root.
       - Ensure: Copy items if needed is checked.
         
 3. Configure Authentication
