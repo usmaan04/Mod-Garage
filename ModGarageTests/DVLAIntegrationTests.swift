@@ -221,6 +221,7 @@ final class ValidIntegrationTests: XCTestCase {
     
         let db = Firestore.firestore()
 
+        // 1. Arrange
         addModVM.vehicleId = "C22C0029-AE0D-4985-9594-408543CD7A26"
         addModVM.modType = "Exhaust"
         addModVM.modName = "Catback"
@@ -248,6 +249,7 @@ final class ValidIntegrationTests: XCTestCase {
             }
         }
 
+        // 2. Act
         await addModVM.confirmModification()
 
         await fulfillment(of: [savedExpectation], timeout: 20.0)
@@ -260,6 +262,7 @@ final class ValidIntegrationTests: XCTestCase {
             .collection("modifications")
             .getDocuments()
 
+        // 3. Assert
         XCTAssertTrue(
             snapshot.documents.contains(where: { doc in
                 let data = doc.data()
@@ -283,6 +286,7 @@ final class ValidIntegrationTests: XCTestCase {
         
         let db = Firestore.firestore()
 
+        // 1. Arrange
         addFuelVM.previousMileage = 10000
         addFuelVM.location = "Shell"
         addFuelVM.litres = 40
@@ -311,6 +315,7 @@ final class ValidIntegrationTests: XCTestCase {
             }
         }
 
+        // 2. Act
         await addFuelVM.confirmFuelLog()
 
         await fulfillment(of: [savedExpectation], timeout: 20.0)
@@ -323,6 +328,7 @@ final class ValidIntegrationTests: XCTestCase {
             .collection("fuelLogs")
             .getDocuments()
 
+        // 3. Assert
         XCTAssertTrue(
             snapshot.documents.contains(where: { doc in
                 let data = doc.data()

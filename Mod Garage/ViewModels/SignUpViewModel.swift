@@ -136,7 +136,7 @@ class SignUpViewModel: ObservableObject {
 
     // MARK: - Sign Up with Google
     
-    // Implemets Google Identity SDK flow
+    // Implements Google Identity SDK flow
     //Uses Google OAuth flow
     func signUpWithGoogle() async {
         guard let clientID = FirebaseApp.app()?.options.clientID else {

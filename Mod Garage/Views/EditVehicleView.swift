@@ -16,6 +16,7 @@ struct EditVehicleView: View {
     @Binding var isPresented: Bool
     @StateObject var viewModel: EditVehicleViewModel
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
+    @EnvironmentObject var toastManager: ToastManager
 
     // Initialiser to set the passed vehicle
     init(vehicle: VehicleModel, isPresented: Binding<Bool>) {
@@ -130,8 +131,12 @@ struct EditVehicleView: View {
         .onAppear {
             viewModel.onSaveSuccess = {
                 isPresented = false
+                toastManager.show("Vehicle edited successfully", style: .success)
                 Task { await vehicleViewModel.loadVehicles() }
             }
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
     }
 

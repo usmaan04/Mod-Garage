@@ -13,7 +13,6 @@ struct AddVehicleView: View {
     @Binding var isPresented: Bool
     @StateObject private var viewModel = AddVehicleViewModel()
     @EnvironmentObject var vehicleViewModel: VehicleViewModel
-    
     @EnvironmentObject var toastManager: ToastManager
 
     var body: some View {
