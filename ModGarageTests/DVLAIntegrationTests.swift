@@ -60,7 +60,7 @@ final class ValidIntegrationTests: XCTestCase {
             .store(in: &cancellables)
 
         // 2. Act
-        signUpVM.register()
+        await signUpVM.register()
 
         // Wait for the expectation
         await fulfillment(of: [expectation], timeout: 10.0)
