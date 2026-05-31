@@ -176,7 +176,7 @@ class VehicleViewModel: ObservableObject {
         }
     }
     
-    // Loops through a collection s and deletes every document inside
+    // Loops through a collection and deletes every document inside
     private func deleteCollection(_ collection: CollectionReference) async throws {
         let snapshot = try await collection.getDocuments()
         for document in snapshot.documents {

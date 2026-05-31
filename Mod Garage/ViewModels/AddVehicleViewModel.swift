@@ -145,7 +145,7 @@ class AddVehicleViewModel: ObservableObject {
                 )
             }
             
-            // Build model using URL strings (or nil)
+            // Build model using URL strings 
             let newVehicle = VehicleModel(
                 id: vehicleId,
                 userId: uid,

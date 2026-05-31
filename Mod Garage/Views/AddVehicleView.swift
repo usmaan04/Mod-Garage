@@ -302,6 +302,9 @@ struct AddVehicleView: View {
                 }
             }
         }
+        .onTapGesture {
+            hideKeyboard()
+        }
         .padding()
     }
 }

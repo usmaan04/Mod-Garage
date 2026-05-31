@@ -37,6 +37,7 @@ final class VehicleDetailViewModel: ObservableObject {
     // UI state for showing sheets and managing tab selection
     @Published var isShowingAddModification = false
     @Published var isShowingAddFuelLog = false
+    @Published var isShowingShareSheet = false
     @Published var listOption: ListOption = .mods
     @Published var modifications: [ModificationModel] = []
     @Published var fuelLogs: [FuelLogModel] = []
@@ -221,9 +222,11 @@ final class VehicleDetailViewModel: ObservableObject {
     }
     
     // Gets the current vehicle and calls PDFGenerator service file
+    @MainActor
     func generateVehicleReportPDF(vehicle: VehicleModel) async {
         isGeneratingReport = true
         reportURL = nil
+        errorMessage = nil
 
         defer { isGeneratingReport = false }
 

@@ -9,6 +9,7 @@ import Combine
 import Foundation
 import FirebaseAuth
 import FirebaseFirestore
+import SwiftUI
 
 // Represents the different quick actions
 enum QuickAddAction: Identifiable {
@@ -34,6 +35,7 @@ class HomeViewModel: ObservableObject {
     @Published var modifications: [ModificationModel] = []
     @Published var fuelLogs: [FuelLogModel] = []
     @Published var selectedQuickAction: QuickAddAction? = nil
+    var reminders: [ReminderItem] = []
     
     // UI state flags for controlling sheets and overlays
     @Published var isShowingQuickAddMenu = false
@@ -43,6 +45,8 @@ class HomeViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var showNotifications = false
     @Published var errorMessage: String? = nil
+    
+    private let vehicleViewModel: VehicleViewModel
     
     // Gets the highest fuel log odometer/mileage value
     var latestFuelLogMileage: Int? {
@@ -54,7 +58,9 @@ class HomeViewModel: ObservableObject {
     // Flag to prevent useless network calls every time the view reappears
     var didRefreshOnThisLaunch = false
 
-    init() {
+    init(vehicleViewModel: VehicleViewModel) {
+        self.vehicleViewModel = vehicleViewModel
+        
         fetchUserName()
         Task { [weak self] in
             await self?.refreshOncePerLaunch()
@@ -359,6 +365,56 @@ class HomeViewModel: ObservableObject {
         }
         
         isLoading = false
+    }
+    
+    // Main structure for a reminder to show
+    struct ReminderItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let subtitle: String
+        let daysRemaining: Int
+        let icon: String
+    }
+
+    // Gets all the vehicles with MOT and Tax expiries less than 41 days
+    var upcomingReminders: [ReminderItem] {
+        vehicleViewModel.vehicles
+            .flatMap { vehicle -> [ReminderItem] in
+                var items: [ReminderItem] = []
+
+                if let motDate = vehicle.motExpiryDate {
+                    let days = daysBetweenToday(date: motDate)
+
+                    if days >= 0 && days <= 60 {
+                        items.append(
+                            ReminderItem(
+                                title: "MOT Due",
+                                subtitle: "\(vehicle.make) \(vehicle.model) • \(vehicle.registration)",
+                                daysRemaining: days,
+                                icon: "doc.text.fill"
+                            )
+                        )
+                    }
+                }
+
+                if let taxDate = vehicle.taxExpiryDate {
+                    let days = daysBetweenToday(date: taxDate)
+
+                    if days >= 0 && days <= 40 {
+                        items.append(
+                            ReminderItem(
+                                title: "Tax Due",
+                                subtitle: "\(vehicle.make) \(vehicle.model) • \(vehicle.registration)",
+                                daysRemaining: days,
+                                icon: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90"
+                            )
+                        )
+                    }
+                }
+
+                return items
+            }
+            .sorted { $0.daysRemaining < $1.daysRemaining }
     }
 }
 

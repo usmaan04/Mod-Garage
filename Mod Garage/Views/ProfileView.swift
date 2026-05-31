@@ -7,6 +7,7 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var settingsViewModel: SettingsViewModel
+    @EnvironmentObject var toastManager: ToastManager
 
     var body: some View {
         VStack(spacing: 0) {
@@ -125,6 +126,7 @@ struct ProfileView: View {
                             homeViewModel.fetchUserName()
                             settingsViewModel.fetchUserDetails()
                         }
+                        toastManager.show("Profile updated successfully", style: .success)
                     } label: {
                         Text("Save Changes")
                     }
@@ -144,16 +146,7 @@ struct ProfileView: View {
             }
             .padding(.horizontal, 17)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .alert(viewModel.successMessage ?? "", isPresented: .constant(viewModel.successMessage != nil)) {
-                Button("OK") { viewModel.successMessage = nil }
-            } message: {
-                Text(viewModel.successMessage ?? "")
-            }
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-                Button("OK") { viewModel.errorMessage = nil }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
-            }
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .background(Color.background)

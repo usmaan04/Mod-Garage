@@ -103,7 +103,7 @@ struct CustomTabBar: View {
 // Preview
 #Preview {
     struct PreviewWrapper: View {
-        @StateObject private var viewModel = HomeViewModel()
+        @StateObject private var viewModel = HomeViewModel(vehicleViewModel: VehicleViewModel())
         var body: some View {
             CustomTabBar(viewModel: viewModel)
         }

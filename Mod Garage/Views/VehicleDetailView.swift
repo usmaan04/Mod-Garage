@@ -89,6 +89,7 @@ struct VehicleDetailView: View {
                         switch phase {
                         case .empty:
                             Rectangle()
+                                .fill(Color.containerBorder)
                                 .scaledToFit()
                                 .frame(maxWidth: .infinity)
                                 .ignoresSafeArea(.container, edges: .top)
@@ -387,36 +388,20 @@ struct VehicleDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Group {
-                    if viewModel.isGeneratingReport {
-                        ProgressView()
-                            .tint(.white)
-                    } else if let url = viewModel.reportURL {
-                        ShareLink(
-                            item: url,
-                            subject: Text("\(vehicle.make) \(vehicle.model) Report"),
-                            message: Text("Check out my vehicle report."),
-                            preview: SharePreview(
-                                "\(vehicle.make) \(vehicle.model)",
-                                image: Image(systemName: "doc.richtext")
-                            )
-                        ) {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    } else {
-                        Button {
-                            Task {
-                                await viewModel.generateVehicleReportPDF(vehicle: vehicle)
-                            }
-                        } label: {
-                            Image(systemName: "square.and.arrow.up")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white)
+                Button {
+                    Task {
+                        await viewModel.generateVehicleReportPDF(vehicle: vehicle)
+
+                        if viewModel.reportURL != nil {
+                            viewModel.isShowingShareSheet = true
                         }
                     }
+                } label: {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.white)
                 }
+                .disabled(viewModel.isGeneratingReport)
             }
         }
         .sheet(isPresented: $viewModel.isShowingAddModification) {
@@ -436,6 +421,16 @@ struct VehicleDetailView: View {
             }
             .presentationDragIndicator(.visible)
         }
+        .sheet(isPresented: $viewModel.isShowingShareSheet) {
+            if let url = viewModel.reportURL {
+                ShareSheet(
+                    items: [url]
+                )
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
+            }
+        }
+        
         .onAppear {
             Task { await viewModel.loadModifications(vehicle.id)
                 await viewModel.loadFuelLogs(vehicle.id)
@@ -562,6 +557,23 @@ struct ModificationCard: View {
                 .fill(Color.container)
         )
     }
+}
+
+// Sheet to show share link for PDF
+struct ShareSheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(
+            activityItems: items,
+            applicationActivities: nil
+        )
+    }
+
+    func updateUIViewController(
+        _ uiViewController: UIActivityViewController,
+        context: Context
+    ) {}
 }
 
 // Preview

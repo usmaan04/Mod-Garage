@@ -16,6 +16,7 @@ struct SettingsView: View {
     @EnvironmentObject private var homeViewModel: HomeViewModel
     @EnvironmentObject private var vehicleViewModel: VehicleViewModel
     @EnvironmentObject private var viewModel: SettingsViewModel
+    @EnvironmentObject var toastManager: ToastManager
     
     // Properties and states
     @State private var isDarkToggleOn: Bool = false
@@ -118,8 +119,7 @@ struct SettingsView: View {
                                     if viewModel.isEmailPasswordUser {
                                             viewModel.showProfile = true
                                     } else {
-                                        viewModel.alertMessage = "Your profile details are managed by Google. You cannot edit your name or email here."
-                                        viewModel.showAlert = true
+                                        toastManager.show("Your profile details are managed by Google and cannot be edited here", style: .info)
                                     }
                                 }
                             }
@@ -411,10 +411,11 @@ struct SettingComponent: View {
 // Preview
 #Preview {
     NavigationStack {
+        let vehicleVM = VehicleViewModel()
         SettingsView()
             .environmentObject(AppViewModel())
-            .environmentObject(HomeViewModel())
-            .environmentObject(VehicleViewModel())
+            .environmentObject(HomeViewModel(vehicleViewModel: vehicleVM))
+            .environmentObject(vehicleVM)
             .environmentObject(SettingsViewModel())
     }
 }

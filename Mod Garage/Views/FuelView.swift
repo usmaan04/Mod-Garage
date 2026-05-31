@@ -678,7 +678,12 @@ struct FuelLogCard: View {
 }
 
 #Preview {
-    FuelView()
-        .environmentObject(HomeViewModel())
+    let vehicleVM = VehicleViewModel()
+    let homeVM = HomeViewModel(vehicleViewModel: vehicleVM)
+    let fuelVM = FuelViewModel()
+
+    return FuelView()
+        .environmentObject(homeVM)
+        .environmentObject(fuelVM)
 }
 

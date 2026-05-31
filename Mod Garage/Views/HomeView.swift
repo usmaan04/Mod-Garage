@@ -10,11 +10,17 @@ import FirebaseAuth
 struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @EnvironmentObject var toastManager: ToastManager
-    @StateObject private var viewModel = HomeViewModel()
+    @StateObject private var viewModel : HomeViewModel
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var vehicleViewModel = VehicleViewModel()
     @StateObject private var detailViewModel = VehicleDetailViewModel()
     @StateObject private var fuelViewModel = FuelViewModel()
+    
+    init() {
+        let vehicleVM = VehicleViewModel()
+        _vehicleViewModel = StateObject(wrappedValue: vehicleVM)
+        _viewModel = StateObject(wrappedValue: HomeViewModel(vehicleViewModel: vehicleVM))
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -187,7 +193,7 @@ struct HomeView: View {
                 }
             }
         }
-        // Universal sheet shows content based on the type of quick action that is passed
+        //  Sheet shows content based on the type of quick action that is passed
         .sheet(item: $viewModel.selectedQuickAction, onDismiss: {
             Task {
                 await viewModel.loadVehicleData()
@@ -235,56 +241,6 @@ struct HomeView: View {
         .ignoresSafeArea( edges: .bottom)
     }
     
-    // Main structure for a reminder to show
-    private struct ReminderItem: Identifiable {
-        let id = UUID()
-        let title: String
-        let subtitle: String
-        let daysRemaining: Int
-        let icon: String
-    }
-
-    // Gets all the vehicles with MOT and Tax expiries less than 41 days
-    private var upcomingReminders: [ReminderItem] {
-        vehicleViewModel.vehicles
-            .flatMap { vehicle -> [ReminderItem] in
-                var reminders: [ReminderItem] = []
-
-                if let motDate = vehicle.motExpiryDate {
-                    let days = viewModel.daysBetweenToday(date: motDate)
-
-                    if days >= 0 && days <= 60 {
-                        reminders.append(
-                            ReminderItem(
-                                title: "MOT Due",
-                                subtitle: "\(vehicle.make) \(vehicle.model) • \(vehicle.registration)",
-                                daysRemaining: days,
-                                icon: "doc.text.fill"
-                            )
-                        )
-                    }
-                }
-
-                if let taxDate = vehicle.taxExpiryDate {
-                    let days = viewModel.daysBetweenToday(date: taxDate)
-
-                    if days >= 0 && days <= 40 {
-                        reminders.append(
-                            ReminderItem(
-                                title: "Tax Due",
-                                subtitle: "\(vehicle.make) \(vehicle.model) • \(vehicle.registration)",
-                                daysRemaining: days,
-                                icon: "sterlingsign.arrow.trianglehead.counterclockwise.rotate.90"
-                            )
-                        )
-                    }
-                }
-
-                return reminders
-            }
-            .sorted { $0.daysRemaining < $1.daysRemaining }
-    }
-    
     // Display of all the close reminders
     private var reminderOverlay: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -306,7 +262,7 @@ struct HomeView: View {
                 }
             }
 
-            if upcomingReminders.isEmpty {
+            if viewModel.upcomingReminders.isEmpty {
                 Text("No MOT or Tax reminders due soon")
                     .font(.system(size: 13))
                     .fontWidth(.condensed)
@@ -316,7 +272,7 @@ struct HomeView: View {
             } else {
                 
                 // Display details of the closest 4 vehicle's close to legal expiry
-                ForEach(upcomingReminders.prefix(4)) { reminder in
+                ForEach(viewModel.upcomingReminders.prefix(4)) { reminder in
                     HStack(spacing: 10) {
                         ZStack {
                             Circle()
@@ -461,14 +417,22 @@ struct DashboardView: View {
                         
                         // Notifications button
                         Button {
+                            Task { await vehicleViewModel.loadVehicles() }
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
-                                    viewModel.isShowingUpcoming.toggle()
-                                }
+                                viewModel.isShowingUpcoming.toggle()
+                            }
                         } label: {
                             ZStack {
                                 Image(systemName: "bell")
                                     .font(.system(size: 24))
                                     .foregroundStyle(Color.containerText)
+                                
+                                if viewModel.reminders.isEmpty{
+                                    Circle()
+                                        .foregroundStyle(Color.redTheme)
+                                        .frame(width: 6)
+                                        .offset(x:5, y: -8)
+                                }
                             }
                             .padding(10)
                             .background(
@@ -893,7 +857,7 @@ struct DashboardView: View {
                                         }
                                     }
                                     
-                                // Othewise show an empty sate box
+                                // Othewise show an empty state box
                                 } else {
                                     VStack(spacing: 8){
                                         ZStack{
@@ -1180,19 +1144,19 @@ struct ModCard: View {
                         case .empty:
                             RoundedRectangle(cornerRadius: 6)
                                 .fill(Color.containerBorder)
-                                .frame(width: 150, height: 150)
+                                .frame(width: 130, height: 130)
                                 .redacted(reason: .placeholder)
                                 .shimmer(speed: 1.6)
                         case .success(let image):
                             image
                                 .resizable()
                                 .scaledToFill()
-                                .frame(width: 150, height: 150)
+                                .frame(width: 130, height: 130)
                         case .failure(_):
                             ZStack{
                                 RoundedRectangle(cornerRadius: 6)
                                     .fill(Color.innerContainer)
-                                    .frame(width: 150, height: 150)
+                                    .frame(width: 130, height: 130)
                                 
                                 Image(systemName: "wrench.and.screwdriver.fill")
                                     .font(.system(size: 20))
@@ -1202,7 +1166,7 @@ struct ModCard: View {
                             ZStack{
                                 RoundedRectangle(cornerRadius: 6)
                                     .fill(Color.innerContainer)
-                                    .frame(width: 150, height: 150)
+                                    .frame(width: 130, height: 130)
                                 
                                 Image(systemName: "wrench.and.screwdriver.fill")
                                     .font(.system(size: 20))
@@ -1215,7 +1179,7 @@ struct ModCard: View {
                     ZStack{
                         RoundedRectangle(cornerRadius: 6)
                             .fill(Color.innerContainer)
-                            .frame(width: 150, height: 150)
+                            .frame(width: 130, height: 130)
                             .redacted(reason: .placeholder)
                         
                         Image(systemName: "wrench.and.screwdriver.fill")
@@ -1226,20 +1190,20 @@ struct ModCard: View {
             }
             
             // Mod name and description
-            VStack(alignment: .center, spacing: 4) {
+            VStack(alignment: .center, spacing: 5) {
                 Text(modification.name)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.system(size: 16, weight: .semibold))
                     .fontWidth(.condensed)
                     .multilineTextAlignment(.center)
-                    .frame(width: 140, alignment: .center)
+                    .frame(width: 120, alignment: .center)
 
                 Text(modification.description ?? "")
-                    .font(.system(size: 14))
+                    .font(.system(size: 12))
                     .fontWidth(.condensed)
                     .foregroundStyle(Color.containerText)
                     .multilineTextAlignment(.center)
                     .lineLimit(3)
-                    .frame(width: 150, alignment: .center)
+                    .frame(width: 130, alignment: .center)
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
@@ -1289,5 +1253,6 @@ private struct GradientShimmer: ViewModifier {
 #Preview {
     HomeView()
         .environmentObject(AppViewModel())
+        .environmentObject(ToastManager())
 }
 
