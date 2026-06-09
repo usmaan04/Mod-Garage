@@ -391,7 +391,7 @@ struct VehicleView: View {
                                     
                                 }
                                 .padding(.horizontal, 17)
-                                .frame(maxWidth: .infinity,maxHeight: proxy.size.height - 42)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 
                             // MARK: - If there are vehicles
                             } else {
@@ -499,7 +499,7 @@ struct VehicleView: View {
                                         .scrollIndicators(.hidden)
                                     }
                                 }
-                                .frame(maxHeight: proxy.size.height - 42)
+                                .frame(maxHeight: .infinity)
                             }
                         }
                     }

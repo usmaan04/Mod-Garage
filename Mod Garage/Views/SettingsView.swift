@@ -304,7 +304,7 @@ struct SettingsView: View {
                         .padding(.horizontal, 17)
                         .padding(.vertical, 16)
                     }
-                    .frame(maxHeight: proxy.size.height - 48)
+                    .frame(maxHeight: .infinity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity ,alignment: .top)

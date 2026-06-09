@@ -922,7 +922,7 @@ struct ProgressBar: View {
                     .fill(Color.gray.opacity(0.2))
                     .frame(height: 6)
                 
-                // Active  red bar
+                // Active bar
                 Capsule()
                     .fill(Color.redTheme)
                     .frame(width: geo.size.width * CGFloat(progress), height: 6)

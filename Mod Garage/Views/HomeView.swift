@@ -24,31 +24,58 @@ struct HomeView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            
-            // Main content area based on the selected tab
-            Group {
-                switch viewModel.selectedTab {
-                case .home:
+            if #available(iOS 26.0, *) {
+                TabView(selection: $viewModel.selectedTab) {
                     DashboardView(detailViewModel: detailViewModel, toastManager: toastManager)
                         .environmentObject(vehicleViewModel)
-                case .vehicle:
+                        .tabItem { Label("Home", systemImage: Tab.home.rawValue) }
+                        .tag(Tab.home)
+
                     VehicleView()
                         .environmentObject(vehicleViewModel)
-                case .add:
-                    DashboardView(detailViewModel: detailViewModel, toastManager: toastManager)
-                        .environmentObject(vehicleViewModel)
-                case .fuel:
+                        .tabItem { Label("Vehicle", systemImage: Tab.vehicle.rawValue) }
+                        .tag(Tab.vehicle)
+
                     FuelView()
-                case .settings:
+                        .tabItem { Label("Fuel", systemImage: Tab.fuel.rawValue) }
+                        .tag(Tab.fuel)
+
                     SettingsView()
                         .environmentObject(vehicleViewModel)
+                        .tabItem { Label("Settings", systemImage: Tab.settings.rawValue) }
+                        .tag(Tab.settings)
                 }
+                .tint(Color.redTheme)
+                .environmentObject(viewModel)
+                .environmentObject(settingsViewModel)
+                .preferredColorScheme(settingsViewModel.overrideColorScheme)
+            } else {
+                Group {
+                    switch viewModel.selectedTab {
+                    case .home:
+                        DashboardView(detailViewModel: detailViewModel, toastManager: toastManager)
+                            .environmentObject(vehicleViewModel)
+                    case .vehicle:
+                        VehicleView()
+                            .environmentObject(vehicleViewModel)
+                    case .add:
+                        DashboardView(detailViewModel: detailViewModel, toastManager: toastManager)
+                            .environmentObject(vehicleViewModel)
+                    case .fuel:
+                        FuelView()
+                    case .settings:
+                        SettingsView()
+                            .environmentObject(vehicleViewModel)
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.background)
+                .environmentObject(viewModel)
+                .environmentObject(settingsViewModel)
+                .preferredColorScheme(settingsViewModel.overrideColorScheme)
+
+                CustomTabBar(viewModel: viewModel)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.background)
-            .environmentObject(viewModel)
-            .environmentObject(settingsViewModel)
-            .preferredColorScheme(settingsViewModel.overrideColorScheme)
             
             // Shows the quick add overlay
             if viewModel.isShowingQuickAddMenu {
@@ -126,9 +153,6 @@ struct HomeView: View {
                 }
                 .transition(.opacity)
             }
-
-            // The global navigation bar
-            CustomTabBar(viewModel: viewModel)
             
             // Shows the add vehicle overlay
             if vehicleViewModel.isShowingAddVehicle{
@@ -596,10 +620,21 @@ struct DashboardView: View {
                                                     .font(.system(size: 8).weight(.semibold))
                                                     .tracking(-0.4)
                                                     .foregroundStyle(Color.white)
-                                                Text("\(vehicle.registration)")
-                                                    .font(.system(size: 14).weight(.bold))
-                                                    .foregroundStyle(Color.white)
-                                                    .multilineTextAlignment(.leading)
+                                                HStack{
+                                                    Text("\(vehicle.registration)")
+                                                        .font(.system(size: 14).weight(.bold))
+                                                        .foregroundStyle(Color.white)
+                                                        .multilineTextAlignment(.leading)
+
+                                                    Button{
+                                                        let pasteboard = UIPasteboard.general
+                                                        pasteboard.string = vehicle.registration
+                                                    }label:{
+                                                        Image(systemName: "document.on.document")
+                                                            .font(.system(size: 10))
+                                                            .foregroundStyle(Color.white)
+                                                    }
+                                                }
                                             }
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 12)
@@ -685,37 +720,28 @@ struct DashboardView: View {
                                             Text("MOT")
                                                 .font(.system(size: 14).weight(.bold))
                                 
-                                            let date = viewModel.daysBetweenToday(date: vehicle.motExpiryDate)
-                                            if date < 0{
-                                                Text(" \(date * -1) Days Overdue")
-                                                    .font(.system(size: 15).weight(.heavy))
-                                                    .foregroundStyle(Color.redTheme)
-                                                    .padding(-4)
-                                            }
-                                            else if date < 40{
-                                                Text(" \(date) Days ")
-                                                    .font(.system(size: 16).weight(.heavy))
-                                                    .foregroundStyle(Color.orange)
-                                                    .padding(-4)
-                                            }
-                                            else{
-                                                Text(" \(date) Days ")
-                                                    .font(.system(size: 16).weight(.heavy))
-                                                    .foregroundStyle(Color.green)
-                                                    .padding(-4)
-                                            }
-                                                
-                                            if vehicle.motStatus == "Valid" {
-                                                Text("Expires \(viewModel.dateFormatter(vehicle.motExpiryDate))")
-                                                    .font(.system(size: 11))
-                                                    .foregroundStyle(Color.containerText)
-                                                    .tracking(-0.4)
-                                            } else {
-                                                Text("Expired \(viewModel.dateFormatter(vehicle.motExpiryDate))")
-                                                    .font(.system(size: 11))
-                                                    .foregroundStyle(Color.containerText)
-                                                    .tracking(-0.4)
-                                            }
+                                            let days = viewModel.daysBetweenToday(date: vehicle.motExpiryDate)
+                                            let statusText: String = {
+                                                if days < 0 { return "\(-days) Days Overdue" }
+                                                else { return "\(days) Days" }
+                                            }()
+                                            let statusColor: Color = days < 0 ? .redTheme : (days < 40 ? .orange : .green)
+
+                                            Text(statusText)
+                                                .font(.system(size: 16).weight(.heavy))
+                                                .foregroundStyle(statusColor)
+                                                .padding(.vertical, -4)
+                                            
+                                            // MOT Days Remaining progress (out of 365)
+                                            let motDaysRemaining = max(0, min(365, viewModel.daysBetweenToday(date: vehicle.motExpiryDate)))
+                                            let motProgress = Double(motDaysRemaining) / 365.0
+                                            DaysRemainingBar(progress: motProgress, color: statusColor)
+
+                                            Text("\(vehicle.motStatus == "Valid" ? "Expires" : "Expired") \(viewModel.dateFormatter(vehicle.motExpiryDate))")
+                                                .font(.system(size: 11))
+                                                .foregroundStyle(Color.containerText)
+                                                .tracking(-0.4)
+                                            
                                         }
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -778,37 +804,27 @@ struct DashboardView: View {
                                                 
                                             }
                                             else{
-                                                let date = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
-                                                if date < 0{
-                                                    Text(" \(date * -1) Days Overdue")
-                                                        .font(.system(size: 15).weight(.heavy))
-                                                        .foregroundStyle(Color.redTheme)
-                                                        .padding(-4)
-                                                }
-                                                else if date < 40{
-                                                    Text(" \(date) Days ")
-                                                        .font(.system(size: 16).weight(.heavy))
-                                                        .foregroundStyle(Color.orange)
-                                                        .padding(-4)
-                                                }
-                                                else{
-                                                    Text(" \(date) Days ")
-                                                        .font(.system(size: 16).weight(.heavy))
-                                                        .foregroundStyle(Color.green)
-                                                        .padding(-4)
-                                                }
+                                                let days = viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)
+                                                let statusText: String = {
+                                                    if days < 0 { return "\(-days) Days Overdue" }
+                                                    else { return "\(days) Days" }
+                                                }()
+                                                let statusColor: Color = days < 0 ? .redTheme : (days < 40 ? .orange : .green)
 
-                                                if vehicle.taxStatus == "Taxed" {
-                                                    Text("Expires \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
-                                                        .font(.system(size: 11))
-                                                        .foregroundStyle(Color.containerText)
-                                                        .tracking(-0.4)
-                                                } else {
-                                                    Text("Expired \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
-                                                        .font(.system(size: 11))
-                                                        .foregroundStyle(Color.containerText)
-                                                        .tracking(-0.4)
-                                                }
+                                                Text(statusText)
+                                                    .font(.system(size: 16).weight(.heavy))
+                                                    .foregroundStyle(statusColor)
+                                                    .padding(.vertical, -4)
+                                                
+                                                // Tax Days Remaining progress (out of 365)
+                                                let taxDaysRemaining = max(0, min(365, viewModel.daysBetweenToday(date: vehicle.taxExpiryDate)))
+                                                let taxProgress = Double(taxDaysRemaining) / 365.0
+                                                DaysRemainingBar(progress: taxProgress, color: statusColor)
+
+                                                Text("\(vehicle.taxStatus == "Valid" ? "Expires" : "Expired") \(viewModel.dateFormatter(vehicle.taxExpiryDate))")
+                                                    .font(.system(size: 11))
+                                                    .foregroundStyle(Color.containerText)
+                                                    .tracking(-0.4)
                                             }
                                             
                                             
@@ -995,7 +1011,7 @@ struct DashboardView: View {
                         .scrollIndicators(.hidden)
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: proxy.size.height - 84 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             // Multiple sheets to show the add modifcations/logs
             .sheet(isPresented:$viewModel.isShowingAllMods){
@@ -1130,6 +1146,30 @@ private func quickActionRow(title: String, systemImage: String) -> some View {
     .frame(maxWidth: 160, maxHeight: 50)
 }
 
+// Progress bar component
+struct DaysRemainingBar: View {
+    var progress: Double
+    var color: Color
+
+    var body: some View {
+        GeometryReader { geo in
+            ZStack(alignment: .leading) {
+                // Grey bar
+                Capsule()
+                    .fill(Color.gray.opacity(0.2))
+                    .frame(height: 4)
+                
+                // Active bar
+                Capsule()
+                    .fill(color)
+                    .frame(width: geo.size.width * CGFloat(progress), height: 4)
+                   
+            }
+        }
+        .frame(height: 4)
+    }
+}
+
 // Resuable card for displaying modification information
 struct ModCard: View {
     let modification: ModificationModel
@@ -1207,7 +1247,6 @@ struct ModCard: View {
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
-        
     }
 }
 

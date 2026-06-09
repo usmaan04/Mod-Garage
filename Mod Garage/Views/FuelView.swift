@@ -418,7 +418,7 @@ struct FuelView: View {
                         .padding(.horizontal, 17)
                         .padding(.vertical, 16)
                     }
-                    .frame(maxHeight: proxy.size.height - 84)
+                    .frame(maxHeight: .infinity)
                     .gesture(
                         DragGesture(minimumDistance: 20)
                             .onEnded { value in
